@@ -1,0 +1,14 @@
+# Blokovat interní soubory
+<FilesMatch "^(config|db|helpers|session|middleware|proxy|ratelimit)\.php$">
+    Require all denied
+</FilesMatch>
+
+# Blokovat migrations
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^migrations/ - [F,L]
+</IfModule>
+
+# Security headers pro API
+Header always set X-Content-Type-Options "nosniff"
+Header always set X-Frame-Options "DENY"

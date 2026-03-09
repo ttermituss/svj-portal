@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SVJ Pivovarská 936 – Přehled kontaktů, agend a havarijních postupů</title>
+<style>
+  :root {
+    --primary: #2563eb;
+    --primary-light: #dbeafe;
+    --danger: #dc2626;
+    --danger-light: #fef2f2;
+    --success: #16a34a;
+    --success-light: #f0fdf4;
+    --warn: #d97706;
+    --warn-light: #fffbeb;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-500: #6b7280;
+    --gray-700: #374151;
+    --gray-900: #111827;
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--gray-50);
+    color: var(--gray-900);
+    line-height: 1.6;
+  }
+  .container { max-width: 900px; margin: 0 auto; padding: 1rem; }
+  header {
+    background: var(--primary);
+    color: white;
+    padding: 2rem 1rem;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  header h1 { font-size: 1.3rem; font-weight: 600; }
+  header p { opacity: 0.85; font-size: 0.9rem; margin-top: 0.25rem; }
+  .toolbar {
+    background: white;
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0.5rem 1rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    position: sticky;
+    top: 0;
+    z-index: 99;
+  }
+  .toolbar button {
+    padding: 0.4rem 1rem;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius);
+    background: white;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.15s;
+  }
+  .toolbar button:hover { background: var(--gray-100); }
+  .toolbar .btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
+  .toolbar .btn-primary:hover { background: #1d4ed8; }
+  .toolbar .btn-success { background: var(--success); color: white; border-color: var(--success); }
+  .toolbar .btn-danger { background: var(--danger); color: white; border-color: var(--danger); }
+
+  .progress-bar {
+    background: var(--gray-200);
+    height: 6px;
+    border-radius: 3px;
+    margin: 1rem 0;
+    overflow: hidden;
+  }
+  .progress-bar .fill {
+    background: var(--primary);
+    height: 100%;
+    transition: width 0.3s;
+    border-radius: 3px;
+  }
+  .progress-text { text-align: center; font-size: 0.85rem; color: var(--gray-500); }
+
+  section {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    margin: 1rem 0;
+    overflow: hidden;
+  }
+  .section-header {
+    background: var(--gray-100);
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+  }
+  .section-header:hover { background: var(--gray-200); }
+  .section-header h2 { font-size: 1rem; font-weight: 600; }
+  .section-header .badge {
+    font-size: 0.75rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    font-weight: 500;
+  }
+  .badge-empty { background: var(--danger-light); color: var(--danger); }
+  .badge-partial { background: var(--warn-light); color: var(--warn); }
+  .badge-complete { background: var(--success-light); color: var(--success); }
+  .section-body { padding: 1rem; }
+  .section-body.collapsed { display: none; }
+
+  .field-group { margin-bottom: 0.75rem; }
+  .field-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--gray-700);
+    margin-bottom: 0.25rem;
+  }
+  .field-group input,
+  .field-group textarea,
+  .field-group select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: border-color 0.15s;
+  }
+  .field-group input:focus,
+  .field-group textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-light);
+  }
+  .field-group textarea { resize: vertical; min-height: 60px; }
+  .field-group .hint { font-size: 0.8rem; color: var(--gray-500); margin-top: 0.15rem; }
+
+  .table-section { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  th {
+    background: var(--gray-100);
+    padding: 0.5rem;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid var(--gray-200);
+    white-space: nowrap;
+  }
+  td { padding: 0.35rem; border-bottom: 1px solid var(--gray-100); }
+  td input {
+    width: 100%;
+    padding: 0.35rem 0.5rem;
+    border: 1px solid var(--gray-200);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-family: inherit;
+  }
+  td input:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+  .add-row-btn {
+    margin-top: 0.5rem;
+    padding: 0.35rem 0.75rem;
+    border: 1px dashed var(--gray-300);
+    border-radius: var(--radius);
+    background: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--gray-500);
+  }
+  .add-row-btn:hover { background: var(--gray-50); color: var(--gray-700); }
+
+  .checklist label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--gray-100);
+    cursor: pointer;
+    font-weight: normal;
+  }
+  .checklist input[type=checkbox] {
+    margin-top: 0.2rem;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  .emergency-box {
+    background: var(--danger-light);
+    border-left: 4px solid var(--danger);
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
+  .emergency-box h3 { font-size: 0.9rem; color: var(--danger); margin-bottom: 0.25rem; }
+  .emergency-box ol { padding-left: 1.25rem; font-size: 0.85rem; }
+  .emergency-box li { margin-bottom: 0.15rem; }
+
+  .info-box {
+    background: var(--primary-light);
+    border-left: 4px solid var(--primary);
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-size: 0.85rem;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gray-900);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+
+  @media print {
+    header, .toolbar, .add-row-btn, .toast { display: none !important; }
+    section { break-inside: avoid; border: 1px solid #ccc; }
+    .section-body.collapsed { display: block !important; }
+    body { background: white; }
+  }
+  @media (max-width: 600px) {
+    .container { padding: 0.5rem; }
+    header { padding: 1rem; }
+    header h1 { font-size: 1.1rem; }
+    table { font-size: 0.75rem; }
+    td input { font-size: 0.75rem; padding: 0.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>SVJ Pivovarská 936, Rýmařov</h1>
+  <p>Přehled kontaktů, agend, servisů a havarijních postupů</p>
+</header>
+
+<div class="toolbar">
+  <button class="btn-primary" onclick="saveData()">Uložit</button>
+  <button onclick="exportJSON()">Export JSON</button>
+  <button onclick="importJSON()">Import JSON</button>
+  <button onclick="window.print()">Tisk / PDF</button>
+  <button class="btn-danger" onclick="clearAll()">Smazat vše</button>
+</div>
+
+<div class="container">
+  <div class="progress-bar"><div class="fill" id="progressFill" style="width:0%"></div></div>
+  <div class="progress-text" id="progressText">Vyplněno: 0 %</div>
+
+  <!-- 1. Základní údaje -->
+  <section>
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>1. Základní údaje o SVJ</h2>
+      <span class="badge badge-empty" data-section="basic">0 / 12</span>
+    </div>
+    <div class="section-body" data-fields="basic">
+      <div class="field-group">
+        <label>Název SVJ</label>
+        <input type="text" data-key="basic.nazev" placeholder="Společenství vlastníků jednotek...">
+      </div>
+      <div class="field-group">
+        <label>Adresa domu</label>
+        <input type="text" data-key="basic.adresa" placeholder="Ulice, č.p., město, PSČ">
+      </div>
+      <div class="field-group">
+        <label>IČO</label>
+        <input type="text" data-key="basic.ico" placeholder="12345678">
+      </div>
+      <div class="field-group">
+        <label>Číslo bankovního účtu</label>
+        <input type="text" data-key="basic.ucet" placeholder="123456789/0100">
+      </div>
+      <div class="field-group">
+        <label>Datová schránka</label>
+        <input type="text" data-key="basic.datovka" placeholder="ID datové schránky">
+      </div>
+      <div class="field-group">
+        <label>Správce / bytová správa</label>
+        <input type="text" data-key="basic.spravce" placeholder="Název firmy nebo osoba">
+      </div>
+      <div class="field-group">
+        <label>Kontaktní osoba správce</label>
+        <input type="text" data-key="basic.spravce_kontakt" placeholder="Jméno">
+      </div>
+      <div class="field-group">
+        <label>Telefon správce</label>
+        <input type="tel" data-key="basic.spravce_tel" placeholder="+420...">
+      </div>
+      <div class="field-group">
+        <label>E-mail správce</label>
+        <input type="email" data-key="basic.spravce_email" placeholder="email@firma.cz">
+      </div>
+      <div class="field-group">
+        <label>Web / klientská zóna</label>
+        <input type="url" data-key="basic.web" placeholder="https://...">
+      </div>
+      <div class="field-group">
+        <label>Stav fondu oprav</label>
+        <input type="text" data-key="basic.fond_oprav" placeholder="Aktuální zůstatek v Kč">
+        <div class="hint">Doplněno oproti původnímu dokumentu</div>
+      </div>
+      <div class="field-group">
+        <label>Předpis záloh</label>
+        <input type="text" data-key="basic.zalohy" placeholder="Kolik platí jednotky měsíčně">
+        <div class="hint">Doplněno oproti původnímu dokumentu</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Výbor -->
+  <section>
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>2. Složení výboru a klíčové role</h2>
+      <span class="badge badge-empty" data-section="vybor">0 / 8</span>
+    </div>
+    <div class="section-body" data-fields="vybor">
+      <div class="info-box">Podle nových stanov: výbor má 3 členy. Vyplňte aktuální obsazení po dnešní schůzi.</div>
+      <div class="field-group">
+        <label>Předseda / člen výboru</label>
+        <input type="text" data-key="vybor.predseda" placeholder="Jméno, byt/jednotka, telefon, e-mail">
+      </div>
+      <div class="field-group">
+        <label>Místopředseda / člen výboru</label>
+        <input type="text" data-key="vybor.mistopredseda" placeholder="Jméno, byt/jednotka, telefon, e-mail">
+      </div>
+      <div class="field-group">
+        <label>Další člen / náhradník</label>
+        <input type="text" data-key="vybor.dalsi_clen" placeholder="Jméno, byt/jednotka, telefon, e-mail">
+      </div>
+      <div class="field-group">
+        <label>Účetnictví / finance</label>
+        <input type="text" data-key="vybor.ucetnictvi" placeholder="Kdo řeší, kdo schvaluje platby, přístup k bance">
+      </div>
+      <div class="field-group">
+        <label>Technické záležitosti domu</label>
+        <input type="text" data-key="vybor.technika" placeholder="Kdo řeší havárie, servis, revize">
+      </div>
+      <div class="field-group">
+        <label>Komunikace s vlastníky</label>
+        <input type="text" data-key="vybor.komunikace" placeholder="E-mail, vývěska, WhatsApp / SMS">
+      </div>
+      <div class="field-group">
+        <label>Datová schránka / úřady</label>
+        <input type="text" data-key="vybor.datovka" placeholder="Kdo má přístup a kdo kontroluje zprávy">
+      </div>
+      <div class="field-group">
+        <label>Archiv dokumentů</label>
+        <input type="text" data-key="vybor.archiv" placeholder="Kde jsou dokumenty fyzicky a digitálně">
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Kontakty vlastníků -->
+  <section>
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>3. Kontakty na vlastníky a obyvatele</h2>
+      <span class="badge badge-empty" data-section="vlastnici">0 řádků</span>
+    </div>
+    <div class="section-body" data-fields="vlastnici">
+      <div class="info-box">Od každé jednotky: vlastník, telefon, e-mail, havarijní kontakt. U pronajímaných bytů i kontakt na nájemníka.</div>
+      <div class="table-section">
+        <table id="tblVlastnici">
+          <thead>
+            <tr>
+              <th>Byt</th>
+              <th>Vlastník</th>
+              <th>Telefon</th>
+              <th>E-mail</th>
+              <th>Osob</th>
+              <th>Nájemník</th>
+              <th>Havarijní kontakt</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <button class="add-row-btn" onclick="addRow('tblVlastnici', ['byt','vlastnik','tel','email','osob','najemnik','havarie'])">+ Přidat řádek</button>
+    </div>
+  </section>
+
+  <!-- 4. Havarijní kontakty -->
+  <section>
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>4. Havarijní a servisní kontakty</h2>
+      <span class="badge badge-empty" data-section="servis">0 / 20</span>
+    </div>
+    <div class="section-body" data-fields="servis">
+      <div class="table-section">
+        <table id="tblServis">
+          <thead>
+            <tr><th>Oblast</th><th>Firma / osoba</th><th>Telefon</th><th>E-mail / web</th><th>Poznámka</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Nouzové postupy -->
+  <section>
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>5. Nouzové postupy</h2>
+      <span class="badge badge-complete">informační</span>
+    </div>
+    <div class="section-body">
+      <div class="emergency-box">
+        <h3>Výtah – osoba uvnitř</h3>
+        <ol>
+          <li>Zjistit, zda je osoba v pořádku a komunikovat s ní.</li>
+          <li>Volat servis výtahu / vyproštění osob dle smlouvy nebo štítku ve výtahu.</li>
+          <li>Neprovádět neodborné otevírání dveří ani zásah do technologie.</li>
+          <li>Pokud je to bezpečné a podle pokynu servisu, zkontrolovat napájení / jistič.</li>
+          <li>Po události zapsat datum, čas, kdo byl uvnitř, co pomohlo a komu byla závada nahlášena.</li>
+        </ol>
+      </div>
+      <div class="emergency-box">
+        <h3>Zatékání / střecha</h3>
+        <ol>
+          <li>Omezit škodu, zdokumentovat foto.</li>
+          <li>Kontaktovat správce / havarijní službu / střechu.</li>
+          <li>Zjistit, zda nejde o společnou část domu nebo závadu bytu.</li>
+          <li>Nahlásit pojišťovně, pokud je škoda významná.</li>
+        </ol>
+      </div>
+      <div class="emergency-box">
+        <h3>Výpadek elektřiny ve společných prostorách</h3>
+        <ol>
+          <li>Ověřit, zda jde o celý dům nebo jen společné prostory.</li>
+          <li>Zkontrolovat hlavní rozvaděč a jističe.</li>
+          <li>Kontaktovat elektro servis / distributora dle situace.</li>
+          <li>Evidovat zásah a příčinu.</li>
+        </ol>
+      </div>
+      <div class="emergency-box">
+        <h3>Prasklé potrubí / voda</h3>
+        <ol>
+          <li>Uzavřít příslušný ventil nebo hlavní přívod.</li>
+          <li>Kontaktovat instalatéra / topenáře / správce.</li>
+          <li>Zdokumentovat škodu a dotčené byty.</li>
+          <li>Řešit pojištění.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Technické info -->
+  <section>
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>6. Technické informace o domě</h2>
+      <span class="badge badge-empty" data-section="technika">0 / 13</span>
+    </div>
+    <div class="section-body" data-fields="technika">
+      <div class="field-group">
+        <label>Počet jednotek / bytů</label>
+        <input type="text" data-key="tech.pocet_bytu">
+      </div>
+      <div class="field-group">
+        <label>Počet vchodů</label>
+        <input type="text" data-key="tech.pocet_vchodu">
+      </div>
+      <div class="field-group">
+        <label>Počet podlaží</label>
+        <input type="text" data-key="tech.pocet_podlazi">
+      </div>
+      <div class="field-group">
+        <label>Počet výtahů</label>
+        <input type="text" data-key="tech.pocet_vytahu">
+      </div>
+      <div class="field-group">
+        <label>Typ výtahu / výrobce / rok</label>
+        <input type="text" data-key="tech.vytah_typ">
+      </div>
+      <div class="field-group">
+        <label>Hlavní uzávěr vody – umístění</label>
+        <input type="text" data-key="tech.uzaver_voda">
+      </div>
+      <div class="field-group">
+        <label>Hlavní elektro rozvaděč – umístění</label>
+        <input type="text" data-key="tech.rozvadec">
+      </div>
+      <div class="field-group">
+        <label>Plyn – hlavní uzávěr / umístění</label>
+        <input type="text" data-key="tech.uzaver_plyn">
+      </div>
+      <div class="field-group">
+        <label>Střecha – typ / poslední oprava</label>
+        <input type="text" data-key="tech.strecha">
+      </div>
+      <div class="field-group">
+        <label>Kotelna / předávací stanice</label>
+        <input type="text" data-key="tech.kotelna">
+      </div>
+      <div class="field-group">
+        <label>Společná anténa / internet / technologie</label>
+        <input type="text" data-key="tech.antena">
+      </div>
+      <div class="field-group">
+        <label>Kamery / čipy / vstupní systém</label>
+        <input type="text" data-key="tech.kamery">
+      </div>
+      <div class="field-group">
+        <label>Sklepy / kočárkárna / sušárna / další prostory</label>
+        <input type="text" data-key="tech.prostory">
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Revize -->
+  <section>
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>7. Revize, kontroly a povinné dokumenty</h2>
+      <span class="badge badge-empty" data-section="revize">0 / 10</span>
+    </div>
+    <div class="section-body" data-fields="revize">
+      <div class="table-section">
+        <table id="tblRevize">
+          <thead>
+            <tr><th>Oblast</th><th>Poslední revize</th><th>Platnost do</th><th>Kde je protokol</th><th>Poznámka</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. Přístupy -->
+  <section>
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>8. Přístupy, klíče, hesla a předání agendy</h2>
+      <span class="badge badge-empty" data-section="pristupy">0 / 8</span>
+    </div>
+    <div class="section-body" data-fields="pristupy">
+      <div class="info-box">Citlivé údaje — sdílejte pouze s oprávněnými členy výboru!</div>
+      <div class="field-group">
+        <label>Banka – dispoziční práva</label>
+        <textarea data-key="pristup.banka" placeholder="Kdo má přístup, tokeny, podpisová práva"></textarea>
+      </div>
+      <div class="field-group">
+        <label>Datová schránka</label>
+        <textarea data-key="pristup.datovka" placeholder="Přístupové údaje, oprávněné osoby"></textarea>
+      </div>
+      <div class="field-group">
+        <label>E-mail SVJ</label>
+        <textarea data-key="pristup.email" placeholder="Adresa, přihlášení, kdo spravuje"></textarea>
+      </div>
+      <div class="field-group">
+        <label>Archiv dokumentů</label>
+        <textarea data-key="pristup.archiv" placeholder="Fyzický archiv, šanony, smlouvy, protokoly"></textarea>
+      </div>
+      <div class="field-group">
+        <label>Digitální archiv</label>
+        <textarea data-key="pristup.digital" placeholder="Disk, cloud, Google Drive, správce"></textarea>
+      </div>
+      <div class="field-group">
+        <label>Klíče od technických prostor</label>
+        <textarea data-key="pristup.klice" placeholder="Kdo má, kolik sad, kde jsou rezervní"></textarea>
+      </div>
+      <div class="field-group">
+        <label>Čipy / vstupy / zvonky</label>
+        <textarea data-key="pristup.cipy" placeholder="Administrace systému"></textarea>
+      </div>
+      <div class="field-group">
+        <label>Web / nástěnka / oznamovací kanál</label>
+        <textarea data-key="pristup.web" placeholder="pivovarska936.svjo.cz, vývěska, WhatsApp..."></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. Smlouvy -->
+  <section>
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>9. Smlouvy a běžící závazky</h2>
+      <span class="badge badge-empty" data-section="smlouvy">0 / 11</span>
+    </div>
+    <div class="section-body" data-fields="smlouvy">
+      <div class="table-section">
+        <table id="tblSmlouvy">
+          <thead>
+            <tr><th>Typ smlouvy</th><th>Dodavatel</th><th>Od</th><th>Do</th><th>Cena / režim</th><th>Poznámka</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. Checklist předání -->
+  <section>
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>10. Co musí staré vedení předat novému</h2>
+      <span class="badge badge-empty" data-section="predani">0 / 14</span>
+    </div>
+    <div class="section-body" data-fields="predani">
+      <div class="info-box">Zaškrtněte, co už máte k dispozici. Nezaškrtnuté = musíte vyžádat od starého vedení.</div>
+      <div class="checklist" id="checklistPredani"></div>
+    </div>
+  </section>
+
+  <!-- 11. Aktuální problémy -->
+  <section>
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>11. Aktuální problémy domu / otevřené úkoly</h2>
+      <span class="badge badge-empty" data-section="problemy">0 řádků</span>
+    </div>
+    <div class="section-body" data-fields="problemy">
+      <div class="table-section">
+        <table id="tblProblemy">
+          <thead>
+            <tr><th>Problém / úkol</th><th>Priorita</th><th>Kdo řeší</th><th>Poznámka / termín</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <button class="add-row-btn" onclick="addRow('tblProblemy', ['problem','priorita','kdo','poznamka'])">+ Přidat řádek</button>
+    </div>
+  </section>
+
+  <!-- 12. Poznámky -->
+  <section>
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>12. Poznámky ze schůze</h2>
+      <span class="badge badge-empty" data-section="poznamky">–</span>
+    </div>
+    <div class="section-body" data-fields="poznamky">
+      <div class="field-group">
+        <label>Datum schůze</label>
+        <input type="date" data-key="poznamky.datum">
+      </div>
+      <div class="field-group">
+        <label>Poznámky</label>
+        <textarea data-key="poznamky.text" rows="8" placeholder="Volné poznámky ze schůze..."></textarea>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="fileImport" accept=".json" style="display:none">
+
+<script>
+const STORAGE_KEY = 'svj_formular_data';
+
+// Pre-filled rows for tables
+const servisRows = [
+  'Havarijní služba domu','Výtah – servis','Výtah – vyproštění osob',
+  'Elektro / jističe / společné prostory','Voda / topení / stoupačky','Plyn',
+  'Střecha / zatékání','Komíny','Hromosvod','Požární ochrana / hasicí přístroje',
+  'Úklid domu','Zahrada / okolí domu','Zámečník / vstupy / čipy / klíče',
+  'Kamerový / zvonkový systém','Internet / STA / anténa','Zábradlí / kovové prvky',
+  'Sklepní prostory / dveře','Pojištění domu – pojistná událost','Právník / notář',
+  'Byterm / jiný správce'
+];
+
+const revizeRows = [
+  'Výtah','Elektro společných prostor','Hromosvod','Plyn','Požární ochrana',
+  'Komíny','Tlakové nádoby / kotelna','BOZP / další povinnosti','Pojištění domu',
+  'Stanovy / zápisy / usnesení'
+];
+
+const smlouvyRows = [
+  'Správa domu','Účetnictví','Výtah','Úklid','Pojištění',
+  'Elektro servis','Topení / voda','Revize','Odpad','Internet / technologie','Jiné'
+];
+
+const problemyInit = [
+  'Zasekávání výtahu','Předání dokumentace od starého vedení'
+];
+
+const checklistItems = [
+  'Stanovy SVJ v aktuálním znění',
+  'Zápisy ze schůzí a usnesení',
+  'Smlouvy se správou, dodavateli a servisy',
+  'Revizní zprávy a protokoly',
+  'Pojistná smlouva a přehled škodních událostí',
+  'Přehled bankovních účtů, tokenů a oprávnění',
+  'Přístupy do e-mailu, datové schránky a digitálních úložišť',
+  'Seznam klíčů, čipů a přístupů',
+  'Evidence dlužníků a pohledávek SVJ',
+  'Rozpočet, fond oprav, účetní závěrky a předpisy záloh',
+  'Kontakty na vlastníky, nájemníky a servisní firmy',
+  'Přehled rozdělaných oprav, reklamací a otevřených problémů',
+  'PENB (energetický průkaz budovy)',
+  'Datum poslední účetní závěrky'
+];
+
+function initTables() {
+  const savedData = loadData();
+
+  // Servis table
+  const tbody5 = document.querySelector('#tblServis tbody');
+  servisRows.forEach((oblast, i) => {
+    const key = `servis_${i}`;
+    const saved = savedData.tables?.[key] || {};
+    tbody5.innerHTML += `<tr>
+      <td><strong>${oblast}</strong></td>
+      <td><input data-table="servis_${i}.firma" value="${esc(saved.firma)}"></td>
+      <td><input data-table="servis_${i}.tel" value="${esc(saved.tel)}"></td>
+      <td><input data-table="servis_${i}.email" value="${esc(saved.email)}"></td>
+      <td><input data-table="servis_${i}.pozn" value="${esc(saved.pozn)}"></td>
+    </tr>`;
+  });
+
+  // Revize table
+  const tbody7 = document.querySelector('#tblRevize tbody');
+  revizeRows.forEach((oblast, i) => {
+    const key = `revize_${i}`;
+    const saved = savedData.tables?.[key] || {};
+    tbody7.innerHTML += `<tr>
+      <td><strong>${oblast}</strong></td>
+      <td><input type="date" data-table="revize_${i}.datum" value="${esc(saved.datum)}"></td>
+      <td><input type="date" data-table="revize_${i}.platnost" value="${esc(saved.platnost)}"></td>
+      <td><input data-table="revize_${i}.kde" value="${esc(saved.kde)}"></td>
+      <td><input data-table="revize_${i}.pozn" value="${esc(saved.pozn)}"></td>
+    </tr>`;
+  });
+
+  // Smlouvy table
+  const tbody9 = document.querySelector('#tblSmlouvy tbody');
+  smlouvyRows.forEach((typ, i) => {
+    const key = `smlouva_${i}`;
+    const saved = savedData.tables?.[key] || {};
+    tbody9.innerHTML += `<tr>
+      <td><strong>${typ}</strong></td>
+      <td><input data-table="smlouva_${i}.dodavatel" value="${esc(saved.dodavatel)}"></td>
+      <td><input type="date" data-table="smlouva_${i}.od" value="${esc(saved.od)}"></td>
+      <td><input type="date" data-table="smlouva_${i}.do" value="${esc(saved.do)}"></td>
+      <td><input data-table="smlouva_${i}.cena" value="${esc(saved.cena)}"></td>
+      <td><input data-table="smlouva_${i}.pozn" value="${esc(saved.pozn)}"></td>
+    </tr>`;
+  });
+
+  // Vlastnici - load saved rows
+  if (savedData.tables) {
+    const vlastniciKeys = Object.keys(savedData.tables).filter(k => k.startsWith('vlastnik_'));
+    const indices = [...new Set(vlastniciKeys.map(k => k.split('.')[0]))];
+    if (indices.length > 0) {
+      indices.sort().forEach(prefix => {
+        const saved = savedData.tables[prefix] || {};
+        addRow('tblVlastnici', ['byt','vlastnik','tel','email','osob','najemnik','havarie'], saved);
+      });
+    } else {
+      for (let i = 0; i < 5; i++) addRow('tblVlastnici', ['byt','vlastnik','tel','email','osob','najemnik','havarie']);
+    }
+  } else {
+    for (let i = 0; i < 5; i++) addRow('tblVlastnici', ['byt','vlastnik','tel','email','osob','najemnik','havarie']);
+  }
+
+  // Problemy - load saved or defaults
+  if (savedData.tables) {
+    const problemKeys = Object.keys(savedData.tables).filter(k => k.startsWith('problem_'));
+    const indices = [...new Set(problemKeys.map(k => k.split('.')[0]))];
+    if (indices.length > 0) {
+      indices.sort().forEach(prefix => {
+        const saved = savedData.tables[prefix] || {};
+        addRow('tblProblemy', ['problem','priorita','kdo','poznamka'], saved);
+      });
+    } else {
+      problemyInit.forEach(p => addRow('tblProblemy', ['problem','priorita','kdo','poznamka'], {problem: p}));
+      for (let i = 0; i < 3; i++) addRow('tblProblemy', ['problem','priorita','kdo','poznamka']);
+    }
+  } else {
+    problemyInit.forEach(p => addRow('tblProblemy', ['problem','priorita','kdo','poznamka'], {problem: p}));
+    for (let i = 0; i < 3; i++) addRow('tblProblemy', ['problem','priorita','kdo','poznamka']);
+  }
+
+  // Checklist
+  const cl = document.getElementById('checklistPredani');
+  checklistItems.forEach((item, i) => {
+    const checked = savedData.checklist?.[i] ? 'checked' : '';
+    cl.innerHTML += `<label><input type="checkbox" data-check="${i}" ${checked}><span>${item}</span></label>`;
+  });
+}
+
+function esc(v) { return (v || '').replace(/"/g, '&quot;'); }
+
+let rowCounters = {};
+function addRow(tableId, fields, values) {
+  if (!rowCounters[tableId]) rowCounters[tableId] = 0;
+  const idx = rowCounters[tableId]++;
+  const prefix = tableId === 'tblVlastnici' ? `vlastnik_${idx}` :
+                 tableId === 'tblProblemy' ? `problem_${idx}` : `row_${idx}`;
+  const tbody = document.querySelector(`#${tableId} tbody`);
+  const tr = document.createElement('tr');
+  fields.forEach(f => {
+    const td = document.createElement('td');
+    const input = document.createElement('input');
+    input.dataset.table = `${prefix}.${f}`;
+    input.value = values?.[f] || '';
+    input.addEventListener('input', onFieldChange);
+    td.appendChild(input);
+    tr.appendChild(td);
+  });
+  tbody.appendChild(tr);
+}
+
+function toggleSection(header) {
+  const body = header.nextElementSibling;
+  body.classList.toggle('collapsed');
+}
+
+function onFieldChange() { updateProgress(); }
+
+function updateProgress() {
+  const allInputs = document.querySelectorAll('[data-key], [data-table]');
+  let filled = 0, total = 0;
+  allInputs.forEach(el => {
+    total++;
+    if (el.value.trim()) filled++;
+  });
+  const checks = document.querySelectorAll('[data-check]');
+  checks.forEach(el => { total++; if (el.checked) filled++; });
+
+  const pct = total > 0 ? Math.round((filled / total) * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `Vyplněno: ${filled} / ${total} polí (${pct} %)`;
+
+  updateBadges();
+}
+
+function updateBadges() {
+  // Simple fields
+  ['basic','vybor','technika','pristupy'].forEach(section => {
+    const body = document.querySelector(`[data-fields="${section}"]`);
+    if (!body) return;
+    const inputs = body.querySelectorAll('[data-key]');
+    let filled = 0;
+    inputs.forEach(el => { if (el.value.trim()) filled++; });
+    const badge = document.querySelector(`[data-section="${section}"]`);
+    if (badge) {
+      badge.textContent = `${filled} / ${inputs.length}`;
+      badge.className = 'badge ' + (filled === 0 ? 'badge-empty' : filled === inputs.length ? 'badge-complete' : 'badge-partial');
+    }
+  });
+
+  // Servis
+  const servisBadge = document.querySelector('[data-section="servis"]');
+  if (servisBadge) {
+    const inputs = document.querySelectorAll('#tblServis [data-table]');
+    let filled = 0;
+    inputs.forEach(el => { if (el.value.trim()) filled++; });
+    const rowsFilled = Math.floor(filled / 4);
+    servisBadge.textContent = `${rowsFilled} / ${servisRows.length}`;
+    servisBadge.className = 'badge ' + (rowsFilled === 0 ? 'badge-empty' : rowsFilled === servisRows.length ? 'badge-complete' : 'badge-partial');
+  }
+
+  // Revize
+  const revizeBadge = document.querySelector('[data-section="revize"]');
+  if (revizeBadge) {
+    const inputs = document.querySelectorAll('#tblRevize [data-table]');
+    let filled = 0;
+    inputs.forEach(el => { if (el.value.trim()) filled++; });
+    const rowsFilled = Math.floor(filled / 4);
+    revizeBadge.textContent = `${rowsFilled} / ${revizeRows.length}`;
+    revizeBadge.className = 'badge ' + (rowsFilled === 0 ? 'badge-empty' : rowsFilled === revizeRows.length ? 'badge-complete' : 'badge-partial');
+  }
+
+  // Smlouvy
+  const smlouvyBadge = document.querySelector('[data-section="smlouvy"]');
+  if (smlouvyBadge) {
+    const inputs = document.querySelectorAll('#tblSmlouvy [data-table]');
+    let filled = 0;
+    inputs.forEach(el => { if (el.value.trim()) filled++; });
+    const rowsFilled = Math.floor(filled / 5);
+    smlouvyBadge.textContent = `${rowsFilled} / ${smlouvyRows.length}`;
+    smlouvyBadge.className = 'badge ' + (rowsFilled === 0 ? 'badge-empty' : rowsFilled === smlouvyRows.length ? 'badge-complete' : 'badge-partial');
+  }
+
+  // Vlastnici
+  const vlastniciBadge = document.querySelector('[data-section="vlastnici"]');
+  if (vlastniciBadge) {
+    const rows = document.querySelectorAll('#tblVlastnici tbody tr');
+    let filled = 0;
+    rows.forEach(tr => {
+      const inputs = tr.querySelectorAll('input');
+      if ([...inputs].some(i => i.value.trim())) filled++;
+    });
+    vlastniciBadge.textContent = `${filled} řádků`;
+    vlastniciBadge.className = 'badge ' + (filled === 0 ? 'badge-empty' : 'badge-partial');
+  }
+
+  // Problemy
+  const problemyBadge = document.querySelector('[data-section="problemy"]');
+  if (problemyBadge) {
+    const rows = document.querySelectorAll('#tblProblemy tbody tr');
+    let filled = 0;
+    rows.forEach(tr => {
+      const inputs = tr.querySelectorAll('input');
+      if ([...inputs].some(i => i.value.trim())) filled++;
+    });
+    problemyBadge.textContent = `${filled} řádků`;
+    problemyBadge.className = 'badge ' + (filled === 0 ? 'badge-empty' : 'badge-partial');
+  }
+
+  // Checklist
+  const predaniBadge = document.querySelector('[data-section="predani"]');
+  if (predaniBadge) {
+    const checks = document.querySelectorAll('[data-check]');
+    let filled = 0;
+    checks.forEach(el => { if (el.checked) filled++; });
+    predaniBadge.textContent = `${filled} / ${checklistItems.length}`;
+    predaniBadge.className = 'badge ' + (filled === 0 ? 'badge-empty' : filled === checklistItems.length ? 'badge-complete' : 'badge-partial');
+  }
+}
+
+function collectData() {
+  const data = { fields: {}, tables: {}, checklist: {} };
+
+  document.querySelectorAll('[data-key]').forEach(el => {
+    data.fields[el.dataset.key] = el.value;
+  });
+
+  document.querySelectorAll('[data-table]').forEach(el => {
+    const parts = el.dataset.table.split('.');
+    const prefix = parts[0];
+    const field = parts.slice(1).join('.');
+    if (!data.tables[prefix]) data.tables[prefix] = {};
+    data.tables[prefix][field] = el.value;
+  });
+
+  document.querySelectorAll('[data-check]').forEach(el => {
+    data.checklist[el.dataset.check] = el.checked;
+  });
+
+  return data;
+}
+
+function loadData() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+  } catch { return {}; }
+}
+
+function restoreData(data) {
+  if (data.fields) {
+    Object.entries(data.fields).forEach(([key, val]) => {
+      const el = document.querySelector(`[data-key="${key}"]`);
+      if (el) el.value = val;
+    });
+  }
+  // Tables are restored in initTables
+  updateProgress();
+}
+
+function saveData() {
+  const data = collectData();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  showToast('Data uložena do prohlížeče');
+}
+
+function exportJSON() {
+  const data = collectData();
+  data._meta = {
+    exported: new Date().toISOString(),
+    title: 'SVJ Pivovarská 936 – Přehled'
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `svj-pivovarska936-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  showToast('JSON exportován');
+}
+
+function importJSON() {
+  document.getElementById('fileImport').click();
+}
+
+document.getElementById('fileImport').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const data = JSON.parse(ev.target.result);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      location.reload();
+    } catch {
+      showToast('Chyba při importu souboru');
+    }
+  };
+  reader.readAsText(file);
+  this.value = '';
+});
+
+function clearAll() {
+  if (confirm('Opravdu smazat všechna vyplněná data? Tato akce je nevratná.')) {
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// Auto-save on change
+document.addEventListener('input', function(e) {
+  if (e.target.matches('[data-key], [data-table], [data-check]')) {
+    onFieldChange();
+  }
+});
+document.addEventListener('change', function(e) {
+  if (e.target.matches('[data-check]')) {
+    onFieldChange();
+  }
+});
+
+// Auto-save every 30s
+setInterval(saveData, 30000);
+
+// Init
+initTables();
+const saved = loadData();
+restoreData(saved);
+</script>
+</body>
+</html>

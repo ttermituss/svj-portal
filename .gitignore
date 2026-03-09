@@ -1,0 +1,10 @@
+# PHP config s hesly
+api/config.php
+
+# DB migrations jsou OK, ale ne credentials
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
