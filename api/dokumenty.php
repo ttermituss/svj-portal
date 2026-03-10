@@ -9,6 +9,7 @@ switch ($action) {
     case 'list':     handleList();     break;
     case 'upload':   handleUpload();   break;
     case 'download': handleDownload(); break;
+    case 'preview':  handlePreview();  break;
     case 'delete':   handleDelete();   break;
     default: jsonError('Neznámá akce', 400, 'UNKNOWN_ACTION');
 }
@@ -168,6 +169,53 @@ function handleDownload(): void
     header('Content-Type: ' . ($mimes[$ext] ?? 'application/octet-stream'));
     header('Content-Disposition: attachment; filename="' . rawurlencode($row['soubor_nazev']) . '"');
     header('Content-Length: ' . filesize($path));
+    readfile($path);
+    exit;
+}
+
+function handlePreview(): void
+{
+    requireMethod('GET');
+    $user = requireAuth();
+    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+
+    $id = (int)getParam('id', '0');
+    if (!$id) jsonError('Chybí ID dokumentu', 400, 'MISSING_ID');
+
+    $stmt = getDb()->prepare(
+        'SELECT soubor_cesta, soubor_nazev, pristup FROM dokumenty WHERE id = :id AND svj_id = :svj_id'
+    );
+    $stmt->execute([':id' => $id, ':svj_id' => $user['svj_id']]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$row) jsonError('Dokument nenalezen', 404, 'NOT_FOUND');
+
+    $isPriv = in_array($user['role'], ['admin', 'vybor'], true);
+    if ($row['pristup'] === 'vybor' && !$isPriv) {
+        jsonError('Přístup odepřen', 403, 'FORBIDDEN');
+    }
+
+    $path = __DIR__ . '/../uploads/dokumenty/' . basename($row['soubor_cesta']);
+    if (!file_exists($path)) jsonError('Soubor nenalezen na disku', 404, 'FILE_MISSING');
+
+    $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+    $inlineMimes = [
+        'pdf'  => 'application/pdf',
+        'jpg'  => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'png'  => 'image/png',
+        'md'   => 'text/plain; charset=utf-8',
+        'txt'  => 'text/plain; charset=utf-8',
+    ];
+
+    if (!isset($inlineMimes[$ext])) {
+        jsonError('Náhled není dostupný pro tento formát', 415, 'NO_PREVIEW');
+    }
+
+    header('Content-Type: ' . $inlineMimes[$ext]);
+    header('Content-Disposition: inline; filename="' . rawurlencode($row['soubor_nazev']) . '"');
+    header('Content-Length: ' . filesize($path));
+    header('X-Frame-Options: SAMEORIGIN');
     readfile($path);
     exit;
 }
