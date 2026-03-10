@@ -130,7 +130,7 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
   - Data: odhadní cena m² v lokalitě → přehled pro pojistnou hodnotu
   - Kde: info karta ve správě portálu
 
-- [ ] **Správa dokumentů — rozšíření**
+- [x] **Správa dokumentů — rozšíření**
   - Kategorie dokumentů (smlouvy, revize, zápisy ze schůzí, pojistky)
   - Datum platnosti + upozornění na vypršení (revize, pojistky, PENB)
   - Přístupnost: veřejné vs. jen výbor
