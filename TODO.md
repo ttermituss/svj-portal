@@ -114,7 +114,7 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
   - Kde: karta v správě portálu — nahrání/zobrazení, datum platnosti, připomínka vypršení
   - Bez externího API — správa interně v portálu
 
-- [ ] **Hlasování / ankety**
+- [x] **Hlasování / ankety**
   - Výbor vytvoří hlasování (otázka + možnosti + deadline)
   - Vlastníci hlasují přes portál
   - Výsledky s váhami dle podílu na společných částech (máme `podil_citatel/jmenovatel`)

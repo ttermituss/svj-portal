@@ -39,6 +39,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
 │       ├── admin-users.js  # karta: správa uživatelů
 │       ├── admin-invites.js# karta: pozvaánky
 │       ├── admin-kn.js     # karta: ČÚZK KN import jednotek
+│       ├── admin-sfpi.js   # karta: dotace pro SVJ (Panel 2020+, NZÚ, IROP…)
+│       ├── hlasovani.js    # hlasování/ankety (list, create, vote, výsledky)
 │       └── admin-settings.js# karta: systémová nastavení (jen admin)
 └── api/
     ├── config.php          # DB + konstanty (není v gitu — v .gitignore!)
@@ -55,6 +57,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
     ├── jednotky.php        # seznam jednotek pro SVJ
     ├── stats.php           # dashboard statistiky (vlastníci, jednotky, plomby)
     ├── weather.php         # počasí — proxy OpenMeteo, vstup: GPS z RÚIAN
+    ├── vlastnici.php       # seznam registrovaných členů SVJ
+    ├── hlasovani.php       # hlasování/ankety: list, get, create, vote, close, delete
     ├── avatar.php          # upload + delete avataru
     ├── user.php            # updateProfile
     └── migrations/
@@ -68,7 +72,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
         ├── 008_kn_integration.sql
         ├── 009_jednotky_ext.sql    # přidá typ_jednotky_kod, zpusob_vyuziti_kod, lv_id, katastralni_uzemi do jednotky
         ├── 010_ruian_parcely_plomby.sql # přidá lat/lon/adresa_plna do svj, tabulka parcely, plomba_aktivni do jednotky
-        └── 011_svj_building_info.sql   # přidá tech. info budovy do svj (rok, konstrukce, podlaží, výtah, vytápění)
+        ├── 011_svj_building_info.sql   # přidá tech. info budovy do svj (rok, konstrukce, podlaží, výtah, vytápění)
+        └── 012_hlasovani.sql           # tabulky hlasovani + hlasy
 ```
 
 ## Coding Standards — POVINNÉ

@@ -12,6 +12,7 @@ var NAV_ITEMS_AUTH = [
   { page: 'nastenka',  icon: '\uD83D\uDCCB', label: 'Nástěnka' },
   { page: 'vlastnici', icon: '\uD83D\uDC65', label: 'Vlastníci' },
   { page: 'jednotky',  icon: '\uD83C\uDFE2', label: 'Jednotky' },
+  { page: 'hlasovani', icon: '\uD83D\uDDF3\uFE0F', label: 'Hlasování' },
   { page: 'dokumenty', icon: '\uD83D\uDCC1', label: 'Dokumenty' },
   { sep: true },
   { page: 'nastaveni', icon: '\u2699\uFE0F', label: 'Nastavení' },
