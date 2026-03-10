@@ -18,6 +18,8 @@ var DOK_FILE_TYPES = {
   jpg:  { ikona: '\uD83D\uDDBC\uFE0F', barva: '#8e24aa', label: 'Obrázek' },
   jpeg: { ikona: '\uD83D\uDDBC\uFE0F', barva: '#8e24aa', label: 'Obrázek' },
   png:  { ikona: '\uD83D\uDDBC\uFE0F', barva: '#8e24aa', label: 'Obrázek' },
+  md:   { ikona: '\uD83D\uDCCB', barva: '#546e7a', label: 'Markdown' },
+  txt:  { ikona: '\uD83D\uDCCB', barva: '#546e7a', label: 'Text' },
 };
 
 Router.register('dokumenty', function(el) {
@@ -74,7 +76,7 @@ function dokRenderUploadCard(el, onSuccess) {
   // Skrytý file input
   var fileInput = document.createElement('input');
   fileInput.type = 'file';
-  fileInput.accept = '.pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png';
+  fileInput.accept = '.pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.md,.txt';
   fileInput.style.display = 'none';
   body.appendChild(fileInput);
 
@@ -229,7 +231,7 @@ function dokRenderUploadCard(el, onSuccess) {
 
   /* === Logika === */
 
-  var DOK_ALLOWED_EXT = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png'];
+  var DOK_ALLOWED_EXT = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png', 'md', 'txt'];
 
   function dokSetFile(file) {
     if (!file) return;

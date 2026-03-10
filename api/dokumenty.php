@@ -75,17 +75,25 @@ function handleUpload(): void
     $mime  = $finfo->file($file['tmp_name']);
 
     $allowed = [
-        'application/pdf'                                                       => 'pdf',
-        'application/msword'                                                    => 'doc',
+        'application/pdf'                                                        => 'pdf',
+        'application/msword'                                                     => 'doc',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
-        'application/vnd.ms-excel'                                              => 'xls',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'    => 'xlsx',
-        'image/jpeg'                                                            => 'jpg',
-        'image/png'                                                             => 'png',
+        'application/vnd.ms-excel'                                               => 'xls',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'     => 'xlsx',
+        'image/jpeg'                                                             => 'jpg',
+        'image/png'                                                              => 'png',
     ];
 
-    if (!isset($allowed[$mime])) {
-        jsonError('Nepodporovaný formát. Povoleny: PDF, Word, Excel, JPEG, PNG', 415, 'INVALID_MIME');
+    // Textové soubory — finfo vrací text/plain pro .md i .txt; ověříme přes příponu
+    $textExt = ['md' => 'md', 'txt' => 'txt', 'markdown' => 'md'];
+    $origExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
+    if (isset($allowed[$mime])) {
+        $ext = $allowed[$mime];
+    } elseif (($mime === 'text/plain' || $mime === 'text/markdown') && isset($textExt[$origExt])) {
+        $ext = $textExt[$origExt];
+    } else {
+        jsonError('Nepodporovaný formát. Povoleny: PDF, Word, Excel, JPEG, PNG, Markdown, TXT', 415, 'INVALID_MIME');
     }
 
     $uploadDir = __DIR__ . '/../uploads/dokumenty/';
@@ -154,6 +162,8 @@ function handleDownload(): void
         'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'jpg'  => 'image/jpeg',
         'png'  => 'image/png',
+        'md'   => 'text/markdown',
+        'txt'  => 'text/plain',
     ];
 
     header('Content-Type: ' . ($mimes[$ext] ?? 'application/octet-stream'));
