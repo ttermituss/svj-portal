@@ -113,7 +113,7 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
   - Forma: přehled aktuálních dotačních titulů + přímé linky na žádosti
   - Bonus: filtr podle typu konstrukce budovy (máme z RÚIAN rozšíření)
 
-- [ ] **PENB — Průkaz energetické náročnosti**
+- [x] **PENB — Průkaz energetické náročnosti**
   - SVJ musí mít PENB ze zákona
   - Kde: karta v správě portálu — nahrání/zobrazení, datum platnosti, připomínka vypršení
   - Bez externího API — správa interně v portálu
