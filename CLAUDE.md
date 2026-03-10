@@ -48,32 +48,34 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
     ├── db.php              # getDb() → PDO singleton
     ├── helpers.php         # jsonOk, jsonError, jsonResponse, sanitize, getParam…
     ├── middleware.php      # requireAuth(), requireRole(string ...$roles), requireMethod
-    ├── svj_helper.php      # getOrFetchSvj, fetchFromAres, upsertSvj, fetchOrManagement, fetchRuianData, fetchKamFromVr
+    ├── svj_helper.php      # getOrFetchSvj, fetchFromAres, upsertSvj, fetchOrManagement,
+    │                       # fetchRuianData (GPS+adresa), fetchKamFromVr, fetchRuianBuildingInfo (tech.info)
     ├── auth.php            # login, logout, register (admin/invite), me, svj
     ├── invite.php          # createInvite, listInvites, deleteInvite
     ├── svj.php             # getSvj, updateSvj, fetchOr (OR/ARES)
     ├── admin.php           # listUsers, updateRole, deleteUser, getSettings, updateSetting
-    ├── kn.php              # ČÚZK API KN: findBuilding, importUnits
+    ├── kn.php              # ČÚZK API KN: status, findBuilding, importUnits
     ├── jednotky.php        # seznam jednotek pro SVJ
-    ├── stats.php           # dashboard statistiky (vlastníci, jednotky, plomby)
-    ├── weather.php         # počasí — proxy OpenMeteo, vstup: GPS z RÚIAN
     ├── vlastnici.php       # seznam registrovaných členů SVJ
-    ├── hlasovani.php       # hlasování/ankety: list, get, create, vote, close, delete
+    ├── stats.php           # dashboard statistiky (vlastníci, jednotky, plomby)
+    ├── weather.php         # počasí — proxy OpenMeteo (zdarma, bez klíče), vstup: GPS z RÚIAN
+    ├── hlasovani.php       # hlasování/ankety: list, get, create, vote, close, delete, setExterni
     ├── avatar.php          # upload + delete avataru
     ├── user.php            # updateProfile
     └── migrations/
-        ├── 001_init.sql
-        ├── 002_invites.sql
+        ├── 001_init.sql              # základní tabulky: svj, users, sessions
+        ├── 002_rate_limits.sql
         ├── 003_settings.sql
-        ├── 004_or_cache.sql
+        ├── 004_invitations.sql
         ├── 005_avatar.sql
         ├── 006_settings_ext.sql
         ├── 007_settings_cuzk.sql
-        ├── 008_kn_integration.sql
-        ├── 009_jednotky_ext.sql    # přidá typ_jednotky_kod, zpusob_vyuziti_kod, lv_id, katastralni_uzemi do jednotky
-        ├── 010_ruian_parcely_plomby.sql # přidá lat/lon/adresa_plna do svj, tabulka parcely, plomba_aktivni do jednotky
-        ├── 011_svj_building_info.sql   # přidá tech. info budovy do svj (rok, konstrukce, podlaží, výtah, vytápění)
-        └── 012_hlasovani.sql           # tabulky hlasovani + hlasy
+        ├── 008_kn_integration.sql    # tabulky jednotky, parcely, stavba_id do svj
+        ├── 009_jednotky_ext.sql      # přidá typ_kod, zpusob_kod, lv_id, katastralni_uzemi
+        ├── 010_ruian_parcely_plomby.sql # lat/lon/adresa_plna do svj, plomba_aktivni do jednotky
+        ├── 011_svj_building_info.sql # rok, konstrukce, podlaží, výtah, vytápění do svj
+        ├── 012_hlasovani.sql         # tabulky hlasovani + hlasy
+        └── 013_hlasovani_ext.sql     # externi_hlasy do hlasovani (papír/email/schůze)
 ```
 
 ## Coding Standards — POVINNÉ
@@ -182,10 +184,23 @@ Portál jde do produkce. Bezpečnost na maximum.
 - `kodAdresnihoMista` se načítá z ARES `sidlo.kodAdresnihoMista`, záloha z VR `zaznamy[].adresy[].adresa.kodAdresnihoMista`
 
 ### RÚIAN (ArcGIS, zdarma, bez auth)
-- URL: `https://ags.cuzk.cz/arcgis/rest/services/RUIAN/Vyhledavaci_sluzba_nad_daty_RUIAN/MapServer/1/query`
-- Params: `?where=KOD={kam}&outFields=*&outSR=4326&f=json`
-- Vrací: WGS84 `geometry.x` (lon), `geometry.y` (lat), `attributes.adresa` (plná adresa)
-- Implementováno v `fetchRuianData(int $kam)` v `svj_helper.php`
+- Base: `https://ags.cuzk.cz/arcgis/rest/services/RUIAN/Vyhledavaci_sluzba_nad_daty_RUIAN/MapServer`
+- **Layer 1 (AdresniMisto)**: `?where=KOD={kam}&outFields=*&outSR=4326&f=json`
+  → WGS84 `geometry.x` (lon), `geometry.y` (lat), `attributes.adresa`
+  → `fetchRuianData(int $kam)` v `svj_helper.php`
+- **Layer 3 (StavebniObjekt)**: `?where=isknbudovaid={stavba_id}&outFields=...&f=json`
+  → `dokonceni` (ms timestamp), `druhkonstrukcekod`, `pocetpodlazi`, `pocetbytu`,
+    `zastavenaplocha`, `vybavenivytahemkod`, `zpusobvytapenikod`
+  → `fetchRuianBuildingInfo(int $stavbaId)` v `svj_helper.php`
+
+### OpenMeteo (počasí, zdarma, bez auth, bez klíče)
+- URL: `https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=...&daily=...&timezone=Europe/Prague`
+- Implementováno v `weather.php`, vstup: GPS z RÚIAN uložené v `svj.lat/lon`
+
+### ISIR (Insolvenční rejstřík)
+- Nemá veřejné REST API → implementováno jako deep link
+- URL: `https://isir.justice.cz/isir/usl/richtext.do?dotaz.jmeno={j}&dotaz.prijmeni={p}`
+- Zobrazeno jako tlačítko ⚖️ ISIR u každého vlastníka (jen admin/výbor)
 
 ## Avatar
 - Upload: `api/avatar.php` (multipart POST), MIME check přes `finfo`, max 2MB

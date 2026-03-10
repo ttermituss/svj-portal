@@ -76,6 +76,12 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 - [x] Mapa budovy — OpenStreetMap iframe + Mapy.cz link
 - [x] Jednotky — přehled s Využití, Podíl, LV, K.ú.
 - [x] Plomba badge v jednotkách (jen admin/výbor, tooltip s info o aktualizaci)
+- [x] Počasí widget — OpenMeteo, aktuální + 7denní výhled, GPS z RÚIAN
+- [x] Dashboard statistiky — vlastníci, jednotky, plomby (červeně)
+- [x] RÚIAN info o budově — rok výstavby, konstrukce, podlaží, plocha, výtah, vytápění
+- [x] Vlastníci — seznam členů SVJ, ISIR deep link (výbor/admin)
+- [x] SFPI dotace karta — Panel 2020+, NZÚ, IROP, MMR s kontextovým doporučením
+- [x] Hlasování / ankety — vytvoření, hlasování, výsledky s progress bary, quorum, externí hlasy
 
 ---
 
@@ -98,10 +104,8 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 ### Priorita 2 — Střední obtížnost, velmi užitečné
 
 - [x] **ISIR — Insolvenční rejstřík**
-  - Free REST API: `https://isir.justice.cz/isir/usl/api/`
-  - Vstup: jméno + příjmení vlastníka (z tabulky vlastníků)
-  - Kde: badge/indikátor u vlastníka v tabulce vlastníků (jen admin/výbor)
-  - Bezpečnost: velmi citlivé info — zobrazovat jen admin/výbor, žádný cache bez TTL
+  - ⚠️ Nemá veřejné REST API → implementováno jako deep link do justice.cz
+  - Kde: tlačítko ⚖️ ISIR u každého vlastníka (jen admin/výbor)
 
 - [x] **SFPI dotace — přehled programů**
   - Státní fond podpory investic: Panel 2020+, Zelená úsporám, výtahy, zateplení
@@ -115,9 +119,9 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
   - Bez externího API — správa interně v portálu
 
 - [x] **Hlasování / ankety**
-  - Výbor vytvoří hlasování (otázka + možnosti + deadline)
-  - Vlastníci hlasují přes portál
-  - Výsledky s váhami dle podílu na společných částech (máme `podil_citatel/jmenovatel`)
+  - Výbor vytvoří hlasování (otázka + možnosti + deadline + rovné/podílové hlasování)
+  - Vlastníci hlasují přes portál, výsledky s progress bary a quorem (X/N členů)
+  - Výbor může doplnit hlasy z jiné formy (papír, email, schůze) — zobrazeny odlišně
 
 ### Priorita 3 — Zajímavé doplňky
 
