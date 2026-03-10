@@ -185,10 +185,11 @@ function buildWeatherCard(d) {
     var minTemps = d.daily.temperature_2m_min;
     var codes   = d.daily.weather_code;
 
+    var dnames = ['Ne', 'Po', '\u00dat', 'St', '\u010ct', 'P\u00e1', 'So'];
+
     times.forEach(function(dateStr, i) {
       var dayWmo = wmoInfo(codes[i]);
       var date   = new Date(dateStr);
-      var dnames = ['Ne', 'Po', '\xdат', 'St', '\u010ct', 'P\xe1', 'So'];
       var isToday = i === 0;
 
       var dayCard = document.createElement('div');
