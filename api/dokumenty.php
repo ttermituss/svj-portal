@@ -101,7 +101,6 @@ function handleUpload(): void
         mkdir($uploadDir, 0750, true);
     }
 
-    $ext      = $allowed[$mime];
     $filename = $user['svj_id'] . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
 
     if (!move_uploaded_file($file['tmp_name'], $uploadDir . $filename)) {

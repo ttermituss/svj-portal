@@ -13,25 +13,50 @@ function showToast(message, type) {
   var isErr = type === 'error';
   toast.style.cssText = [
     'position:fixed', 'bottom:24px', 'right:24px', 'z-index:9999',
-    'padding:12px 20px', 'border-radius:8px', 'font-size:0.95rem', 'font-weight:500',
+    'padding:12px 16px 12px 20px', 'border-radius:8px', 'font-size:0.95rem', 'font-weight:500',
     'color:#fff', 'background:' + (isErr ? '#c62828' : '#2e7d32'),
     'box-shadow:0 4px 20px rgba(0,0,0,0.3)',
-    'display:flex', 'align-items:center', 'gap:10px',
+    'display:flex', 'align-items:flex-start', 'gap:10px',
     'opacity:0', 'transform:translateY(14px)',
     'transition:opacity .2s ease, transform .2s ease',
-    'pointer-events:none', 'max-width:360px',
+    'max-width:400px', 'cursor:default',
   ].join(';');
 
   var icon = document.createElement('span');
   icon.textContent = isErr ? '✕' : '✓';
-  icon.style.cssText = 'font-size:1.1rem;font-weight:700;flex-shrink:0;';
+  icon.style.cssText = 'font-size:1.1rem;font-weight:700;flex-shrink:0;margin-top:1px;';
   toast.appendChild(icon);
 
   var msg = document.createElement('span');
   msg.textContent = message;
+  msg.style.cssText = 'flex:1;user-select:text;line-height:1.4;word-break:break-word;';
   toast.appendChild(msg);
 
+  var closeBtn = document.createElement('button');
+  closeBtn.textContent = '×';
+  closeBtn.style.cssText = [
+    'flex-shrink:0', 'background:none', 'border:none', 'color:rgba(255,255,255,0.7)',
+    'font-size:1.3rem', 'line-height:1', 'cursor:pointer', 'padding:0 0 0 4px',
+    'font-family:inherit', 'margin-top:-1px',
+  ].join(';');
+  toast.appendChild(closeBtn);
+
   document.body.appendChild(toast);
+
+  var duration = isErr ? 6000 : 3200;
+  var timer;
+
+  function dismiss() {
+    clearTimeout(timer);
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(14px)';
+    setTimeout(function() { if (toast.parentNode) toast.remove(); }, 250);
+  }
+
+  closeBtn.addEventListener('click', dismiss);
+  // Pozastavit odpočet při hoveru (uživatel čte / kopíruje text)
+  toast.addEventListener('mouseenter', function() { clearTimeout(timer); });
+  toast.addEventListener('mouseleave', function() { timer = setTimeout(dismiss, 2000); });
 
   requestAnimationFrame(function() {
     requestAnimationFrame(function() {
@@ -40,11 +65,7 @@ function showToast(message, type) {
     });
   });
 
-  setTimeout(function() {
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateY(14px)';
-    setTimeout(function() { if (toast.parentNode) toast.remove(); }, 250);
-  }, 3200);
+  timer = setTimeout(dismiss, duration);
 }
 
 /* ---- Confirm modal (náhrada za window.confirm) ---- */
