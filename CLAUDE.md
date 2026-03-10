@@ -53,6 +53,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
     ├── admin.php           # listUsers, updateRole, deleteUser, getSettings, updateSetting
     ├── kn.php              # ČÚZK API KN: findBuilding, importUnits
     ├── jednotky.php        # seznam jednotek pro SVJ
+    ├── stats.php           # dashboard statistiky (vlastníci, jednotky, plomby)
+    ├── weather.php         # počasí — proxy OpenMeteo, vstup: GPS z RÚIAN
     ├── avatar.php          # upload + delete avataru
     ├── user.php            # updateProfile
     └── migrations/

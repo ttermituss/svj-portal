@@ -83,7 +83,7 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 
 ### Priorita 1 — Snadné, vysoká hodnota
 
-- [ ] **Počasí widget (OpenMeteo)**
+- [x] **Počasí widget (OpenMeteo)**
   - Free API, bez klíče, vstup: GPS z RÚIAN
   - Kde: dashboard / karta ve správě portálu
   - Data: aktuální počasí + 7denní výhled → plánování oprav, zimní přípravy
