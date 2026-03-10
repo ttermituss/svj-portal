@@ -1,7 +1,7 @@
 <?php
 /**
  * Hlasování — CRUD + hlasování členů SVJ.
- * Akce: list, get, create, vote, close, delete
+ * Akce: list, get, create, vote, close, delete, setExterni
  */
 
 require_once __DIR__ . '/config.php';
@@ -20,9 +20,10 @@ match ($action) {
     'get'    => handleGet(),
     'create' => handleCreate(),
     'vote'   => handleVote(),
-    'close'  => handleClose(),
-    'delete' => handleDelete(),
-    default  => jsonError('Neznámá akce', 400),
+    'close'       => handleClose(),
+    'delete'      => handleDelete(),
+    'setExterni'  => handleSetExterni(),
+    default       => jsonError('Neznámá akce', 400),
 };
 
 /* ===== LIST ===== */
@@ -30,9 +31,14 @@ match ($action) {
 function handleList(): void
 {
     global $user, $svjId;
-    $db   = getDb();
+    $db = getDb();
+
+    $cStmt = $db->prepare('SELECT COUNT(*) FROM users WHERE svj_id = :id');
+    $cStmt->execute([':id' => $svjId]);
+    $pocetClenů = (int)$cStmt->fetchColumn();
+
     $stmt = $db->prepare(
-        'SELECT h.id, h.nazev, h.popis, h.moznosti, h.deadline, h.vaha_hlasu, h.stav,
+        'SELECT h.id, h.nazev, h.popis, h.moznosti, h.externi_hlasy, h.deadline, h.vaha_hlasu, h.stav,
                 h.created_at, u.jmeno, u.prijmeni,
                 (SELECT COUNT(*) FROM hlasy WHERE hlasovani_id = h.id) AS pocet_hlasu,
                 (SELECT moznost_index FROM hlasy WHERE hlasovani_id = h.id AND user_id = :uid) AS muj_hlas
@@ -45,12 +51,13 @@ function handleList(): void
     $rows = $stmt->fetchAll();
 
     foreach ($rows as &$r) {
-        $r['moznosti']  = json_decode($r['moznosti'], true);
-        $r['muj_hlas']  = $r['muj_hlas'] !== null ? (int)$r['muj_hlas'] : null;
-        $r['pocet_hlasu'] = (int)$r['pocet_hlasu'];
+        $r['moznosti']      = json_decode($r['moznosti'], true);
+        $r['externi_hlasy'] = $r['externi_hlasy'] ? json_decode($r['externi_hlasy'], true) : null;
+        $r['muj_hlas']      = $r['muj_hlas'] !== null ? (int)$r['muj_hlas'] : null;
+        $r['pocet_hlasu']   = (int)$r['pocet_hlasu'];
     }
 
-    jsonOk(['hlasovani' => $rows]);
+    jsonOk(['hlasovani' => $rows, 'pocet_clenu' => $pocetClenů]);
 }
 
 /* ===== GET (detail + výsledky) ===== */
@@ -67,7 +74,12 @@ function handleGet(): void
     $h = $stmt->fetch();
     if (!$h) jsonError('Hlasování nenalezeno', 404);
 
-    $h['moznosti'] = json_decode($h['moznosti'], true);
+    $cStmt = $db->prepare('SELECT COUNT(*) FROM users WHERE svj_id = :id');
+    $cStmt->execute([':id' => $svjId]);
+    $h['pocet_clenu'] = (int)$cStmt->fetchColumn();
+
+    $h['moznosti']      = json_decode($h['moznosti'], true);
+    $h['externi_hlasy'] = $h['externi_hlasy'] ? json_decode($h['externi_hlasy'], true) : null;
 
     // Výsledky — počty per možnost
     $rStmt = $db->prepare(
@@ -244,4 +256,45 @@ function handleDelete(): void
        ->execute([':id' => $id, ':svj_id' => $svjId]);
 
     jsonOk(['deleted' => true]);
+}
+
+/* ===== SET EXTERNI HLASY ===== */
+
+function handleSetExterni(): void
+{
+    global $user, $svjId;
+    if ($user['role'] !== 'admin' && $user['role'] !== 'vybor') {
+        jsonError('Nemáte oprávnění', 403);
+    }
+
+    $input = json_decode(file_get_contents('php://input'), true) ?? [];
+    $id    = (int)($input['id']             ?? 0);
+    $ext   = $input['externi_hlasy']         ?? [];
+
+    if (!$id)                      jsonError('Chybí ID hlasování', 400);
+    if (!is_array($ext))           jsonError('Neplatný formát externích hlasů', 400);
+
+    // Ověř že hlasování patří tomuto SVJ a načti počet možností
+    $db   = getDb();
+    $hStmt = $db->prepare('SELECT moznosti FROM hlasovani WHERE id = :id AND svj_id = :svj_id');
+    $hStmt->execute([':id' => $id, ':svj_id' => $svjId]);
+    $h = $hStmt->fetch();
+    if (!$h) jsonError('Hlasování nenalezeno', 404);
+
+    $moznosti = json_decode($h['moznosti'], true);
+    if (count($ext) !== count($moznosti)) {
+        jsonError('Počet hodnot musí odpovídat počtu možností (' . count($moznosti) . ')', 400);
+    }
+
+    // Sanitizace — jen nezáporná celá čísla
+    $ext = array_map(fn($v) => max(0, (int)$v), $ext);
+
+    $db->prepare('UPDATE hlasovani SET externi_hlasy = :ext WHERE id = :id AND svj_id = :svj_id')
+       ->execute([
+           ':ext'    => json_encode($ext),
+           ':id'     => $id,
+           ':svj_id' => $svjId,
+       ]);
+
+    jsonOk(['updated' => true, 'externi_hlasy' => $ext]);
 }

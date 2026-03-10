@@ -49,8 +49,9 @@ function loadList(wrap, isPriv) {
         wrap.appendChild(empty);
         return;
       }
+      var pocetClenu = data.pocet_clenu || 0;
       data.hlasovani.forEach(function(h) {
-        wrap.appendChild(buildHlasovaniCard(h, isPriv, function() { loadList(wrap, isPriv); }));
+        wrap.appendChild(buildHlasovaniCard(h, isPriv, pocetClenu, function() { loadList(wrap, isPriv); }));
       });
     })
     .catch(function(e) {
@@ -64,7 +65,7 @@ function loadList(wrap, isPriv) {
 
 /* ===== KARTA HLASOVÁNÍ ===== */
 
-function buildHlasovaniCard(h, isPriv, onRefresh) {
+function buildHlasovaniCard(h, isPriv, pocetClenu, onRefresh) {
   var card = document.createElement('div');
   card.className = 'card';
   card.style.marginBottom = '20px';
@@ -109,13 +110,21 @@ function buildHlasovaniCard(h, isPriv, onRefresh) {
 
   var meta = document.createElement('div');
   meta.style.cssText = 'font-size:0.8rem;color:var(--text-light);margin-bottom:14px;';
+  var extrTotal = h.externi_hlasy ? h.externi_hlasy.reduce(function(a, b) { return a + b; }, 0) : 0;
+  var totalVotes = h.pocet_hlasu + extrTotal;
+  var quorumPct  = pocetClenu > 0 ? Math.round((totalVotes / pocetClenu) * 100) : null;
   meta.textContent = 'Vytvořil/a: ' + h.jmeno + ' ' + h.prijmeni
-    + ' \u00b7 ' + new Date(h.created_at).toLocaleDateString('cs-CZ');
+    + ' \u00b7 ' + new Date(h.created_at).toLocaleDateString('cs-CZ')
+    + ' \u00b7 Hlasovalo: ' + totalVotes + (pocetClenu ? '\u00a0/\u00a0' + pocetClenu : '')
+    + (quorumPct !== null ? '\u00a0(' + quorumPct + '\u00a0%)' : '');
   if (h.deadline) {
     var dl = new Date(h.deadline);
     var expired = dl < new Date();
     meta.textContent += ' \u00b7 Deadline: ' + dl.toLocaleString('cs-CZ');
-    if (expired) meta.textContent += ' (vypršelo)';
+    if (expired) meta.textContent += ' (vypr\u0161elo)';
+  }
+  if (extrTotal > 0) {
+    meta.textContent += ' \u00b7 z\u00a0toho ' + extrTotal + ' extern\u00ed (pap\u00edr/email)';
   }
   body.appendChild(meta);
 
@@ -130,6 +139,14 @@ function buildHlasovaniCard(h, isPriv, onRefresh) {
     renderVoteButtons(voteWrap, h, onRefresh);
   } else {
     renderResults(voteWrap, h);
+  }
+
+  // Doplnit externí hlasy (papír, email, schůze)
+  if (isPriv) {
+    var extWrap = document.createElement('div');
+    extWrap.style.marginTop = '16px';
+    renderExterniForm(extWrap, h, onRefresh);
+    body.appendChild(extWrap);
   }
 
   // Akce pro výbor/admin
@@ -182,7 +199,11 @@ function renderVoteButtons(wrap, h, onRefresh) {
 /* ===== VÝSLEDKY ===== */
 
 function renderResults(wrap, h) {
-  var total = h.pocet_hlasu || 0;
+  var portalCounts = h.vysledky  || h.moznosti.map(function() { return 0; });
+  var extCounts    = h.externi_hlasy || h.moznosti.map(function() { return 0; });
+  var combined     = portalCounts.map(function(c, i) { return c + (extCounts[i] || 0); });
+  var total        = combined.reduce(function(a, b) { return a + b; }, 0);
+  var portalTotal  = portalCounts.reduce(function(a, b) { return a + b; }, 0);
 
   if (h.muj_hlas !== null) {
     var myInfo = document.createElement('div');
@@ -202,38 +223,129 @@ function renderResults(wrap, h) {
 
   var resultsTitle = document.createElement('div');
   resultsTitle.style.cssText = 'font-size:0.88rem;font-weight:600;margin-bottom:10px;';
-  resultsTitle.textContent = 'Výsledky (' + total + '\u00a0hlas\u016f):';
+  resultsTitle.textContent = 'Výsledky (' + total + '\u00a0hlas\u016f celkem):';
   wrap.appendChild(resultsTitle);
 
+  var maxVal = Math.max.apply(null, combined.length ? combined : [0]);
+
   h.moznosti.forEach(function(m, i) {
-    var count = (h.vysledky && h.vysledky[i]) ? h.vysledky[i] : 0;
-    var pct   = total > 0 ? Math.round((count / total) * 100) : 0;
-    var isWinner = count === Math.max.apply(null, h.vysledky || [0]) && count > 0;
+    var count    = combined[i] || 0;
+    var portal   = portalCounts[i] || 0;
+    var ext      = extCounts[i] || 0;
+    var pct      = total > 0 ? Math.round((count / total) * 100) : 0;
+    var isWinner = count === maxVal && count > 0;
 
     var row = document.createElement('div');
-    row.style.cssText = 'margin-bottom:10px;';
+    row.style.cssText = 'margin-bottom:12px;';
 
     var label = document.createElement('div');
     label.style.cssText = 'display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:3px;'
       + (isWinner ? 'font-weight:600;' : 'color:var(--text-light);');
     var lText = document.createElement('span');
-    lText.textContent = (isWinner ? '\uD83C\uDFC6 ' : '') + m;
+    lText.textContent = (isWinner ? '\uD83C\uDFC6\u00a0' : '') + m;
     var lCount = document.createElement('span');
-    lCount.textContent = count + ' (' + pct + '\u00a0%)';
+    lCount.style.cssText = 'display:flex;gap:6px;align-items:center;';
+    var lTotal = document.createElement('span');
+    lTotal.textContent = count + '\u00a0(' + pct + '\u00a0%)';
+    lCount.appendChild(lTotal);
+    if (ext > 0) {
+      var extTag = document.createElement('span');
+      extTag.textContent = '+' + ext + '\u00a0ext.';
+      extTag.title = ext + ' externích hlasů (papír/email/schůze)';
+      extTag.style.cssText = 'font-size:0.72rem;background:var(--bg-hover);border:1px solid var(--border);'
+        + 'border-radius:10px;padding:1px 6px;font-weight:400;cursor:help;';
+      lCount.appendChild(extTag);
+    }
     label.appendChild(lText);
     label.appendChild(lCount);
 
-    var bar = document.createElement('div');
-    bar.style.cssText = 'height:8px;border-radius:4px;background:var(--border);overflow:hidden;';
-    var fill = document.createElement('div');
-    fill.style.cssText = 'height:100%;border-radius:4px;transition:width 0.4s;'
+    var barWrap = document.createElement('div');
+    barWrap.style.cssText = 'height:10px;border-radius:5px;background:var(--border);overflow:hidden;display:flex;';
+
+    // Portálová část
+    var pPortal = portalTotal > 0 || ext > 0 ? (total > 0 ? (portal / total) * 100 : 0) : pct;
+    var fillPortal = document.createElement('div');
+    fillPortal.style.cssText = 'height:100%;transition:width 0.4s;'
       + 'background:' + (isWinner ? 'var(--accent)' : 'var(--text-light)') + ';'
-      + 'width:' + pct + '%;';
-    bar.appendChild(fill);
+      + 'width:' + (total > 0 ? Math.round((portal / total) * 100) : 0) + '%;';
+    barWrap.appendChild(fillPortal);
+
+    // Externí část (odlišná barva)
+    if (ext > 0) {
+      var fillExt = document.createElement('div');
+      fillExt.style.cssText = 'height:100%;transition:width 0.4s;opacity:0.45;'
+        + 'background:' + (isWinner ? 'var(--accent)' : 'var(--text-light)') + ';'
+        + 'width:' + (total > 0 ? Math.round((ext / total) * 100) : 0) + '%;';
+      barWrap.appendChild(fillExt);
+    }
 
     row.appendChild(label);
-    row.appendChild(bar);
+    row.appendChild(barWrap);
     wrap.appendChild(row);
+  });
+}
+
+/* ===== FORMULÁŘ EXTERNÍCH HLASŮ ===== */
+
+function renderExterniForm(wrap, h, onRefresh) {
+  var existing = h.externi_hlasy || h.moznosti.map(function() { return 0; });
+  var hasAny   = existing.some(function(v) { return v > 0; });
+
+  var toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'btn btn-secondary btn-sm';
+  toggle.textContent = '\uD83D\uDCDD ' + (hasAny ? 'Upravit externí hlasy' : 'Doplnit hlasy z papíru / e-mailu / schůze');
+  wrap.appendChild(toggle);
+
+  var form = document.createElement('div');
+  form.style.cssText = 'display:none;margin-top:10px;padding:12px;border:1px solid var(--border);'
+    + 'border-radius:8px;background:var(--bg-hover);';
+
+  var formTitle = document.createElement('div');
+  formTitle.style.cssText = 'font-size:0.85rem;font-weight:600;margin-bottom:8px;';
+  formTitle.textContent = 'Počty hlasů z jiných forem hlasování (papír, e-mail, schůze):';
+  form.appendChild(formTitle);
+
+  var inputs = [];
+  h.moznosti.forEach(function(m, i) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:8px;';
+    var lbl = document.createElement('label');
+    lbl.textContent = m;
+    lbl.style.cssText = 'flex:1;font-size:0.88rem;';
+    var inp = document.createElement('input');
+    inp.type = 'number'; inp.min = '0'; inp.value = existing[i] || 0;
+    inp.className = 'form-input';
+    inp.style.cssText = 'width:80px;flex-shrink:0;';
+    row.appendChild(lbl); row.appendChild(inp);
+    form.appendChild(row);
+    inputs.push(inp);
+  });
+
+  var errEl = document.createElement('div');
+  errEl.className = 'info-box info-box-danger';
+  errEl.style.display = 'none';
+  form.appendChild(errEl);
+
+  var saveBtn = document.createElement('button');
+  saveBtn.type = 'button'; saveBtn.className = 'btn btn-primary btn-sm';
+  saveBtn.textContent = 'Uložit externí hlasy';
+  saveBtn.addEventListener('click', function() {
+    var vals = inputs.map(function(i) { return parseInt(i.value, 10) || 0; });
+    saveBtn.disabled = true;
+    Api.apiPost('api/hlasovani.php?action=setExterni', { id: h.id, externi_hlasy: vals })
+      .then(function() { showToast('Externí hlasy uloženy.'); onRefresh(); })
+      .catch(function(e) { errEl.textContent = e.message || 'Chyba'; errEl.style.display = ''; saveBtn.disabled = false; });
+  });
+  form.appendChild(saveBtn);
+  wrap.appendChild(form);
+
+  toggle.addEventListener('click', function() {
+    var hidden = form.style.display === 'none';
+    form.style.display = hidden ? '' : 'none';
+    toggle.textContent = hidden
+      ? '\u2715 Skrýt formulář'
+      : '\uD83D\uDCDD ' + (hasAny ? 'Upravit externí hlasy' : 'Doplnit hlasy z papíru / e-mailu / schůze');
   });
 }
 
