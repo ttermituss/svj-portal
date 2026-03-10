@@ -22,6 +22,7 @@ Router.register('admin', function(el) {
   renderUsersCard(el, user);
   renderInvitesCard(el, user);
   renderKnCard(el, user);
+  renderSfpiCard(el, user);
 
   if (user.role === 'admin') {
     renderSystemCard(el);

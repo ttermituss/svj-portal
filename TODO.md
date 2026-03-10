@@ -97,13 +97,13 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 
 ### Priorita 2 — Střední obtížnost, velmi užitečné
 
-- [ ] **ISIR — Insolvenční rejstřík**
+- [x] **ISIR — Insolvenční rejstřík**
   - Free REST API: `https://isir.justice.cz/isir/usl/api/`
   - Vstup: jméno + příjmení vlastníka (z tabulky vlastníků)
   - Kde: badge/indikátor u vlastníka v tabulce vlastníků (jen admin/výbor)
   - Bezpečnost: velmi citlivé info — zobrazovat jen admin/výbor, žádný cache bez TTL
 
-- [ ] **SFPI dotace — přehled programů**
+- [x] **SFPI dotace — přehled programů**
   - Státní fond podpory investic: Panel 2020+, Zelená úsporám, výtahy, zateplení
   - Kde: samostatná karta ve správě portálu nebo info sekce
   - Forma: přehled aktuálních dotačních titulů + přímé linky na žádosti
