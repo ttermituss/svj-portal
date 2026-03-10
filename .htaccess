@@ -1,0 +1,20 @@
+Options -Indexes
+
+# Rewrite engine
+RewriteEngine On
+
+# Blokovat přímý přístup na config.php a db.php
+RewriteRule ^api/config\.php$ - [F,L]
+RewriteRule ^api/db\.php$ - [F,L]
+RewriteRule ^api/helpers\.php$ - [F,L]
+RewriteRule ^api/middleware\.php$ - [F,L]
+RewriteRule ^api/session\.php$ - [F,L]
+
+# API požadavky jdou přímo na PHP soubory
+RewriteRule ^api/(.+)$ api/$1 [L]
+
+# Vše ostatní na index.html (SPA router)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/api/
+RewriteRule ^ index.html [L]

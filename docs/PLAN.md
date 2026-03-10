@@ -4,28 +4,26 @@
 Vlastní self-hosted SVJ portál s automatickým předvyplněním dat z veřejných rejstříků.
 Nasaditelný na Apache, moderní, modulární, přístupný i pro seniory.
 
-## API Combo pro auto-fill
+## Tech Stack (aktuální)
 
-### Krok 1: Zadání IČO → ARES
-- **Endpoint**: `GET https://ares.gov.cz/ekonomicke-subjekty-v-be/rest/ekonomicke-subjekty/{ico}`
-- **Vrací**: název SVJ, sídlo, IČO, datum vzniku, právní forma
-- **Auth**: žádná
-- **Zdarma**: ano
+| Vrstva | Technologie |
+|---|---|
+| Frontend | Vanilla JS SPA (žádný framework, žádný build step) |
+| Backend | PHP 8.4 (Apache mod_php) |
+| DB | MySQL 8.4 |
+| Auth | Custom session (PDO + bcrypt) |
+| Soubory | Local filesystem (`uploads/`) |
+| Šifrování | AES-256-CBC pro citlivá nastavení v DB |
 
-### Krok 2: IČO → Justice.cz (Veřejný rejstřík)
-- **Endpoint**: `https://or.justice.cz/ias/ui/rejstrik-$svj` + Open Data CKAN API `https://dataor.justice.cz/`
-- **Vrací**: členové výboru (předseda, místopředseda, členové), stanovy, zápisy
-- **Auth**: žádná
-- **Zdarma**: ano
+## Integrovaná API
 
-### Krok 3: Adresa → ČÚZK API KN (Katastr)
-- **Endpoint**: `https://api-kn.cuzk.gov.cz/api/v1/Jednotky/Vyhledani` + `/Stavby/`
-- **Vrací**: seznam jednotek/bytů v domě, vlastníci, podíly na společných částech
-- **Auth**: API klíč (registrace na registrace.cuzk.gov.cz)
-- **Zdarma**: ano
-- **Pozor**: potřeba registrace přes Identitu občana nebo účet ČÚZK
+| API | Účel | Auth | Limit |
+|---|---|---|---|
+| ARES (základní) | Název, sídlo, IČO SVJ | žádná | volné |
+| ARES (VR) | Statutární orgán (předseda, výbor) | žádná | volné |
+| ČÚZK API KN | Stavby + jednotky z katastru | ApiKey header | 500/den |
 
-### Krok 4: Doplňkové API
+### Plánovaná API (zatím neimplementováno)
 - **RÚIAN** — validace a standardizace adres (zdarma, bez auth)
 - **Hlídač státu** — insolvence, veřejné zakázky (zdarma, token)
 - **ISDS** — vyhledání datové schránky (SOAP, auth přes DS)
@@ -37,52 +35,63 @@ Nasaditelný na Apache, moderní, modulární, přístupný i pro seniory.
 - Smlouvy a finanční údaje — manuální zadání
 - Odečty měřidel — manuální nebo IoT
 
-## Tech Stack
-
-| Vrstva | Technologie |
-|---|---|
-| Frontend | Next.js 15 (App Router) + shadcn/ui + Tailwind CSS |
-| Backend | Next.js API Routes (proxy pro české API) |
-| DB | PostgreSQL 16 (později) |
-| ORM | Drizzle ORM (později) |
-| Auth | Better Auth (později) |
-| Soubory | MinIO / local filesystem (později) |
-| PDF | @react-pdf/renderer (později) |
-| E-mail | Nodemailer + React Email (později) |
-| SMS | GoSMS.eu / BulkGate (později) |
-| Hosting | Docker + Apache reverse proxy |
-
-## Themes
-
-1. **Světlý režim** — výchozí, čistý design
-2. **Tmavý režim** — šetří oči, moderní
-3. **Režim pro seniory** — větší písmo (18px+), vyšší kontrast, tučnější texty, větší tlačítka
-
 ## Fáze vývoje
 
-### Fáze 1 — MVP (aktuální)
-- [x] Kostra aplikace (layout, navigace, theme)
-- [x] Auto-fill z ARES (IČO → základní údaje)
-- [ ] Auto-fill z Justice.cz (členové výboru)
-- [ ] Auto-fill z ČÚZK (jednotky, vlastníci)
-- [ ] Správa vlastníků a jednotek (CRUD)
-- [ ] Nahrávání dokumentů
-- [ ] Nástěnka
+### Fáze 1 — MVP ✅ (hotovo)
+- [x] Kostra SPA (layout, navigace, hash router, 3 témata)
+- [x] Registrace SVJ přes IČO → ARES auto-fill
+- [x] Multi-tenant model (svj_id ze session, invite systém)
+- [x] Role: `vlastnik`, `vybor`, `admin` (zakladatel = admin)
+- [x] Přihlášení / odhlášení / session management
+- [x] Avatar (upload foto nebo barevný kruh s iniciálami)
+- [x] Nastavení profilu
+- [x] Správa uživatelů (admin)
+- [x] Pozvánky s expirací (admin/vybor)
+- [x] Systémová nastavení (SMTP, ARES, ČÚZK) — AES šifrování v DB
+- [x] Auto-fill výboru z ARES VR (OR/Obchodní rejstřík)
+- [x] Import jednotek z ČÚZK API KN (stavba → jednotky)
+- [x] Přehled jednotek (tabulka z DB)
+- [x] Nástěnka příspěvků
+- [x] Nahrávání dokumentů
 
-### Fáze 2
-- [ ] Hlasování per rollam
-- [ ] Hlášení závad (ticketing)
-- [ ] Kalendář revizí
-- [ ] Monitoring katastru
-- [ ] Monitoring insolvencí
+### Fáze 2 — Rozšíření (plánováno)
+- [ ] Hlasování per rollam (hlasovací formulář, výsledky, PDF zápis)
+- [ ] Hlášení závad (ticketing: popis, foto, stav, zodpovědná osoba)
+- [ ] Kalendář revizí a kontrol (výtah, kotel, elektro…)
+- [ ] Monitoring katastru — upozornění na změnu vlastníka
+- [ ] Monitoring insolvencí vlastníků (Hlídač státu API)
+- [ ] Správa vlastníků s vazbou na jednotky (CRUD)
 - [ ] PWA + push notifikace
-- [ ] PostgreSQL + auth
+- [ ] E-mail notifikace přes SMTP (nástěnka, hlasování, pozvánky)
 
-### Fáze 3
-- [ ] Účetnictví + vyúčtování
-- [ ] Napojení na banku
-- [ ] AI asistent
-- [ ] Multi-SVJ dashboard
+### Fáze 3 — Enterprise (vzdálená budoucnost)
+- [ ] Účetnictví + vyúčtování služeb
+- [ ] Napojení na banku (přehled plateb)
+- [ ] AI asistent (dotazy na stanovy, legislativu)
+- [ ] Multi-SVJ dashboard (jedna instalace, více SVJ)
+- [ ] PDF generátor (zápisů, výzev, vyúčtování)
+
+## Databázové migrace
+
+| Soubor | Obsah |
+|---|---|
+| `001_init.sql` | Základní tabulky: users, svj, sessions |
+| `002_invites.sql` | Tabulka invite_tokens |
+| `003_settings.sql` | Tabulka settings (klíč-hodnota) |
+| `004_or_cache.sql` | Cache pro OR/ARES data |
+| `005_avatar.sql` | Sloupec `avatar` v users |
+| `006_settings_ext.sql` | SMTP a gov API nastavení |
+| `007_settings_cuzk.sql` | ČÚZK WSDP → API KN přechod |
+| `008_kn_integration.sql` | `svj.kod_adresniho_mista`, tabulka `jednotky`, settings pro API KN |
+
+## Bezpečnostní model
+
+- Hesla: bcrypt cost 12
+- Sessions: SameSite=Lax, HttpOnly, 8h lifetime + sliding window 30 min
+- Invite tokeny: `bin2hex(random_bytes(32))` — 64 hex znaků
+- Citlivá nastavení v DB: AES-256-CBC, klíč v `config.php` (mimo git)
+- Soubory (avatary): MIME check přes `finfo`, `.htaccess` blokuje PHP execution
+- Tenant isolation: `svj_id` vždy ze session, nikdy z requestu
 
 ## Konkurence
 
@@ -95,26 +104,4 @@ Nasaditelný na Apache, moderní, modulární, přístupný i pro seniory.
 | Sousedé.cz | na dotaz | NE | Legislativa, workflow |
 | WebDOMU.cz | 2400 Kč/rok | NE | Katastr import |
 
-**Náš diferenciátor**: otevřené API, auto-fill z rejstříků, self-hosted, open-source, přístupnost pro seniory.
-
-## Apache konfigurace
-
-```apache
-<VirtualHost *:443>
-    ServerName svj.example.cz
-    SSLEngine on
-    SSLCertificateFile /etc/letsencrypt/live/svj.example.cz/fullchain.pem
-    SSLCertificateKeyFile /etc/letsencrypt/live/svj.example.cz/privkey.pem
-
-    ProxyPreserveHost On
-    ProxyPass / http://localhost:3000/
-    ProxyPassReverse / http://localhost:3000/
-
-    # WebSocket support
-    RewriteEngine On
-    RewriteCond %{HTTP:Upgrade} websocket [NC]
-    RewriteRule /(.*) ws://localhost:3000/$1 [P,L]
-</VirtualHost>
-```
-
-Potřebné Apache moduly: `mod_proxy`, `mod_proxy_http`, `mod_rewrite`, `mod_ssl`.
+**Náš diferenciátor**: self-hosted, open-source, automatický import z ARES + ČÚZK, přístupnost pro seniory, AES šifrování API klíčů.

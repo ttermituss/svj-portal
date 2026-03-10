@@ -10,7 +10,6 @@ switch ($action) {
     case 'profile':        handleProfile();        break;
     case 'updateProfile':  handleUpdateProfile();  break;
     case 'changePassword': handleChangePassword(); break;
-    case 'updateSvj':      handleUpdateSvj();      break;
     default: jsonError('Neznámá akce', 400, 'UNKNOWN_ACTION');
 }
 
@@ -106,26 +105,5 @@ function handleChangePassword(): void
     jsonResponse(['ok' => true]);
 }
 
-function handleUpdateSvj(): void
-{
-    requireMethod('POST');
-    $user = requireAuth();
-    $body = getJsonBody();
-
-    $svjId = isset($body['svj_id']) ? (int)$body['svj_id'] : null;
-
-    if ($svjId !== null) {
-        $db = getDb();
-        $stmt = $db->prepare('SELECT id FROM svj WHERE id = :id');
-        $stmt->execute([':id' => $svjId]);
-        if (!$stmt->fetch()) {
-            jsonResponse(['error' => ['message' => 'SVJ nebylo nalezeno', 'code' => 'VALIDATION_ERROR']], 422);
-        }
-    }
-
-    $db = getDb();
-    $stmt = $db->prepare('UPDATE users SET svj_id = :svj_id WHERE id = :id');
-    $stmt->execute([':svj_id' => $svjId, ':id' => $user['id']]);
-
-    jsonResponse(['ok' => true]);
-}
+// updateSvj záměrně odstraněno — přiřazení SVJ probíhá výhradně přes invite tokeny.
+// Přímá změna svj_id uživatelem byla security hole (tenant isolation bypass).

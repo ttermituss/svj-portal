@@ -9,27 +9,45 @@ Router.register('nastaveni', function(el) {
   var h1 = document.createElement('h1');
   h1.textContent = 'Nastavení účtu';
   var sub = document.createElement('p');
-  sub.textContent = 'Správa vašeho profilu a přístupu';
+  sub.textContent = 'Správa vašeho profilu a přihlašovacích údajů';
   title.appendChild(h1);
   title.appendChild(sub);
   el.appendChild(title);
 
-  renderProfileCard(el, user);
-  renderSvjCard(el, user);
-  renderPasswordCard(el);
+  // 2-sloupcový grid: Profil vlevo, Heslo vpravo
+  var grid = document.createElement('div');
+  grid.style.cssText = [
+    'display:grid',
+    'grid-template-columns:1fr 1fr',
+    'gap:24px',
+    'align-items:stretch',
+  ].join(';');
+  el.appendChild(grid);
+
+  renderProfileCard(grid, user);
+  renderPasswordCard(grid);
+
+  // Responzivita — stacked na mobilu
+  var mq = window.matchMedia('(max-width: 768px)');
+  function applyMq(e) {
+    grid.style.gridTemplateColumns = e.matches ? '1fr' : '1fr 1fr';
+  }
+  applyMq(mq);
+  mq.addEventListener('change', applyMq);
 });
 
 /* ===== KARTA: PROFIL ===== */
 
-function renderProfileCard(el, user) {
+function renderProfileCard(container, user) {
   var card = makeCard('Můj profil');
   var body = card.body;
+
+  renderAvatarWidget(body, user);
 
   var err = makeInfoBox(false);
   var ok  = makeInfoBox(true);
 
   var form = document.createElement('form');
-  form.style.maxWidth = '420px';
 
   var jmenoGrp    = makeField('Jméno *',  'text',  'p-jmeno',    user.jmeno    || '');
   var prijmeniGrp = makeField('Příjmení', 'text',  'p-prijmeni', user.prijmeni || '');
@@ -52,8 +70,8 @@ function renderProfileCard(el, user) {
     var prijmeni = prijmeniGrp.input.value.trim();
     var email    = emailGrp.input.value.trim();
 
-    if (!jmeno)  { showBox(err, 'Jméno nesmí být prázdné.'); return; }
-    if (!email)  { showBox(err, 'E-mail nesmí být prázdný.'); return; }
+    if (!jmeno) { showBox(err, 'Jméno nesmí být prázdné.'); return; }
+    if (!email) { showBox(err, 'E-mail nesmí být prázdný.'); return; }
 
     btn.disabled = true;
     Api.apiPost('api/user.php?action=updateProfile', { jmeno: jmeno, prijmeni: prijmeni, email: email })
@@ -67,94 +85,12 @@ function renderProfileCard(el, user) {
   });
 
   body.appendChild(form);
-  el.appendChild(card.card);
-}
-
-/* ===== KARTA: SVJ ===== */
-
-function renderSvjCard(el, user) {
-  var card = makeCard('Propojená SVJ');
-  var body = card.body;
-
-  var err = makeInfoBox(false);
-  var ok  = makeInfoBox(true);
-
-  // Aktuální stav
-  var statusP = document.createElement('p');
-  statusP.style.cssText = 'margin-bottom:16px;font-size:0.9rem;';
-  if (user.svj_id) {
-    var svj = Auth.getSvj();
-    statusP.innerHTML = '<strong>Propojeno:</strong> ' +
-      (svj ? (svj.nazev + ' <span style="color:var(--text-light)">(IČO: ' + svj.ico + ')</span>') : 'ID ' + user.svj_id);
-  } else {
-    statusP.style.color = 'var(--text-light)';
-    statusP.textContent = 'Žádná SVJ není propojena.';
-  }
-  body.appendChild(statusP);
-
-  // Formulář propojení
-  var row = document.createElement('div');
-  row.className = 'form-row';
-  row.style.marginBottom = '8px';
-
-  var icoInput = document.createElement('input');
-  icoInput.type = 'text';
-  icoInput.className = 'form-input';
-  icoInput.placeholder = 'IČO (8 číslic)';
-  icoInput.maxLength = 8;
-  icoInput.style.fontFamily = 'monospace';
-
-  var findBtn = document.createElement('button');
-  findBtn.type = 'button';
-  findBtn.className = 'btn btn-primary';
-  findBtn.textContent = 'Vyhledat a propojit';
-
-  row.appendChild(icoInput);
-  row.appendChild(findBtn);
-  body.appendChild(row);
-  body.appendChild(err);
-  body.appendChild(ok);
-
-  // Odpojit (jen pokud je propojeno)
-  if (user.svj_id) {
-    var unlinkBtn = document.createElement('button');
-    unlinkBtn.type = 'button';
-    unlinkBtn.className = 'btn btn-secondary';
-    unlinkBtn.style.marginTop = '8px';
-    unlinkBtn.textContent = 'Odpojit SVJ';
-    unlinkBtn.addEventListener('click', function() {
-      if (!confirm('Opravdu odpojit SVJ?')) return;
-      Api.apiPost('api/user.php?action=updateSvj', { svj_id: null })
-        .then(function() { location.reload(); })
-        .catch(function(e) { showBox(err, e.message || 'Chyba.'); });
-    });
-    body.appendChild(unlinkBtn);
-  }
-
-  findBtn.addEventListener('click', function() {
-    var ico = icoInput.value.trim();
-    if (!ico) { showBox(err, 'Zadejte IČO.'); return; }
-    hideBox(err); hideBox(ok);
-    findBtn.disabled = true;
-    findBtn.textContent = 'Vyhledávám...';
-    Api.lookupAres(ico)
-      .then(function(data) {
-        return Api.apiPost('api/user.php?action=updateSvj', { svj_id: data.svj_id })
-          .then(function() {
-            showBox(ok, 'Propojeno: ' + (data.obchodniJmeno || ico));
-            setTimeout(function() { location.reload(); }, 1200);
-          });
-      })
-      .catch(function(e) { showBox(err, e.message || 'SVJ nenalezeno.'); })
-      .finally(function() { findBtn.disabled = false; findBtn.textContent = 'Vyhledat a propojit'; });
-  });
-
-  el.appendChild(card.card);
+  container.appendChild(card.card);
 }
 
 /* ===== KARTA: HESLO ===== */
 
-function renderPasswordCard(el) {
+function renderPasswordCard(container) {
   var card = makeCard('Změna hesla');
   var body = card.body;
 
@@ -162,9 +98,8 @@ function renderPasswordCard(el) {
   var ok  = makeInfoBox(true);
 
   var form = document.createElement('form');
-  form.style.maxWidth = '420px';
 
-  var oldGrp  = makeField('Stávající heslo',          'password', 'pw-old',  '');
+  var oldGrp  = makeField('Stávající heslo',           'password', 'pw-old',  '');
   var newGrp  = makeField('Nové heslo (min. 8 znaků)', 'password', 'pw-new',  '');
   var new2Grp = makeField('Nové heslo znovu',           'password', 'pw-new2', '');
   var btn     = makeSubmitBtn('Změnit heslo');
@@ -179,8 +114,8 @@ function renderPasswordCard(el) {
   form.addEventListener('submit', function(e) {
     e.preventDefault();
     hideBox(err); hideBox(ok);
-    var oldPw = oldGrp.input.value;
-    var newPw = newGrp.input.value;
+    var oldPw  = oldGrp.input.value;
+    var newPw  = newGrp.input.value;
     var newPw2 = new2Grp.input.value;
     if (!oldPw || !newPw || !newPw2) { showBox(err, 'Vyplňte všechna pole.'); return; }
     if (newPw.length < 8)            { showBox(err, 'Nové heslo musí mít alespoň 8 znaků.'); return; }
@@ -193,7 +128,7 @@ function renderPasswordCard(el) {
   });
 
   body.appendChild(form);
-  el.appendChild(card.card);
+  container.appendChild(card.card);
 }
 
 /* ===== HELPERS ===== */
@@ -201,7 +136,7 @@ function renderPasswordCard(el) {
 function makeCard(title) {
   var card = document.createElement('div');
   card.className = 'card';
-  card.style.marginBottom = '24px';
+  card.style.cssText = 'height:100%;display:flex;flex-direction:column;margin-top:0;';
   var hdr = document.createElement('div');
   hdr.className = 'card-header';
   var h2 = document.createElement('h2');
@@ -210,6 +145,7 @@ function makeCard(title) {
   card.appendChild(hdr);
   var body = document.createElement('div');
   body.className = 'card-body';
+  body.style.flex = '1';
   card.appendChild(body);
   return { card: card, body: body };
 }
@@ -246,3 +182,131 @@ function makeInfoBox(isOk) {
 
 function showBox(b, t) { b.textContent = t; b.style.display = ''; }
 function hideBox(b)    { b.style.display = 'none'; b.textContent = ''; }
+
+/* ===== AVATAR WIDGET ===== */
+
+function renderAvatarWidget(body, user) {
+  var wrap = document.createElement('div');
+  wrap.style.cssText = [
+    'display:flex', 'flex-direction:column', 'align-items:center', 'gap:10px',
+    'margin-bottom:20px', 'padding-bottom:20px',
+    'border-bottom:1px solid var(--border-light)',
+  ].join(';');
+
+  // Klikatelný kruh s avatarem
+  var circleWrap = document.createElement('div');
+  circleWrap.style.cssText = 'position:relative;cursor:pointer;width:80px;height:80px;border-radius:50%;overflow:hidden;';
+
+  var avatarEl = makeAvatarEl(Auth.getUser() || user, 80);
+  circleWrap.appendChild(avatarEl);
+
+  // Overlay „Změnit" při hoveru
+  var overlay = document.createElement('div');
+  overlay.style.cssText = [
+    'position:absolute', 'inset:0',
+    'background:rgba(0,0,0,0.38)',
+    'display:flex', 'align-items:center', 'justify-content:center',
+    'opacity:0', 'transition:opacity .15s',
+    'color:#fff', 'font-size:0.72rem', 'font-weight:600', 'pointer-events:none',
+  ].join(';');
+  overlay.textContent = 'Změnit';
+  circleWrap.appendChild(overlay);
+  circleWrap.addEventListener('mouseenter', function() { overlay.style.opacity = '1'; });
+  circleWrap.addEventListener('mouseleave', function() { overlay.style.opacity = '0'; });
+  wrap.appendChild(circleWrap);
+
+  // Skrytý file input
+  var fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = 'image/jpeg,image/png,image/gif,image/webp';
+  fileInput.style.display = 'none';
+  wrap.appendChild(fileInput);
+
+  // Tlačítka
+  var btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:8px;align-items:center;';
+
+  var changeBtn = document.createElement('button');
+  changeBtn.type = 'button';
+  changeBtn.className = 'btn btn-secondary btn-sm';
+  changeBtn.textContent = 'Změnit foto';
+
+  var removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.className = 'btn btn-sm';
+  removeBtn.style.color = 'var(--danger)';
+  removeBtn.textContent = 'Odebrat';
+
+  function syncRemoveBtn() {
+    var u = Auth.getUser() || user;
+    removeBtn.style.display = (u && u.avatar) ? '' : 'none';
+  }
+  syncRemoveBtn();
+
+  btnRow.appendChild(changeBtn);
+  btnRow.appendChild(removeBtn);
+  wrap.appendChild(btnRow);
+
+  var hint = document.createElement('div');
+  hint.style.cssText = 'font-size:0.78rem;color:var(--text-light);';
+  hint.textContent = 'Max 2 MB \u00b7 JPEG, PNG, GIF, WebP';
+  wrap.appendChild(hint);
+
+  body.appendChild(wrap);
+
+  // === Eventy ===
+  function openPicker() { fileInput.click(); }
+  circleWrap.addEventListener('click', openPicker);
+  changeBtn.addEventListener('click', openPicker);
+
+  fileInput.addEventListener('change', function() {
+    if (!fileInput.files || !fileInput.files[0]) return;
+    var fd = new FormData();
+    fd.append('avatar', fileInput.files[0]);
+    changeBtn.disabled = true;
+    hint.textContent = 'Nahrávám\u2026';
+    fetch('api/avatar.php?action=upload', { method: 'POST', credentials: 'include', body: fd })
+      .then(function(res) {
+        return res.json().then(function(d) {
+          if (!res.ok) throw { message: d.error ? d.error.message : 'Chyba nahrávání' };
+          return d;
+        });
+      })
+      .then(function(data) {
+        var u = Auth.getUser();
+        if (u) u.avatar = data.avatar;
+        var newEl = makeAvatarEl(u, 80);
+        circleWrap.replaceChild(newEl, avatarEl);
+        avatarEl = newEl;
+        syncRemoveBtn();
+        buildNavWithUser();
+        showToast('Profilový obrázek byl uložen.', 'success');
+      })
+      .catch(function(e) { showToast(e.message || 'Chyba při nahrávání.', 'error'); })
+      .finally(function() {
+        changeBtn.disabled = false;
+        hint.textContent = 'Max 2 MB \u00b7 JPEG, PNG, GIF, WebP';
+        fileInput.value = '';
+      });
+  });
+
+  removeBtn.addEventListener('click', function() {
+    showConfirmModal('Odebrat avatar?', 'Profilový obrázek bude trvale smazán.', function() {
+      removeBtn.disabled = true;
+      fetch('api/avatar.php?action=delete', { method: 'POST', credentials: 'include' })
+        .then(function(res) { return res.json(); })
+        .then(function() {
+          var u = Auth.getUser();
+          if (u) u.avatar = null;
+          var newEl = makeAvatarEl(u, 80);
+          circleWrap.replaceChild(newEl, avatarEl);
+          avatarEl = newEl;
+          syncRemoveBtn();
+          buildNavWithUser();
+          showToast('Avatar byl odebrán.', 'success');
+        })
+        .catch(function() { showToast('Chyba při odebírání.', 'error'); })
+        .finally(function() { removeBtn.disabled = false; });
+    });
+  });
+}

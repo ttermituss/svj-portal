@@ -3,6 +3,7 @@ require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/middleware.php';
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/settings_crypto.php';
 
 $action = getParam('action', '');
 
@@ -114,6 +115,13 @@ function handleGetSettings(): void
     $stmt->execute();
     $settings = $stmt->fetchAll();
 
+    foreach ($settings as &$s) {
+        if (isSecretSettingKey($s['key'])) {
+            $s['value'] = decryptSetting($s['value'] ?? '');
+        }
+    }
+    unset($s);
+
     jsonResponse(['settings' => $settings]);
 }
 
@@ -137,8 +145,10 @@ function handleUpdateSetting(): void
         jsonResponse(['error' => ['message' => 'Neznámý klíč nastavení', 'code' => 'VALIDATION_ERROR']], 422);
     }
 
+    $storeValue = isSecretSettingKey($key) ? encryptSetting($value) : $value;
+
     $stmt = $db->prepare('UPDATE settings SET value = :value WHERE `key` = :key');
-    $stmt->execute([':value' => $value, ':key' => $key]);
+    $stmt->execute([':value' => $storeValue, ':key' => $key]);
 
     jsonResponse(['ok' => true]);
 }

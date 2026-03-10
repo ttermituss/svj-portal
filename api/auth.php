@@ -4,6 +4,7 @@ require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/session.php';
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/ratelimit.php';
+require_once __DIR__ . '/svj_helper.php';
 
 define('LOGIN_MAX_ATTEMPTS',    10);
 define('REGISTER_MAX_ATTEMPTS',  5);
@@ -11,13 +12,18 @@ define('REGISTER_MAX_ATTEMPTS',  5);
 $action = getParam('action', '');
 
 switch ($action) {
-    case 'register': handleRegister(); break;
-    case 'login':    handleLogin();    break;
-    case 'logout':   handleLogout();   break;
-    case 'check':    handleCheck();    break;
+    case 'register':      handleRegister();      break;
+    case 'registerAdmin': handleRegisterAdmin(); break;
+    case 'login':         handleLogin();         break;
+    case 'logout':        handleLogout();        break;
+    case 'check':         handleCheck();         break;
     default: jsonError('Neznámá akce', 400, 'UNKNOWN_ACTION');
 }
 
+/**
+ * Registrace vlastníka přes pozvánkový token.
+ * Token je povinný — žádné volné přiřazení k SVJ.
+ */
 function handleRegister(): void
 {
     requireMethod('POST');
@@ -26,17 +32,16 @@ function handleRegister(): void
         jsonError('Již jste přihlášeni', 400, 'ALREADY_AUTHENTICATED');
     }
 
-    // Rate limiting registrace (5 účtů / 5 min z jedné IP)
     checkRateLimit('rl_register_', REGISTER_MAX_ATTEMPTS,
         'Příliš mnoho registrací. Zkuste to za 5 minut.');
 
     $body = getJsonBody();
 
-    $email    = sanitize($body['email']    ?? '');
-    $password = $body['password']          ?? '';
-    $jmeno    = sanitize($body['jmeno']    ?? '');
-    $prijmeni = sanitize($body['prijmeni'] ?? '');
-    $svjId    = isset($body['svj_id']) ? (int)$body['svj_id'] : null;
+    $email        = sanitize($body['email']        ?? '');
+    $password     = $body['password']              ?? '';
+    $jmeno        = sanitize($body['jmeno']        ?? '');
+    $prijmeni     = sanitize($body['prijmeni']     ?? '');
+    $inviteToken  = sanitize($body['invite_token'] ?? '');
 
     if (strlen($email) > 255 || strlen($password) > 128 ||
         strlen($jmeno) > 100 || strlen($prijmeni) > 100) {
@@ -53,25 +58,38 @@ function handleRegister(): void
     if (!$jmeno) {
         $errors['jmeno'] = ['Zadejte jméno'];
     }
+    if (!$inviteToken || strlen($inviteToken) !== 64 || !ctype_xdigit($inviteToken)) {
+        $errors['invite_token'] = ['Neplatný pozvánkový token'];
+    }
 
     if ($errors) {
         jsonResponse(['error' => ['message' => 'Chyby ve formuláři', 'code' => 'VALIDATION_ERROR', 'fields' => $errors]], 422);
     }
 
-    if ($svjId !== null) {
-        $db   = getDb();
-        $stmt = $db->prepare('SELECT id FROM svj WHERE id = :id');
-        $stmt->execute([':id' => $svjId]);
-        if (!$stmt->fetch()) {
-            $svjId = null;
-        }
+    // Ověřit token
+    $db   = getDb();
+    $stmt = $db->prepare(
+        'SELECT id, svj_id, role, expires_at, used_at
+         FROM invitations WHERE token = :token'
+    );
+    $stmt->execute([':token' => $inviteToken]);
+    $invite = $stmt->fetch();
+
+    if (!$invite) {
+        recordRateLimit('rl_register_');
+        jsonError('Pozvánka nenalezena nebo neplatná', 404, 'INVALID_TOKEN');
+    }
+    if ($invite['used_at']) {
+        jsonError('Pozvánka již byla použita', 410, 'TOKEN_USED');
+    }
+    if (strtotime($invite['expires_at']) < time()) {
+        jsonError('Platnost pozvánky vypršela', 410, 'TOKEN_EXPIRED');
     }
 
-    $db   = getDb();
+    // Email uniqueness
     $stmt = $db->prepare('SELECT id FROM users WHERE email = :email');
     $stmt->execute([':email' => strtolower($email)]);
     if ($stmt->fetch()) {
-        // Zaznamenat jako neúspěšný pokus (email už existuje = potenciální enumeration spam)
         recordRateLimit('rl_register_');
         jsonResponse(['error' => ['message' => 'Účet s tímto e-mailem již existuje', 'code' => 'EMAIL_EXISTS']], 409);
     }
@@ -86,7 +104,114 @@ function handleRegister(): void
         ':hash'     => $hash,
         ':jmeno'    => $jmeno,
         ':prijmeni' => $prijmeni,
-        ':role'     => 'vlastnik',
+        ':role'     => $invite['role'],
+        ':svj_id'   => (int)$invite['svj_id'],
+    ]);
+
+    $userId = (int)$db->lastInsertId();
+
+    // Označit token jako použitý
+    $db->prepare(
+        'UPDATE invitations SET used_at = NOW(), used_by = :uid WHERE id = :id'
+    )->execute([':uid' => $userId, ':id' => (int)$invite['id']]);
+
+    createSession($userId);
+    cleanExpiredSessions();
+
+    jsonResponse([
+        'user' => [
+            'id'       => $userId,
+            'email'    => strtolower($email),
+            'jmeno'    => $jmeno,
+            'prijmeni' => $prijmeni,
+            'role'     => $invite['role'],
+            'svj_id'   => (int)$invite['svj_id'],
+        ],
+    ], 201);
+}
+
+/**
+ * Registrace zakladatele SVJ.
+ * IČO → ARES → vytvoří SVJ (pokud neexistuje) + user s rolí vybor.
+ */
+function handleRegisterAdmin(): void
+{
+    requireMethod('POST');
+
+    if (validateSession()) {
+        jsonError('Již jste přihlášeni', 400, 'ALREADY_AUTHENTICATED');
+    }
+
+    checkRateLimit('rl_register_', REGISTER_MAX_ATTEMPTS,
+        'Příliš mnoho registrací. Zkuste to za 5 minut.');
+
+    $body = getJsonBody();
+
+    $email    = sanitize($body['email']    ?? '');
+    $password = $body['password']          ?? '';
+    $jmeno    = sanitize($body['jmeno']    ?? '');
+    $prijmeni = sanitize($body['prijmeni'] ?? '');
+    $ico      = str_pad(preg_replace('/\D/', '', $body['ico'] ?? ''), 8, '0', STR_PAD_LEFT);
+
+    if (strlen($email) > 255 || strlen($password) > 128 ||
+        strlen($jmeno) > 100 || strlen($prijmeni) > 100) {
+        jsonError('Vstup je příliš dlouhý', 400, 'VALIDATION_ERROR');
+    }
+
+    $errors = [];
+    if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors['email'] = ['Zadejte platný e-mail'];
+    }
+    if (strlen($password) < 8) {
+        $errors['password'] = ['Heslo musí mít alespoň 8 znaků'];
+    }
+    if (!$jmeno) {
+        $errors['jmeno'] = ['Zadejte jméno'];
+    }
+    if (!preg_match('/^\d{8}$/', $ico)) {
+        $errors['ico'] = ['Zadejte platné IČO (8 číslic)'];
+    }
+
+    if ($errors) {
+        jsonResponse(['error' => ['message' => 'Chyby ve formuláři', 'code' => 'VALIDATION_ERROR', 'fields' => $errors]], 422);
+    }
+
+    // ARES lookup + upsert SVJ
+    $svjRow = getOrFetchSvj($ico);
+    $svjId  = (int)$svjRow['id'];
+
+    // Kontrola: má toto SVJ už správce?
+    $db   = getDb();
+    $stmt = $db->prepare(
+        "SELECT COUNT(*) FROM users WHERE svj_id = :svj AND role IN ('vybor','admin')"
+    );
+    $stmt->execute([':svj' => $svjId]);
+    if ((int)$stmt->fetchColumn() > 0) {
+        jsonError(
+            'Toto SVJ již má registrovaného správce. Požádejte ho o pozvánku.',
+            409, 'SVJ_HAS_ADMIN'
+        );
+    }
+
+    // Email uniqueness
+    $stmt = $db->prepare('SELECT id FROM users WHERE email = :email');
+    $stmt->execute([':email' => strtolower($email)]);
+    if ($stmt->fetch()) {
+        recordRateLimit('rl_register_');
+        jsonResponse(['error' => ['message' => 'Účet s tímto e-mailem již existuje', 'code' => 'EMAIL_EXISTS']], 409);
+    }
+
+    $hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => BCRYPT_COST]);
+    $stmt = $db->prepare(
+        'INSERT INTO users (email, password_hash, jmeno, prijmeni, role, svj_id)
+         VALUES (:email, :hash, :jmeno, :prijmeni, :role, :svj_id)'
+    );
+    $stmt->execute([
+        ':email'    => strtolower($email),
+        ':hash'     => $hash,
+        ':jmeno'    => $jmeno,
+        ':prijmeni' => $prijmeni,
+        ':role'     => 'admin',   // zakladatel SVJ = plný správce
         ':svj_id'   => $svjId,
     ]);
 
@@ -100,8 +225,12 @@ function handleRegister(): void
             'email'    => strtolower($email),
             'jmeno'    => $jmeno,
             'prijmeni' => $prijmeni,
-            'role'     => 'vlastnik',
+            'role'     => 'admin',
             'svj_id'   => $svjId,
+        ],
+        'svj' => [
+            'ico'   => $svjRow['ico'],
+            'nazev' => $svjRow['nazev'],
         ],
     ], 201);
 }
@@ -126,7 +255,6 @@ function handleLogin(): void
         jsonError('Neplatný e-mail nebo heslo', 401, 'INVALID_CREDENTIALS');
     }
 
-    // Rate limiting přihlášení (10 pokusů / 5 min z jedné IP)
     checkRateLimit('rl_login_', LOGIN_MAX_ATTEMPTS,
         'Příliš mnoho neúspěšných pokusů. Zkuste to za 5 minut.');
 
@@ -143,7 +271,6 @@ function handleLogin(): void
         jsonError('Neplatný e-mail nebo heslo', 401, 'INVALID_CREDENTIALS');
     }
 
-    // Úspěch — smaž počítadlo pro tuto IP
     clearRateLimit('rl_login_');
     createSession((int)$user['id']);
     cleanExpiredSessions();
@@ -186,11 +313,3 @@ function handleCheck(): void
 
     jsonResponse(['authenticated' => true, 'user' => $user, 'svj' => $svjInfo]);
 }
-
-/* ===== Rate limiting — FIXED window =====
- *
- * window_end se nastavuje POUZE při prvním záznamu (INSERT).
- * Při každém dalším pokusu se jen inkrementuje attempts — okno se NEPOSOUVÁ.
- * Útočník tedy nemůže donekonečna resetovat okno tím, že čeká 4:59 minut.
- */
-

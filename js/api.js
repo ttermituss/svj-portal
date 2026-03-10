@@ -106,6 +106,32 @@ var Api = (function() {
       });
   }
 
+  /** Ověří pozvánkový token — vrátí {valid, role, svj} nebo hodí Error */
+  function validateInvite(token) {
+    return fetch('api/invite.php?action=validate&token=' + encodeURIComponent(token))
+      .then(function(res) {
+        return res.json().then(function(d) {
+          if (!res.ok) throw new Error(d.error ? d.error.message : 'Neplatná pozvánka');
+          return d;
+        });
+      });
+  }
+
+  /** Vytvoří pozvánku (vybor/admin) */
+  function createInvite(role, expiresDays) {
+    return apiPost('api/invite.php?action=create', { role: role, expires_days: expiresDays });
+  }
+
+  /** Vypíše pozvánky pro aktuální SVJ */
+  function listInvites() {
+    return apiGet('api/invite.php?action=list');
+  }
+
+  /** Zruší pozvánku */
+  function revokeInvite(inviteId) {
+    return apiPost('api/invite.php?action=revoke', { invite_id: inviteId });
+  }
+
   return {
     lookupAres: lookupAres,
     lookupAresLegacy: lookupAresLegacy,
@@ -115,6 +141,10 @@ var Api = (function() {
     formatDate: formatDate,
     formatAddress: formatAddress,
     linkSvj: linkSvj,
+    validateInvite: validateInvite,
+    createInvite: createInvite,
+    listInvites: listInvites,
+    revokeInvite: revokeInvite,
     apiPost: apiPost,
     apiGet: apiGet,
   };

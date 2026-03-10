@@ -73,5 +73,9 @@ var Auth = (function() {
   function getUser()    { return currentUser; }
   function getSvj()     { return currentSvj; }
 
-  return { check: check, login: login, register: register, logout: logout, isLoggedIn: isLoggedIn, getUser: getUser, getSvj: getSvj };
+  /** Interní setter — volán po registerAdmin kde fetch neprochází přes Auth.register */
+  function _setUser(user) { currentUser = user; currentSvj = null; }
+
+  return { check: check, login: login, register: register, logout: logout,
+           isLoggedIn: isLoggedIn, getUser: getUser, getSvj: getSvj, _setUser: _setUser };
 })();

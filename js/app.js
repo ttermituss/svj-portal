@@ -76,30 +76,34 @@ function buildNavWithUser() {
   sep.style.marginTop = 'auto';
   nav.appendChild(sep);
 
-  // User info
+  // User info — avatar + jméno + email
   var userInfo = document.createElement('div');
-  userInfo.style.padding = '8px 12px';
+  userInfo.style.cssText = 'padding:8px 12px;display:flex;align-items:center;gap:10px;';
+
+  userInfo.appendChild(makeAvatarEl(user, 36));
+
+  var textBlock = document.createElement('div');
+  textBlock.style.cssText = 'min-width:0;flex:1;';
+
   var userName = document.createElement('div');
-  userName.style.fontWeight = '500';
-  userName.style.fontSize = '0.9rem';
+  userName.style.cssText = 'font-weight:500;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
   userName.textContent = user.jmeno + (user.prijmeni ? ' ' + user.prijmeni : '');
-  userInfo.appendChild(userName);
+  textBlock.appendChild(userName);
 
   var userEmail = document.createElement('div');
-  userEmail.style.fontSize = '0.8rem';
-  userEmail.style.color = 'var(--text-light)';
+  userEmail.style.cssText = 'font-size:0.8rem;color:var(--text-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
   userEmail.textContent = user.email;
-  userInfo.appendChild(userEmail);
+  textBlock.appendChild(userEmail);
 
   var svj = Auth.getSvj();
   if (svj) {
     var svjName = document.createElement('div');
-    svjName.style.fontSize = '0.75rem';
-    svjName.style.color = 'var(--text-light)';
-    svjName.style.marginTop = '4px';
+    svjName.style.cssText = 'font-size:0.75rem;color:var(--text-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;';
     svjName.textContent = svj.nazev;
-    userInfo.appendChild(svjName);
+    textBlock.appendChild(svjName);
   }
+
+  userInfo.appendChild(textBlock);
   nav.appendChild(userInfo);
 
   // Logout button

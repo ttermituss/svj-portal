@@ -1,4 +1,4 @@
-/* ===== SPRÁVA PORTÁLU (admin / vybor) ===== */
+/* ===== SPRÁVA PORTÁLU — hlavní router + SVJ banner + sdílené helpery ===== */
 
 Router.register('admin', function(el) {
   var user = Auth.getUser();
@@ -17,68 +17,120 @@ Router.register('admin', function(el) {
   title.appendChild(sub);
   el.appendChild(title);
 
+  renderSvjBanner(el, user);
+  renderOrCard(el, user);
   renderUsersCard(el, user);
+  renderInvitesCard(el, user);
+  renderKnCard(el, user);
 
   if (user.role === 'admin') {
     renderSystemCard(el);
   }
 });
 
-/* ===== KARTA: SPRÁVA UŽIVATELŮ ===== */
+/* ===== BANNER: MOJE SVJ ===== */
 
-function renderUsersCard(el, currentUser) {
-  var card = makeAdminCard('Uživatelé a oprávnění');
-  var body = card.body;
+function renderSvjBanner(el, user) {
+  var svj = Auth.getSvj();
+  if (!svj && !user.svj_id) return;
 
-  var err      = makeAdminInfoBox(false);
-  var tableWrap = document.createElement('div');
-  tableWrap.style.overflowX = 'auto';
+  var banner = document.createElement('div');
+  banner.style.cssText = [
+    'display:flex', 'align-items:center', 'gap:16px',
+    'background:var(--bg-hover)', 'border:1px solid var(--border)',
+    'border-radius:8px', 'padding:14px 18px', 'margin-bottom:24px',
+    'flex-wrap:wrap',
+  ].join(';');
 
-  body.appendChild(err);
-  body.appendChild(tableWrap);
-  el.appendChild(card.card);
+  var icon = document.createElement('span');
+  icon.textContent = '\uD83C\uDFE0';
+  icon.style.cssText = 'font-size:1.4rem;flex-shrink:0;';
+  banner.appendChild(icon);
 
-  function load() {
-    tableWrap.replaceChildren();
-    var loading = document.createElement('p');
-    loading.style.color = 'var(--text-light)';
-    loading.textContent = 'Načítám...';
-    tableWrap.appendChild(loading);
-    hideAdminBox(err);
+  var info = document.createElement('div');
+  info.style.cssText = 'flex:1;min-width:0;';
 
-    Api.apiGet('api/admin.php?action=listUsers')
-      .then(function(data) { renderUsersTable(tableWrap, data.users, currentUser, load); })
-      .catch(function(e) {
-        tableWrap.replaceChildren();
-        showAdminBox(err, e.message || 'Chyba při načítání.');
-      });
+  var nameEl = document.createElement('div');
+  nameEl.style.cssText = 'font-weight:600;font-size:0.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+  nameEl.textContent = svj ? svj.nazev : 'SVJ ID ' + user.svj_id;
+  info.appendChild(nameEl);
+
+  if (svj && svj.ico) {
+    var icoEl = document.createElement('div');
+    icoEl.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:2px;';
+    icoEl.textContent = 'I\u010cO: ' + svj.ico;
+    info.appendChild(icoEl);
   }
 
-  load();
+  banner.appendChild(info);
+
+  var roleLabels = { vlastnik: 'Vlastn\u00edk', vybor: '\u010clen v\u00fdboru', admin: 'Administr\u00e1tor' };
+  var roleBadge = document.createElement('span');
+  roleBadge.className = 'badge';
+  roleBadge.textContent = roleLabels[user.role] || user.role;
+  roleBadge.style.flexShrink = '0';
+  banner.appendChild(roleBadge);
+
+  el.appendChild(banner);
 }
 
-var ROLE_LABELS = { vlastnik: 'Vlastník', vybor: 'Výbor', admin: 'Admin' };
+/* ===== KARTA: VÝBOR DLE OR ===== */
 
-function renderUsersTable(wrap, users, me, reloadFn) {
+function renderOrCard(el, user) {
+  if (!user.svj_id) return;
+
+  var card = makeAdminCard('Výbor dle Obchodního rejstříku');
+  var body = card.body;
+
+  var hint = document.createElement('p');
+  hint.style.cssText = 'margin:0 0 14px;font-size:0.88rem;color:var(--text-light);';
+  hint.textContent = 'Aktuální složení výboru dle zápisu v OR (ARES). Kliknutím na "Pozvat" vygenerujete pozvánkový odkaz.';
+  body.appendChild(hint);
+
+  var err      = makeAdminInfoBox(false);
+  var resultWrap = document.createElement('div');
+  body.appendChild(err);
+  body.appendChild(resultWrap);
+
+  var fetchBtn = document.createElement('button');
+  fetchBtn.className = 'btn btn-secondary';
+  fetchBtn.textContent = 'Načíst z OR / ARES';
+  body.appendChild(fetchBtn);
+
+  el.appendChild(card.card);
+
+  fetchBtn.addEventListener('click', function() {
+    fetchBtn.disabled = true;
+    fetchBtn.textContent = 'Načítám\u2026';
+    hideAdminBox(err);
+    resultWrap.replaceChildren();
+
+    Api.apiGet('api/svj.php?action=fetchOr')
+      .then(function(data) { renderOrResult(resultWrap, data.or, err); })
+      .catch(function(e)   { showAdminBox(err, e.message || 'Chyba při načítání z OR.'); })
+      .finally(function()  { fetchBtn.disabled = false; fetchBtn.textContent = 'Aktualizovat z OR'; });
+  });
+}
+
+function renderOrResult(wrap, or, errBox) {
   wrap.replaceChildren();
 
-  if (!users || !users.length) {
-    var p = document.createElement('p');
-    p.style.color = 'var(--text-light)';
-    p.textContent = 'Žádní uživatelé.';
-    wrap.appendChild(p);
+  var clenove = or.clenove || [];
+  if (!clenove.length) {
+    var info = document.createElement('div');
+    info.className = 'info-box info-box-warning';
+    info.style.margin = '0 0 12px';
+    info.textContent = 'V OR nebyla nalezena data o statutárním orgánu. SVJ může mít zjednodušenou formu nebo data nejsou v ARES.';
+    wrap.appendChild(info);
     return;
   }
 
-  var isAdmin = me.role === 'admin';
-
   var table = document.createElement('table');
-  table.style.cssText = 'width:100%;border-collapse:collapse;font-size:0.9rem;';
+  table.style.cssText = 'width:100%;border-collapse:collapse;font-size:0.9rem;margin-bottom:12px;';
 
-  // Hlavička
   var thead = document.createElement('thead');
   var headRow = document.createElement('tr');
-  ['Jméno', 'E-mail', 'Role', 'Registrace', 'Akce'].forEach(function(col) {
+  ['Jméno', 'Funkce', 'Akce'].forEach(function(col) {
     var th = document.createElement('th');
     th.textContent = col;
     th.style.cssText = 'text-align:left;padding:8px 12px;border-bottom:2px solid var(--border);' +
@@ -89,179 +141,60 @@ function renderUsersTable(wrap, users, me, reloadFn) {
   table.appendChild(thead);
 
   var tbody = document.createElement('tbody');
-
-  users.forEach(function(u) {
-    var isSelf = u.id === me.id;
+  clenove.forEach(function(clen) {
     var tr = document.createElement('tr');
-    if (isSelf) tr.style.background = 'rgba(0,0,0,0.03)';
 
-    // Jméno
     var tdName = document.createElement('td');
-    tdName.style.cssText = 'padding:8px 12px;border-bottom:1px solid var(--border);white-space:nowrap;';
-    tdName.textContent = (((u.jmeno || '') + ' ' + (u.prijmeni || '')).trim()) || '—';
-    if (isSelf) {
-      var badge = document.createElement('span');
-      badge.className = 'badge';
-      badge.textContent = 'Já';
-      badge.style.marginLeft = '6px';
-      tdName.appendChild(badge);
-    }
+    tdName.style.cssText = 'padding:8px 12px;border-bottom:1px solid var(--border);font-weight:500;';
+    tdName.textContent = (clen.jmeno + ' ' + clen.prijmeni).trim();
 
-    // E-mail
-    var tdEmail = document.createElement('td');
-    tdEmail.style.cssText = 'padding:8px 12px;border-bottom:1px solid var(--border);';
-    tdEmail.textContent = u.email;
+    var tdFunkce = document.createElement('td');
+    tdFunkce.style.cssText = 'padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text-light);';
+    tdFunkce.textContent = clen.funkce || '\u2014';
 
-    // Role
-    var tdRole = document.createElement('td');
-    tdRole.style.cssText = 'padding:8px 12px;border-bottom:1px solid var(--border);';
-
-    if (isAdmin && !isSelf) {
-      var sel = document.createElement('select');
-      sel.className = 'form-input';
-      sel.style.cssText = 'padding:4px 8px;width:auto;';
-      Object.keys(ROLE_LABELS).forEach(function(r) {
-        var opt = document.createElement('option');
-        opt.value = r;
-        opt.textContent = ROLE_LABELS[r];
-        if (r === u.role) opt.selected = true;
-        sel.appendChild(opt);
-      });
-      sel.addEventListener('change', function() {
-        Api.apiPost('api/admin.php?action=updateRole', { user_id: u.id, role: sel.value })
-          .catch(function(e) { alert('Chyba: ' + (e.message || 'Nepodařilo se změnit roli.')); reloadFn(); });
-      });
-      tdRole.appendChild(sel);
-    } else {
-      var rb = document.createElement('span');
-      rb.className = 'badge' + (u.role === 'admin' ? ' badge-success' : '');
-      rb.textContent = ROLE_LABELS[u.role] || u.role;
-      tdRole.appendChild(rb);
-    }
-
-    // Datum
-    var tdDate = document.createElement('td');
-    tdDate.style.cssText = 'padding:8px 12px;border-bottom:1px solid var(--border);white-space:nowrap;' +
-                           'color:var(--text-light);font-size:0.85rem;';
-    tdDate.textContent = u.created_at ? new Date(u.created_at).toLocaleDateString('cs-CZ') : '—';
-
-    // Akce
     var tdAkce = document.createElement('td');
     tdAkce.style.cssText = 'padding:8px 12px;border-bottom:1px solid var(--border);';
 
-    if (isAdmin && !isSelf) {
-      var delBtn = document.createElement('button');
-      delBtn.className = 'btn btn-danger';
-      delBtn.textContent = 'Smazat';
-      delBtn.style.cssText = 'padding:4px 10px;font-size:0.8rem;';
-      delBtn.addEventListener('click', function() {
-        var label = tdName.textContent.replace('Já', '').trim() + ' (' + u.email + ')';
-        if (!confirm('Opravdu smazat: ' + label + '?')) return;
-        delBtn.disabled = true;
-        Api.apiPost('api/admin.php?action=deleteUser', { user_id: u.id })
-          .then(reloadFn)
-          .catch(function(e) { alert('Chyba: ' + (e.message || 'Nepodařilo se smazat.')); delBtn.disabled = false; });
-      });
-      tdAkce.appendChild(delBtn);
-    } else {
-      tdAkce.textContent = '—';
-    }
+    var invBtn = document.createElement('button');
+    invBtn.className = 'btn btn-secondary btn-sm';
+    invBtn.textContent = 'Pozvat jako Výbor';
+    invBtn.addEventListener('click', function() {
+      invBtn.disabled = true;
+      Api.createInvite('vybor', 30)
+        .then(function(data) {
+          var base = window.location.origin + window.location.pathname;
+          var url  = base + '?invite=' + data.token + '#registrace';
+          copyToClipboard(url, function() {
+            showToast('Pozvánka zkopírována pro ' + tdName.textContent);
+          });
+          // Zobrazit link inline
+          var linkRow = document.createElement('div');
+          linkRow.style.cssText = 'margin-top:4px;font-size:0.78rem;font-family:monospace;' +
+            'color:var(--text-light);word-break:break-all;';
+          linkRow.textContent = url;
+          tdAkce.appendChild(linkRow);
+        })
+        .catch(function(e) { showToast(e.message || 'Chyba při vytváření pozvánky.', 'error'); })
+        .finally(function() { invBtn.disabled = false; });
+    });
+    tdAkce.appendChild(invBtn);
 
     tr.appendChild(tdName);
-    tr.appendChild(tdEmail);
-    tr.appendChild(tdRole);
-    tr.appendChild(tdDate);
+    tr.appendChild(tdFunkce);
     tr.appendChild(tdAkce);
     tbody.appendChild(tr);
   });
 
   table.appendChild(tbody);
   wrap.appendChild(table);
+
+  var note = document.createElement('div');
+  note.style.cssText = 'font-size:0.78rem;color:var(--text-light);';
+  note.textContent = 'Zdroj: ARES / Obchodní rejstřík \u00b7 Data mohou být zpožděná o 1\u20132 dny.';
+  wrap.appendChild(note);
 }
 
-/* ===== KARTA: SYSTÉMOVÁ NASTAVENÍ (jen admin) ===== */
-
-var SECRET_KEYS = ['api_klic'];
-
-function renderSystemCard(el) {
-  var card = makeAdminCard('Systémová nastavení');
-  var body = card.body;
-
-  var err  = makeAdminInfoBox(false);
-  var ok   = makeAdminInfoBox(true);
-  var wrap = document.createElement('div');
-  wrap.style.maxWidth = '500px';
-
-  body.appendChild(err);
-  body.appendChild(ok);
-  body.appendChild(wrap);
-  el.appendChild(card.card);
-
-  Api.apiGet('api/admin.php?action=getSettings')
-    .then(function(data) { renderSettingsForm(wrap, data.settings, err, ok); })
-    .catch(function(e) { showAdminBox(err, e.message || 'Chyba při načítání.'); });
-}
-
-function renderSettingsForm(wrap, settings, errBox, okBox) {
-  wrap.replaceChildren();
-
-  var form = document.createElement('form');
-  var inputs = {};
-
-  settings.forEach(function(s) {
-    var isSecret = SECRET_KEYS.indexOf(s.key) !== -1;
-    var inputType = isSecret ? 'password' : detectInputType(s.key);
-
-    var grp = makeAdminField(s.label, inputType, 'cfg-' + s.key, s.value || '');
-    inputs[s.key] = grp.input;
-
-    if (isSecret) {
-      var toggle = document.createElement('button');
-      toggle.type = 'button';
-      toggle.textContent = 'Zobrazit';
-      toggle.style.cssText = 'margin-top:3px;font-size:0.8rem;background:none;border:none;' +
-                             'color:var(--primary);cursor:pointer;padding:0;';
-      toggle.addEventListener('click', function() {
-        grp.input.type = grp.input.type === 'password' ? 'text' : 'password';
-        toggle.textContent = grp.input.type === 'password' ? 'Zobrazit' : 'Skrýt';
-      });
-      grp.el.appendChild(toggle);
-    }
-
-    form.appendChild(grp.el);
-  });
-
-  var saveBtn = document.createElement('button');
-  saveBtn.type = 'submit';
-  saveBtn.className = 'btn btn-primary';
-  saveBtn.style.marginTop = '8px';
-  saveBtn.textContent = 'Uložit nastavení';
-  form.appendChild(saveBtn);
-
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    hideAdminBox(errBox); hideAdminBox(okBox);
-    saveBtn.disabled = true;
-
-    Promise.all(settings.map(function(s) {
-      return Api.apiPost('api/admin.php?action=updateSetting', { key: s.key, value: inputs[s.key].value });
-    }))
-      .then(function() { showAdminBox(okBox, 'Nastavení uloženo.'); })
-      .catch(function(e) { showAdminBox(errBox, e.message || 'Chyba.'); })
-      .finally(function() { saveBtn.disabled = false; });
-  });
-
-  wrap.appendChild(form);
-}
-
-function detectInputType(key) {
-  if (key.indexOf('url') !== -1 || key.indexOf('web') !== -1) return 'url';
-  if (key.indexOf('kontakt') !== -1 || key.indexOf('email') !== -1 || key.indexOf('user') !== -1) return 'email';
-  if (key.indexOf('host') !== -1) return 'text';
-  return 'text';
-}
-
-/* ===== HELPERS (lokální, nesmí kolidovat s nastaveni.js) ===== */
+/* ===== SDÍLENÉ HELPERY (používají admin-users, admin-invites, admin-settings) ===== */
 
 function makeAdminCard(title) {
   var card = document.createElement('div');
@@ -302,3 +235,5 @@ function makeAdminInfoBox(isOk) {
 
 function showAdminBox(b, t) { b.textContent = t; b.style.display = ''; }
 function hideAdminBox(b)    { b.style.display = 'none'; b.textContent = ''; }
+
+/* showToast, showConfirmModal, copyToClipboard → js/ui.js */
