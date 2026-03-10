@@ -23,13 +23,16 @@ Router.register('jednotky', function(el) {
   loading.textContent = 'Načítám jednotky\u2026';
   body.appendChild(loading);
 
+  var user = Auth.getUser();
+  var isPriv = user && (user.role === 'admin' || user.role === 'vybor');
+
   Api.apiGet('api/jednotky.php')
     .then(function(data) {
       body.removeChild(loading);
       if (!data.jednotky || !data.jednotky.length) {
         renderEmpty(body);
       } else {
-        renderTable(body, data.jednotky);
+        renderTable(body, data.jednotky, isPriv);
       }
     })
     .catch(function(e) {
@@ -51,8 +54,18 @@ function renderEmpty(body) {
   body.appendChild(empty);
 }
 
-function renderTable(body, jednotky) {
-  var cols = ['Číslo jednotky', 'Typ', 'Způsob využití', 'Spoluvl. podíl', 'LV'];
+function renderTable(body, jednotky, isPriv) {
+  var plombyCount = jednotky.filter(function(j) { return j.plomba_aktivni; }).length;
+  if (plombyCount && isPriv) {
+    var warn = document.createElement('div');
+    warn.className = 'info-box info-box-danger';
+    warn.style.marginBottom = '14px';
+    warn.textContent = '\u26A0\uFE0F Pozor: ' + plombyCount + ' jednotek má aktivní plombu v Katastru nemovitostí. Doporučujeme prověřit.';
+    body.appendChild(warn);
+  }
+
+  var cols = ['Č. j.', 'Využití', 'Podíl', 'LV', 'K.ú.'];
+  if (isPriv) cols.push('');
 
   var tbl = document.createElement('table');
   tbl.style.cssText = 'width:100%;border-collapse:collapse;font-size:0.9rem;';
@@ -61,9 +74,18 @@ function renderTable(body, jednotky) {
   var headRow = document.createElement('tr');
   cols.forEach(function(c) {
     var th = document.createElement('th');
-    th.textContent = c;
     th.style.cssText = 'text-align:left;padding:8px 12px;border-bottom:2px solid var(--border);' +
                        'color:var(--text-light);font-weight:600;white-space:nowrap;';
+    if (c === '') {
+      // Hlavička plomba sloupce — prázdný text + info ikona s tooltipem
+      var icon = document.createElement('span');
+      icon.textContent = '\u26A0\uFE0F';
+      icon.title = 'Plomba v KN — pro aktuální stav proveďte Aktualizaci z KN ve Správě portálu';
+      icon.style.cssText = 'cursor:help;opacity:0.5;font-size:0.9em;';
+      th.appendChild(icon);
+    } else {
+      th.textContent = c;
+    }
     headRow.appendChild(th);
   });
   thead.appendChild(headRow);
@@ -72,15 +94,18 @@ function renderTable(body, jednotky) {
   var tbody = document.createElement('tbody');
   jednotky.forEach(function(j) {
     var tr = document.createElement('tr');
+    if (isPriv && j.plomba_aktivni) tr.style.background = 'var(--danger-bg, rgba(220,53,69,0.06))';
+
     var podil = (j.podil_citatel && j.podil_jmenovatel)
       ? j.podil_citatel + '\u202f/\u202f' + j.podil_jmenovatel
       : '\u2014';
+
     var vals = [
       j.cislo_jednotky,
-      j.typ_jednotky  || '\u2014',
-      j.zpusob_vyuziti || '\u2014',
+      j.zpusob_vyuziti || j.typ_jednotky || '\u2014',
       podil,
       j.lv || '\u2014',
+      j.katastralni_uzemi || '\u2014',
     ];
     vals.forEach(function(v, i) {
       var td = document.createElement('td');
@@ -89,6 +114,21 @@ function renderTable(body, jednotky) {
         (i === 0 ? 'font-weight:500;' : 'color:var(--text-light);');
       tr.appendChild(td);
     });
+
+    // Plomba badge — jen pro admin/vybor
+    if (isPriv) {
+      var tdPlomba = document.createElement('td');
+      tdPlomba.style.cssText = 'padding:8px 12px;border-bottom:1px solid var(--border);';
+      if (j.plomba_aktivni) {
+        var badge = document.createElement('span');
+        badge.className = 'badge badge-danger';
+        badge.textContent = '\u26A0\uFE0F Plomba';
+        badge.title = 'Na této jednotce je aktivní plomba v Katastru nemovitostí';
+        tdPlomba.appendChild(badge);
+      }
+      tr.appendChild(tdPlomba);
+    }
+
     tbody.appendChild(tr);
   });
   tbl.appendChild(tbody);

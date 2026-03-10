@@ -45,9 +45,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
     ├── settings_crypto.php # AES-256-CBC šifrování citlivých settings
     ├── db.php              # getDb() → PDO singleton
     ├── helpers.php         # jsonOk, jsonError, jsonResponse, sanitize, getParam…
-    ├── middleware.php      # requireLogin, requireRole, requireMethod
-    ├── auth_helper.php     # getSessionUser()
-    ├── svj_helper.php      # getOrFetchSvj, fetchFromAres, upsertSvj, fetchOrManagement
+    ├── middleware.php      # requireAuth(), requireRole(string ...$roles), requireMethod
+    ├── svj_helper.php      # getOrFetchSvj, fetchFromAres, upsertSvj, fetchOrManagement, fetchRuianData, fetchKamFromVr
     ├── auth.php            # login, logout, register (admin/invite), me, svj
     ├── invite.php          # createInvite, listInvites, deleteInvite
     ├── svj.php             # getSvj, updateSvj, fetchOr (OR/ARES)
@@ -64,7 +63,9 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
         ├── 005_avatar.sql
         ├── 006_settings_ext.sql
         ├── 007_settings_cuzk.sql
-        └── 008_kn_integration.sql
+        ├── 008_kn_integration.sql
+        ├── 009_jednotky_ext.sql    # přidá typ_jednotky_kod, zpusob_vyuziti_kod, lv_id, katastralni_uzemi do jednotky
+        └── 010_ruian_parcely_plomby.sql # přidá lat/lon/adresa_plna do svj, tabulka parcely, plomba_aktivni do jednotky
 ```
 
 ## Coding Standards — POVINNÉ
@@ -166,9 +167,17 @@ Portál jde do produkce. Bezpečnost na maximum.
 - Base URL: `https://api-kn.cuzk.gov.cz`
 - Auth: header `ApiKey: <klic>` — klíč uložen šifrovaně v `settings.cuzk_api_klic`
 - Limit: 500 volání/den
+- Odpověď vždy zabalena: `{ data: {...}, zpravy: [], aktualnostDatK: ... }`
 - `/api/v1/Stavby/AdresniMisto/{kod}` — najde stavbu dle RÚIAN kódu adresního místa
-- `/api/v1/Stavby/{id}/Jednotky` — seznam jednotek stavby
-- `kodAdresnihoMista` se načítá z ARES `sidlo.kodAdresnihoMista` a ukládá do `svj.kod_adresniho_mista`
+- `/api/v1/Jednotky/{id}` — detail jednotky (⚠️ `/Stavby/{id}/Jednotky` neexistuje → 404)
+- `/api/v1/Parcely/{id}` — detail parcely
+- `kodAdresnihoMista` se načítá z ARES `sidlo.kodAdresnihoMista`, záloha z VR `zaznamy[].adresy[].adresa.kodAdresnihoMista`
+
+### RÚIAN (ArcGIS, zdarma, bez auth)
+- URL: `https://ags.cuzk.cz/arcgis/rest/services/RUIAN/Vyhledavaci_sluzba_nad_daty_RUIAN/MapServer/1/query`
+- Params: `?where=KOD={kam}&outFields=*&outSR=4326&f=json`
+- Vrací: WGS84 `geometry.x` (lon), `geometry.y` (lat), `attributes.adresa` (plná adresa)
+- Implementováno v `fetchRuianData(int $kam)` v `svj_helper.php`
 
 ## Avatar
 - Upload: `api/avatar.php` (multipart POST), MIME check přes `finfo`, max 2MB

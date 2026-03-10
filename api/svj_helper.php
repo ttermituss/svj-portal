@@ -29,6 +29,16 @@ function getOrFetchSvj(string $ico): array
             jsonError('Chyba spojení s ARES', 502, 'ARES_ERROR');
         }
         upsertSvj($db, $aresData);
+
+        // Pokud ARES základní endpoint nevrátil kodAdresnihoMista, zkusíme VR endpoint
+        if (empty($aresData['sidlo']['kodAdresnihoMista'])) {
+            $kamFromVr = fetchKamFromVr($ico);
+            if ($kamFromVr) {
+                $db->prepare('UPDATE svj SET kod_adresniho_mista = :kam WHERE ico = :ico AND kod_adresniho_mista IS NULL')
+                   ->execute([':kam' => $kamFromVr, ':ico' => $ico]);
+            }
+        }
+
         $stmt = $db->prepare('SELECT * FROM svj WHERE ico = :ico');
         $stmt->execute([':ico' => $ico]);
         $cached = $stmt->fetch();
@@ -116,7 +126,50 @@ function buildSvjResponse(array $row): array
  * Načte statutární orgán SVJ z ARES výpisu z veřejného rejstříku.
  * Vrátí pole s klíčem 'clenove' nebo null při chybě.
  */
-function fetchOrManagement(string $ico): ?array
+/**
+ * Načte GPS souřadnice a plnou adresu z RÚIAN ArcGIS (zdarma, bez auth).
+ * Vstup: kodAdresnihoMista (RÚIAN kód adresního místa).
+ * Vrátí: ['lat', 'lon', 'adresa_plna', 'ulice'] nebo null při chybě.
+ */
+function fetchRuianData(int $kam): ?array
+{
+    $url = 'https://ags.cuzk.cz/arcgis/rest/services/RUIAN/Vyhledavaci_sluzba_nad_daty_RUIAN/MapServer/1/query'
+         . '?where=' . urlencode('KOD=' . $kam)
+         . '&outFields=*&outSR=4326&f=json';
+
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 10,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
+    ]);
+    $response = curl_exec($ch);
+    $curlErr  = curl_error($ch);
+    curl_close($ch);
+
+    if ($curlErr || !$response) return null;
+
+    $data     = json_decode($response, true);
+    $features = $data['features'] ?? [];
+    if (empty($features)) return null;
+
+    $feature = $features[0];
+    $geo     = $feature['geometry']   ?? [];
+    $attrs   = $feature['attributes'] ?? [];
+
+    $lon = isset($geo['x']) ? round((float)$geo['x'], 7) : null;
+    $lat = isset($geo['y']) ? round((float)$geo['y'], 7) : null;
+
+    return [
+        'lat'         => $lat,
+        'lon'         => $lon,
+        'adresa_plna' => $attrs['adresa'] ?? null,
+    ];
+}
+
+function fetchVrRaw(string $ico): ?array
 {
     $url = ARES_BASE_URL . '/ekonomicke-subjekty-vr/' . urlencode($ico);
     $ch  = curl_init($url);
@@ -134,60 +187,104 @@ function fetchOrManagement(string $ico): ?array
     curl_close($ch);
 
     if ($curlErr || $httpCode === 0 || $httpCode !== 200) return null;
-
     $data = json_decode($response, true);
-    if (!is_array($data)) return null;
+    return is_array($data) ? $data : null;
+}
 
+/**
+ * Extrahuje kodAdresnihoMista z VR záznamu (záloha pokud základní ARES ho nevrátí).
+ */
+function fetchKamFromVr(string $ico): ?int
+{
+    $data = fetchVrRaw($ico);
+    if (!$data) return null;
+
+    foreach ($data['zaznamy'] ?? [] as $zaznam) {
+        foreach ($zaznam['adresy'] ?? [] as $adresaItem) {
+            $kam = $adresaItem['adresa']['kodAdresnihoMista'] ?? null;
+            if ($kam) return (int)$kam;
+        }
+    }
+    return null;
+}
+
+function fetchOrManagement(string $ico): ?array
+{
+    $data = fetchVrRaw($ico);
+    if (!$data) return null;
     return parseOrManagement($data);
 }
 
 function parseOrManagement(array $data): array
 {
+    // Top-level identifikátory (reálná ARES VR struktura: { icoId, zaznamy: [...] })
+    $ico  = $data['ico'] ?? $data['icoId'] ?? '';
+    $name = '';
+    $vzniku = null;
+
     $result = [
-        'ico'           => $data['ico']           ?? '',
-        'obchodniJmeno' => $data['obchodniJmeno'] ?? '',
-        'datumVzniku'   => $data['datumVzniku']   ?? null,
+        'ico'           => $ico,
+        'obchodniJmeno' => $name,
+        'datumVzniku'   => $vzniku,
         'clenove'       => [],
     ];
 
-    // ARES VR může mít různou strukturu — zkoušíme všechny známé cesty
-    $zaznamy = $data['zaznamyVr'] ?? $data['zaznamy'] ?? $data['platneZaznamy'] ?? [];
+    // ARES VR vrací zaznamy (ověřeno 2026-03-10)
+    $zaznamy = $data['zaznamy'] ?? $data['zaznamyVr'] ?? $data['platneZaznamy'] ?? [];
 
     foreach ($zaznamy as $zaznam) {
-        // Různé cesty ke statutárnímu orgánu
-        $organyPaths = [
-            $zaznam['statutarniOrgany']                    ?? [],
-            $zaznam['dalsiUdaje']['statutarniOrgany']      ?? [],
-            $zaznam['organ']['statutarniOrgany']           ?? [],
-        ];
+        // Doplníme název a datum z prvního záznamu
+        if (!$result['obchodniJmeno']) {
+            $ojItems = $zaznam['obchodniJmeno'] ?? [];
+            if (is_array($ojItems) && isset($ojItems[0]['hodnota'])) {
+                $result['obchodniJmeno'] = $ojItems[0]['hodnota'];
+            } elseif (is_string($ojItems)) {
+                $result['obchodniJmeno'] = $ojItems;
+            }
+        }
+        if (!$result['datumVzniku']) {
+            $result['datumVzniku'] = $zaznam['datumZapisu'] ?? null;
+        }
 
-        foreach ($organyPaths as $organy) {
-            if (!is_array($organy)) continue;
-            foreach ($organy as $organ) {
-                $nazevOrganu = $organ['nazevOrganu'] ?? $organ['nazev'] ?? 'Výbor';
-                $clenove     = $organ['clenoveSo']  ?? $organ['clenove'] ?? [];
+        // Statutární orgány — v ARES VR jsou přímo v záznamu jako pole objektů
+        $organy = $zaznam['statutarniOrgany'] ?? [];
+        if (!is_array($organy)) continue;
 
-                foreach ($clenove as $clen) {
-                    $jmeno    = $clen['jmeno']    ?? '';
-                    $prijmeni = $clen['prijmeni'] ?? '';
-                    if (!$jmeno && !$prijmeni) continue;
+        foreach ($organy as $organ) {
+            $nazevOrganu = $organ['nazevOrganu'] ?? $organ['nazev'] ?? 'Výbor';
 
-                    $result['clenove'][] = [
-                        'jmeno'          => $jmeno,
-                        'prijmeni'       => $prijmeni,
-                        'funkce'         => $clen['funkce'] ?? $clen['nazevFunkce'] ?? $nazevOrganu,
-                        'datum_narozeni' => isset($clen['datumNarozeni'])
-                            ? substr($clen['datumNarozeni'], 0, 10)
-                            : null,
-                    ];
-                }
+            // Reálná ARES VR struktura: clenoveOrganu[].fyzickaOsoba
+            $clenove = $organ['clenoveOrganu'] ?? $organ['clenoveSo'] ?? $organ['clenove'] ?? [];
+
+            foreach ($clenove as $clen) {
+                // fyzickaOsoba obsahuje jméno a příjmení
+                $fo       = $clen['fyzickaOsoba'] ?? $clen;
+                $jmeno    = $fo['jmeno']    ?? '';
+                $prijmeni = $fo['prijmeni'] ?? '';
+                if (!$jmeno && !$prijmeni) continue;
+
+                // Funkce: clenstvi.funkce.nazev nebo nazevAngazma nebo název orgánu
+                $funkce = $clen['clenstvi']['funkce']['nazev']
+                    ?? $clen['nazevAngazma']
+                    ?? $clen['funkce']
+                    ?? $clen['nazevFunkce']
+                    ?? $nazevOrganu;
+
+                $narozeni = $fo['datumNarozeni'] ?? $clen['datumNarozeni'] ?? null;
+
+                $result['clenove'][] = [
+                    'jmeno'          => $jmeno,
+                    'prijmeni'       => $prijmeni,
+                    'funkce'         => $funkce,
+                    'datum_narozeni' => $narozeni ? substr($narozeni, 0, 10) : null,
+                ];
             }
         }
     }
 
     // Deduplikace
     $seen = [];
-    $result['clenove'] = array_values(array_filter($result['clenove'], function($c) use (&$seen) {
+    $result['clenove'] = array_values(array_filter($result['clenove'], function ($c) use (&$seen) {
         $key = $c['jmeno'] . '|' . $c['prijmeni'];
         if (isset($seen[$key])) return false;
         $seen[$key] = true;

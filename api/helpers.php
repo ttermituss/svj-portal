@@ -1,4 +1,9 @@
 <?php
+function jsonOk(array $data = []): never
+{
+    jsonResponse(array_merge(['ok' => true], $data));
+}
+
 function jsonResponse($data, int $status = 200): never
 {
     http_response_code($status);
