@@ -93,6 +93,14 @@ Router.register('login', function(el) {
   regLink.appendChild(regA);
   body.appendChild(regLink);
 
+  // DEV hint
+  var devHint = document.createElement('div');
+  devHint.className = 'info-box';
+  devHint.style.marginTop = '12px';
+  devHint.style.fontSize = '0.85rem';
+  devHint.textContent = '🛠️ DEV: vojzab@seznam.cz / admin123';
+  body.appendChild(devHint);
+
   card.appendChild(body);
   wrap.appendChild(card);
   el.appendChild(wrap);
