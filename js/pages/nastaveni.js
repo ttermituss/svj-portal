@@ -17,6 +17,7 @@ Router.register('nastaveni', function(el) {
   renderProfileCard(el, user);
   renderSvjCard(el, user);
   renderPasswordCard(el);
+  if (user.role === 'admin') renderApiKeysCard(el);
 });
 
 /* ===== KARTA: PROFIL ===== */
@@ -242,6 +243,88 @@ function makeInfoBox(isOk) {
   b.className = isOk ? 'info-box info-box-success' : 'info-box info-box-danger';
   b.style.cssText = 'display:none;margin-bottom:12px;';
   return b;
+}
+
+/* ===== KARTA: API KLÍČE (pouze admin) ===== */
+
+function renderApiKeysCard(el) {
+  var card = makeCard('API klíče (admin)');
+  var body = card.body;
+
+  var note = document.createElement('p');
+  note.style.cssText = 'font-size:0.85rem;color:var(--text-light);margin-bottom:16px;';
+  note.textContent = 'Klíče jsou uloženy šifrovaně v databázi. Plaintext se nikdy neposílá zpět.';
+  body.appendChild(note);
+
+  var err = makeInfoBox(false);
+  var ok  = makeInfoBox(true);
+  body.appendChild(err);
+  body.appendChild(ok);
+
+  var list = document.createElement('div');
+  body.appendChild(list);
+
+  Api.apiGet('api/settings.php?action=get')
+    .then(function(data) {
+      (data.settings || []).forEach(function(s) {
+        list.appendChild(buildSettingRow(s, err, ok));
+      });
+    })
+    .catch(function(e) { showBox(err, e.message || 'Chyba načítání nastavení.'); });
+
+  el.appendChild(card.card);
+}
+
+function buildSettingRow(setting, err, ok) {
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:14px;';
+
+  var lbl = document.createElement('label');
+  lbl.textContent = setting.label;
+  lbl.style.cssText = 'display:block;font-weight:500;margin-bottom:4px;font-size:0.9rem;';
+  wrap.appendChild(lbl);
+
+  var status = document.createElement('span');
+  status.style.cssText = 'font-size:0.8rem;color:' + (setting.set ? 'var(--success)' : 'var(--danger)') + ';display:block;margin-bottom:8px;';
+  status.textContent = setting.set ? ('Nastaveno: ' + setting.preview) : 'Není nastaveno';
+  wrap.appendChild(status);
+
+  var row = document.createElement('div');
+  row.className = 'form-row';
+
+  var input = document.createElement('input');
+  input.type = 'password';
+  input.className = 'form-input';
+  input.placeholder = setting.set ? 'Zadat nový klíč…' : 'Zadat klíč…';
+  input.autocomplete = 'off';
+
+  var btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'btn btn-primary';
+  btn.textContent = 'Uložit';
+
+  row.appendChild(input);
+  row.appendChild(btn);
+  wrap.appendChild(row);
+
+  btn.addEventListener('click', function() {
+    var val = input.value.trim();
+    if (!val) { showBox(err, 'Zadejte hodnotu.'); return; }
+    btn.disabled = true;
+    btn.textContent = 'Ukládám…';
+    Api.apiPost('api/settings.php?action=set', { key: setting.key, value: val })
+      .then(function() {
+        showBox(ok, setting.label + ' byl úspěšně uložen.');
+        input.value = '';
+        status.textContent = 'Nastaveno: ********';
+        status.style.color = 'var(--success)';
+        setting.set = true;
+      })
+      .catch(function(e) { showBox(err, e.message || 'Chyba uložení.'); })
+      .finally(function() { btn.disabled = false; btn.textContent = 'Uložit'; });
+  });
+
+  return wrap;
 }
 
 function showBox(b, t) { b.textContent = t; b.style.display = ''; }

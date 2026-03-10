@@ -1,9 +1,17 @@
 # PHP config s hesly
 api/config.php
 
+# Environment (šifrovací klíče, secrets)
+.env
+.env.local
+.env.production
+
 # DB migrations jsou OK, ale ne credentials
 # Logs
 *.log
+
+# DB zálohy
+database/backups/*.sql.gz
 
 # OS
 .DS_Store
