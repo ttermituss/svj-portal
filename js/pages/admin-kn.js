@@ -69,6 +69,12 @@ function renderKnStatus(wrap, data, findBtn) {
   var rows = [];
   if (data.adresa_plna) rows.push(['\uD83D\uDCCD Adresa', data.adresa_plna]);
   if (data.lat && data.lon) rows.push(['\uD83C\uDF10 GPS', parseFloat(data.lat).toFixed(5) + ', ' + parseFloat(data.lon).toFixed(5)]);
+  if (data.rok_dokonceni)    rows.push(['\uD83D\uDCC5 Rok dokončení', data.rok_dokonceni]);
+  if (data.konstrukce_nazev) rows.push(['\uD83E\uDDF1 Konstrukce', data.konstrukce_nazev]);
+  if (data.pocet_podlazi)    rows.push(['\uD83C\uDFD7\uFE0F Počet podlaží', data.pocet_podlazi]);
+  if (data.zastavena_plocha) rows.push(['\uD83D\uDCCF Zastavěná plocha', data.zastavena_plocha + '\u00a0m²']);
+  if (data.vytah != null)    rows.push(['\uD83D\uDECB\uFE0F Výtah', data.vytah ? 'Ano' : 'Ne']);
+  if (data.zpusob_vytapeni)  rows.push(['\uD83D\uDD25 Vytápění', data.zpusob_vytapeni]);
   if (data.jednotky) rows.push(['\uD83C\uDFE0 Jednotky v\u00a0DB', data.jednotky + (data.plomby ? ' (\u26A0\uFE0F ' + data.plomby + ' s\u00a0plombou)' : '')]);
   if (data.parcely)  rows.push(['\uD83D\uDDFA\uFE0F Parcely v\u00a0DB', data.parcely]);
   if (data.last_updated) rows.push(['\uD83D\uDD52 Poslední import', new Date(data.last_updated).toLocaleString('cs-CZ')]);

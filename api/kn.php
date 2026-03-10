@@ -32,7 +32,10 @@ function handleStatus(): void
 
     $db = getDb();
 
-    $svjRow = $db->prepare('SELECT stavba_id, lat, lon, adresa_plna FROM svj WHERE id = :id');
+    $svjRow = $db->prepare('SELECT stavba_id, lat, lon, adresa_plna,
+                                   rok_dokonceni, konstrukce_nazev, pocet_podlazi,
+                                   pocet_bytu_ruian, zastavena_plocha, vytah, zpusob_vytapeni
+                            FROM svj WHERE id = :id');
     $svjRow->execute([':id' => $svjId]);
     $svj = $svjRow->fetch();
 
@@ -48,14 +51,21 @@ function handleStatus(): void
     $pRow = $pStat->fetch();
 
     jsonOk([
-        'jednotky'     => (int)$jRow['cnt'],
-        'parcely'      => (int)$pRow['cnt'],
-        'plomby'       => (int)$jRow['plomby'],
-        'last_updated' => $jRow['last_updated'],
-        'stavba_id'    => $svj['stavba_id'] ?? null,
-        'lat'          => $svj['lat']       ?? null,
-        'lon'          => $svj['lon']       ?? null,
-        'adresa_plna'  => $svj['adresa_plna'] ?? null,
+        'jednotky'          => (int)$jRow['cnt'],
+        'parcely'           => (int)$pRow['cnt'],
+        'plomby'            => (int)$jRow['plomby'],
+        'last_updated'      => $jRow['last_updated'],
+        'stavba_id'         => $svj['stavba_id']        ?? null,
+        'lat'               => $svj['lat']              ?? null,
+        'lon'               => $svj['lon']              ?? null,
+        'adresa_plna'       => $svj['adresa_plna']      ?? null,
+        'rok_dokonceni'     => $svj['rok_dokonceni']    ?? null,
+        'konstrukce_nazev'  => $svj['konstrukce_nazev'] ?? null,
+        'pocet_podlazi'     => $svj['pocet_podlazi']    ?? null,
+        'pocet_bytu_ruian'  => $svj['pocet_bytu_ruian'] ?? null,
+        'zastavena_plocha'  => $svj['zastavena_plocha'] ?? null,
+        'vytah'             => isset($svj['vytah']) ? (bool)$svj['vytah'] : null,
+        'zpusob_vytapeni'   => $svj['zpusob_vytapeni']  ?? null,
     ]);
 }
 
@@ -119,7 +129,30 @@ function handleFindBuilding(): void
         ]);
     }
 
-    // 2. Parcely — z raw stavby, fetch detail každé
+    // 2. RÚIAN — technické info o budově (stavební objekt)
+    $buildingInfo = null;
+    if (!empty($building['stavba_id'])) {
+        $buildingInfo = fetchRuianBuildingInfo((int)$building['stavba_id']);
+        if ($buildingInfo) {
+            $db->prepare(
+                'UPDATE svj SET rok_dokonceni = :rok, konstrukce_kod = :kkod, konstrukce_nazev = :knaz,
+                                pocet_podlazi = :pp, pocet_bytu_ruian = :pb, zastavena_plocha = :zp,
+                                vytah = :vytah, zpusob_vytapeni = :zvyt WHERE id = :id'
+            )->execute([
+                ':rok'  => $buildingInfo['rok_dokonceni'],
+                ':kkod' => $buildingInfo['konstrukce_kod'],
+                ':knaz' => $buildingInfo['konstrukce_nazev'],
+                ':pp'   => $buildingInfo['pocet_podlazi'],
+                ':pb'   => $buildingInfo['pocet_bytu_ruian'],
+                ':zp'   => $buildingInfo['zastavena_plocha'],
+                ':vytah'=> $buildingInfo['vytah'],
+                ':zvyt' => $buildingInfo['zpusob_vytapeni'],
+                ':id'   => $svjId,
+            ]);
+        }
+    }
+
+    // 3. Parcely — z raw stavby, fetch detail každé
     $parcely = [];
     $parcelaIds = [];
     foreach ($building['raw']['parcely'] ?? [] as $p) {
@@ -130,9 +163,10 @@ function handleFindBuilding(): void
     }
 
     jsonOk([
-        'building' => $building,
-        'ruian'    => $ruian,
-        'parcely'  => $parcely,
+        'building'     => $building,
+        'ruian'        => $ruian,
+        'building_info'=> $buildingInfo,
+        'parcely'      => $parcely,
         'kod_adresniho_mista' => $kam,
     ]);
 }

@@ -169,6 +169,84 @@ function fetchRuianData(int $kam): ?array
     ];
 }
 
+/**
+ * Načte technické info o budově z RÚIAN (layer 3 — StavebniObjekt).
+ * Vstup: stavba_id z ČÚZK KN (= isknbudovaid v RÚIAN).
+ * Vrátí pole s technickými daty nebo null při chybě/nenalezení.
+ */
+function fetchRuianBuildingInfo(int $stavbaId): ?array
+{
+    $fields = 'dokonceni,druhkonstrukcekod,pocetpodlazi,pocetbytu,zastavenaplocha,vybavenivytahemkod,zpusobvytapenikod';
+    $url = 'https://ags.cuzk.cz/arcgis/rest/services/RUIAN/Vyhledavaci_sluzba_nad_daty_RUIAN/MapServer/3/query'
+         . '?where=' . urlencode('isknbudovaid=' . $stavbaId)
+         . '&outFields=' . $fields . '&f=json';
+
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 10,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
+    ]);
+    $response = curl_exec($ch);
+    $curlErr  = curl_error($ch);
+    curl_close($ch);
+
+    if ($curlErr || !$response) return null;
+
+    $data     = json_decode($response, true);
+    $features = $data['features'] ?? [];
+    if (empty($features)) return null;
+
+    $a = $features[0]['attributes'] ?? [];
+
+    // Rok dokončení — RÚIAN vrací Unix timestamp v ms
+    $rok = null;
+    if (!empty($a['dokonceni'])) {
+        $rok = (int)date('Y', (int)($a['dokonceni'] / 1000));
+    }
+
+    return [
+        'rok_dokonceni'    => $rok,
+        'konstrukce_kod'   => isset($a['druhkonstrukcekod'])  ? (int)$a['druhkonstrukcekod']  : null,
+        'konstrukce_nazev' => ruianKonstrukceNazev($a['druhkonstrukcekod'] ?? null),
+        'pocet_podlazi'    => isset($a['pocetpodlazi'])       ? (int)$a['pocetpodlazi']       : null,
+        'pocet_bytu_ruian' => isset($a['pocetbytu'])          ? (int)$a['pocetbytu']          : null,
+        'zastavena_plocha' => isset($a['zastavenaplocha'])    ? (int)$a['zastavenaplocha']    : null,
+        'vytah'            => isset($a['vybavenivytahemkod']) ? ($a['vybavenivytahemkod'] == 1 ? 1 : 0) : null,
+        'zpusob_vytapeni'  => ruianVytapeniNazev($a['zpusobvytapenikod'] ?? null),
+    ];
+}
+
+function ruianKonstrukceNazev(?int $kod): ?string
+{
+    return match ($kod) {
+        1 => 'Zděná',
+        2 => 'Monolitická betonová / ŽB',
+        3 => 'Montovaná betonová (panel)',
+        4 => 'Kovová / skelet',
+        5 => 'Dřevěná (hrázděná)',
+        6 => 'Smíšená',
+        7 => 'Jiná',
+        default => null,
+    };
+}
+
+function ruianVytapeniNazev(?int $kod): ?string
+{
+    return match ($kod) {
+        1 => 'Centrální zdroj v domě',
+        2 => 'Dálkové vytápění (CZT)',
+        3 => 'Etážové',
+        4 => 'Lokální — tuhá paliva',
+        5 => 'Lokální — plyn',
+        6 => 'Lokální — elektřina',
+        7 => 'Jiné',
+        default => null,
+    };
+}
+
 function fetchVrRaw(string $ico): ?array
 {
     $url = ARES_BASE_URL . '/ekonomicke-subjekty-vr/' . urlencode($ico);

@@ -89,7 +89,7 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
   - Data: aktuální počasí + 7denní výhled → plánování oprav, zimní přípravy
   - API: `https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&...`
 
-- [ ] **RÚIAN rozšíření — info o budově**
+- [x] **RÚIAN rozšíření — info o budově**
   - Stejné API co máme (ags.cuzk.cz), bez nového API klíče
   - Data navíc: rok výstavby, počet podlaží, typ konstrukce (zděná/panelová/skelet)
   - Kde: karta ČÚZK KN ve správě portálu + detail budovy

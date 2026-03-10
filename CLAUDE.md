@@ -67,7 +67,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
         ├── 007_settings_cuzk.sql
         ├── 008_kn_integration.sql
         ├── 009_jednotky_ext.sql    # přidá typ_jednotky_kod, zpusob_vyuziti_kod, lv_id, katastralni_uzemi do jednotky
-        └── 010_ruian_parcely_plomby.sql # přidá lat/lon/adresa_plna do svj, tabulka parcely, plomba_aktivni do jednotky
+        ├── 010_ruian_parcely_plomby.sql # přidá lat/lon/adresa_plna do svj, tabulka parcely, plomba_aktivni do jednotky
+        └── 011_svj_building_info.sql   # přidá tech. info budovy do svj (rok, konstrukce, podlaží, výtah, vytápění)
 ```
 
 ## Coding Standards — POVINNÉ
