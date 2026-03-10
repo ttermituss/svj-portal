@@ -82,6 +82,8 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 - [x] Vlastníci — seznam členů SVJ, ISIR deep link (výbor/admin)
 - [x] SFPI dotace karta — Panel 2020+, NZÚ, IROP, MMR s kontextovým doporučením
 - [x] Hlasování / ankety — vytvoření, hlasování, výsledky s progress bary, quorum, externí hlasy
+- [x] **PENB** — průkaz energetické náročnosti (třída A–G, datum platnosti, upload PDF, ⚠ upozornění)
+- [x] **Správa dokumentů** — drag & drop upload, kategorie, datum platnosti, přístup výbor/všichni, náhled (PDF/obrázky/MD/TXT inline, markdown renderer), moderní karty s type-box badges
 
 ---
 

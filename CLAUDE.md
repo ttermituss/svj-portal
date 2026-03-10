@@ -40,7 +40,10 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
 │       ├── admin-invites.js# karta: pozvaánky
 │       ├── admin-kn.js     # karta: ČÚZK KN import jednotek
 │       ├── admin-sfpi.js   # karta: dotace pro SVJ (Panel 2020+, NZÚ, IROP…)
+│       ├── admin-penb.js   # karta: PENB — průkaz energetické náročnosti (třída, platnost, PDF)
 │       ├── hlasovani.js    # hlasování/ankety (list, create, vote, výsledky)
+│       ├── dokumenty.js    # dokumenty — drag&drop upload, kategorie, karty se stahováním
+│       ├── dokumenty-preview.js # preview modal (PDF/obrázky/MD/TXT) + markdown renderer
 │       └── admin-settings.js# karta: systémová nastavení (jen admin)
 └── api/
     ├── config.php          # DB + konstanty (není v gitu — v .gitignore!)
@@ -60,6 +63,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
     ├── stats.php           # dashboard statistiky (vlastníci, jednotky, plomby)
     ├── weather.php         # počasí — proxy OpenMeteo (zdarma, bez klíče), vstup: GPS z RÚIAN
     ├── hlasovani.php       # hlasování/ankety: list, get, create, vote, close, delete, setExterni
+    ├── penb.php            # PENB: get, save (upsert + PDF upload), delete, download (auth)
+    ├── dokumenty.php       # dokumenty: list, upload, download, preview (inline), delete
     ├── avatar.php          # upload + delete avataru
     ├── user.php            # updateProfile
     └── migrations/
@@ -75,7 +80,9 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
         ├── 010_ruian_parcely_plomby.sql # lat/lon/adresa_plna do svj, plomba_aktivni do jednotky
         ├── 011_svj_building_info.sql # rok, konstrukce, podlaží, výtah, vytápění do svj
         ├── 012_hlasovani.sql         # tabulky hlasovani + hlasy
-        └── 013_hlasovani_ext.sql     # externi_hlasy do hlasovani (papír/email/schůze)
+        ├── 013_hlasovani_ext.sql     # externi_hlasy do hlasovani (papír/email/schůze)
+        ├── 014_penb.sql              # tabulka penb (třída, datums, soubor, poznámka)
+        └── 015_dokumenty.sql         # tabulka dokumenty (kategorie, platnost, přístup, uploaded_by)
 ```
 
 ## Coding Standards — POVINNÉ

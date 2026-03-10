@@ -17,7 +17,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 - 📋 **Nástěnka** — příspěvky a oznámení
 - 🏢 **Jednotky** — přehled bytových a nebytových jednotek z KN (Využití, Podíl, LV, K.ú.)
 - 🗳️ **Hlasování** — ankety a hlasování s výsledky a quorem
-- 📁 **Dokumenty** — nahrávání a sdílení souborů
+- 📁 **Dokumenty** — nahrávání, kategorie, náhled (PDF/obrázky/Markdown), datum platnosti
 - 🌤️ **Počasí** — aktuální počasí u budovy (OpenMeteo, GPS z RÚIAN)
 - 👤 **Profil** — nastavení účtu, avatar
 
@@ -27,6 +27,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 - 🏗️ **ČÚZK KN** — import jednotek, parcel a stavby z Katastru nemovitostí
 - 🗺️ **Mapa budovy** — OpenStreetMap iframe + odkaz na Mapy.cz
 - 💰 **Dotace** — přehled programů (Panel 2020+, NZÚ, IROP, MMR) s doporučením dle budovy
+- ⚡ **PENB** — průkaz energetické náročnosti (třída A–G, platnost, upload PDF, upozornění na vypršení)
 
 ### Pro správce (admin)
 - 👥 **Správa uživatelů** — role, pozvánky, smazání
@@ -66,8 +67,8 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 
 3. **Spusť migrace**
    ```bash
-   sudo mysql svj_portal < api/migrations/001_init.sql
-   # ... postupně všechny migrace až po nejvyšší číslo
+   for f in api/migrations/*.sql; do sudo mysql svj_portal < "$f"; done
+   # Aktuálně: 001–015 (init → dokumenty)
    ```
 
 4. **Nastav Apache virtualhost**
