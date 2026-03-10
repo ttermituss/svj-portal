@@ -229,9 +229,21 @@ function dokRenderUploadCard(el, onSuccess) {
 
   /* === Logika === */
 
+  var DOK_ALLOWED_EXT = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png'];
+
   function dokSetFile(file) {
     if (!file) return;
     var ext = file.name.split('.').pop().toLowerCase();
+    if (DOK_ALLOWED_EXT.indexOf(ext) === -1) {
+      showToast('Nepodporovan\xfd form\xe1t \u201e.' + ext + '\u201c. Povoleny: PDF, Word, Excel, JPEG, PNG', 'error');
+      fileInput.value = '';
+      return;
+    }
+    if (file.size > 20 * 1024 * 1024) {
+      showToast('Soubor je p\u0159\xedli\u0161 velk\xfd (max 20 MB).', 'error');
+      fileInput.value = '';
+      return;
+    }
     var ft  = DOK_FILE_TYPES[ext] || { ikona: '\uD83D\uDCC4', barva: 'var(--text-muted)', label: ext.toUpperCase() };
     previewIcon.textContent = ft.ikona;
     previewIcon.style.color = ft.barva;
@@ -282,15 +294,17 @@ function dokRenderUploadCard(el, onSuccess) {
   });
   zone.addEventListener('drop', function(e) {
     e.preventDefault();
+    e.stopPropagation();
     zone.style.borderColor = 'var(--border)';
     zone.style.background  = 'var(--bg)';
     zoneIcon.style.opacity = '0.5';
-    var f = e.dataTransfer.files[0];
+    var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
     if (f) {
-      fileInput.files; // can't set directly — simulate via DataTransfer
-      var dt = new DataTransfer();
-      dt.items.add(f);
-      fileInput.files = dt.files;
+      try {
+        var dt = new DataTransfer();
+        dt.items.add(f);
+        fileInput.files = dt.files;
+      } catch (_) { /* starší prohlížeče */ }
       dokSetFile(f);
     }
   });
