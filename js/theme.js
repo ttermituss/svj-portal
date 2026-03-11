@@ -1,35 +1,70 @@
 /* ===== THEME SWITCHER ===== */
 
-const THEMES = [
-  { id: 'light', label: 'Světlý' },
-  { id: 'dark',  label: 'Tmavý' },
-  { id: 'senior', label: 'Přehledný' },
-];
+// Migrace starého formátu: 'senior' → base='light' + senior=true
+(function migrateSenior() {
+  if (localStorage.getItem('svj-theme') === 'senior') {
+    localStorage.setItem('svj-theme',  'light');
+    localStorage.setItem('svj-senior', '1');
+  }
+})();
 
-function getTheme() {
-  return localStorage.getItem('svj-theme') || 'light';
+function getBase()   { return localStorage.getItem('svj-theme')  || 'light'; }
+function isSenior()  { return localStorage.getItem('svj-senior') === '1'; }
+
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', getBase());
+  if (isSenior()) {
+    document.documentElement.setAttribute('data-senior', '');
+  } else {
+    document.documentElement.removeAttribute('data-senior');
+  }
 }
 
-function setTheme(id) {
-  document.documentElement.setAttribute('data-theme', id);
+function setBase(id) {
   localStorage.setItem('svj-theme', id);
+  applyTheme();
+  renderThemeSwitcher();
+}
+
+function toggleSenior() {
+  localStorage.setItem('svj-senior', isSenior() ? '0' : '1');
+  applyTheme();
   renderThemeSwitcher();
 }
 
 function renderThemeSwitcher() {
-  const el = document.getElementById('themeSwitcher');
+  var el = document.getElementById('themeSwitcher');
   if (!el) return;
-  const current = getTheme();
+  var base   = getBase();
+  var senior = isSenior();
 
   el.replaceChildren();
-  THEMES.forEach(function(t) {
+
+  // Skupina: světlý / tmavý
+  var baseGroup = document.createElement('div');
+  baseGroup.style.cssText = 'display:flex;gap:4px;';
+  [{ id: 'light', label: 'Světlý' }, { id: 'dark', label: 'Tmavý' }].forEach(function(t) {
     var btn = document.createElement('button');
     btn.textContent = t.label;
-    if (t.id === current) btn.className = 'active';
-    btn.addEventListener('click', function() { setTheme(t.id); });
-    el.appendChild(btn);
+    if (t.id === base) btn.className = 'active';
+    btn.addEventListener('click', function() { setBase(t.id); });
+    baseGroup.appendChild(btn);
   });
+
+  // Oddělovač
+  var sep = document.createElement('span');
+  sep.style.cssText = 'width:1px;background:var(--border);margin:4px 2px;';
+
+  // Přehledný — nezávislý toggle
+  var seniorBtn = document.createElement('button');
+  seniorBtn.textContent = 'Přehledný';
+  if (senior) seniorBtn.className = 'active';
+  seniorBtn.addEventListener('click', toggleSenior);
+
+  el.appendChild(baseGroup);
+  el.appendChild(sep);
+  el.appendChild(seniorBtn);
 }
 
-// Apply saved theme immediately
-document.documentElement.setAttribute('data-theme', getTheme());
+// Aplikovat téma okamžitě při načtení
+applyTheme();

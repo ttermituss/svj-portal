@@ -76,44 +76,14 @@
   --shadow-lg:  0 4px 12px rgba(0,0,0,0.4);
 }
 
-[data-theme="senior"] {
-  --bg:         #fafafa;
-  --bg-sidebar: #ffffff;
-  --bg-card:    #ffffff;
-  --bg-input:   #ffffff;
-  --bg-hover:   #e8f5e9;
-  --bg-active:  #c8e6c9;
-
-  --text:       #111111;
-  --text-light: #444444;
-  --text-muted: #666666;
-
-  --border:     #cccccc;
-  --border-light:#dddddd;
-
-  --accent:     #2e7d32;
-  --accent-hover:#1b5e20;
-  --accent-light:#c8e6c9;
-  --accent-text: #1b5e20;
-
-  --danger:     #c62828;
-  --danger-light:#ffcdd2;
-  --warning:    #f57f17;
-  --warning-light:#fff9c4;
-  --info:       #1565c0;
-  --info-light: #bbdefb;
-
-  --shadow:     0 2px 6px rgba(0,0,0,0.12);
-  --shadow-lg:  0 6px 16px rgba(0,0,0,0.15);
-
-  --radius:     8px;
-  --radius-lg:  12px;
-
+/* Přehledný mód — jen velikost a spacing, barvy dědí z light/dark */
+[data-senior] {
   --font-size:  18px;
   --line-height:1.7;
-
   --sidebar-w:  280px;
   --header-h:   60px;
+  --radius:     8px;
+  --radius-lg:  12px;
 }
 
 /* ===== GLOBAL RESET ===== */
@@ -147,10 +117,10 @@ h1 { font-size: 1.5rem; font-weight: 700; }
 h2 { font-size: 1.25rem; font-weight: 600; }
 h3 { font-size: 1.1rem; font-weight: 600; }
 
-[data-theme="senior"] h1 { font-size: 1.6rem; }
-[data-theme="senior"] h2 { font-size: 1.35rem; }
-[data-theme="senior"] h3 { font-size: 1.2rem; }
-[data-theme="senior"] .sidebar nav a { font-size: 1.05rem; padding: 12px 16px; }
-[data-theme="senior"] button,
-[data-theme="senior"] input,
-[data-theme="senior"] select { font-size: 1rem; }
+[data-senior] h1 { font-size: 1.6rem; }
+[data-senior] h2 { font-size: 1.35rem; }
+[data-senior] h3 { font-size: 1.2rem; }
+[data-senior] .sidebar nav a { font-size: 1.05rem; padding: 12px 16px; }
+[data-senior] button,
+[data-senior] input,
+[data-senior] select { font-size: 1rem; }
