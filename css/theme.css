@@ -79,7 +79,8 @@
 }
 
 /* Přehledný mód — jen velikost a spacing, barvy dědí z light/dark */
-[data-senior] {
+/* :root[data-senior] = specifičnost 0,2,0 — bezpečně přebije :root a [data-theme] */
+:root[data-senior] {
   --font-size:  22px;
   --line-height:1.8;
   --sidebar-w:  clamp(320px, 21vw, 400px);
@@ -119,10 +120,10 @@ h1 { font-size: 1.5rem; font-weight: 700; }
 h2 { font-size: 1.25rem; font-weight: 600; }
 h3 { font-size: 1.1rem; font-weight: 600; }
 
-[data-senior] h1 { font-size: 1.6rem; }
-[data-senior] h2 { font-size: 1.35rem; }
-[data-senior] h3 { font-size: 1.2rem; }
-[data-senior] .sidebar nav a { font-size: 1.05rem; padding: 12px 16px; }
-[data-senior] button,
-[data-senior] input,
-[data-senior] select { font-size: 1rem; }
+:root[data-senior] h1 { font-size: 1.6rem; }
+:root[data-senior] h2 { font-size: 1.35rem; }
+:root[data-senior] h3 { font-size: 1.2rem; }
+:root[data-senior] .sidebar nav a { font-size: 1.05rem; padding: 12px 16px; }
+:root[data-senior] button,
+:root[data-senior] input,
+:root[data-senior] select { font-size: 1rem; }
