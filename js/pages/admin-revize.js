@@ -124,7 +124,7 @@ function revizeMakeRow(rev, isPriv, listWrap, formWrap, user) {
 
   var datesEl = document.createElement('div');
   datesEl.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:4px;';
-  datesEl.textContent = 'Naposledy: ' + revizeFormatDatum(rev.datum_posledni);
+  datesEl.textContent = 'Naposledy: ' + formatDatum(rev.datum_posledni);
   if (rev.interval_mesice) {
     datesEl.textContent += ' \u00b7 Interval: ' + rev.interval_mesice + ' m\u011bs.';
   }
@@ -158,7 +158,7 @@ function revizeMakeRow(rev, isPriv, listWrap, formWrap, user) {
       badge.style.color = '#fff';
       badge.textContent = '\u26A0 Brzy vypr\u0161\xed';
     } else {
-      badge.style.background = 'var(--success, #1a7c00)';
+      badge.style.background = 'var(--accent)';
       badge.style.color = '#fff';
       badge.textContent = '\u2713 OK';
     }
@@ -166,7 +166,7 @@ function revizeMakeRow(rev, isPriv, listWrap, formWrap, user) {
 
     var pristiEl = document.createElement('div');
     pristiEl.style.cssText = 'font-size:0.8rem;color:var(--text-light);text-align:right;';
-    pristiEl.textContent = 'P\u0159\xed\u0161t\xed: ' + revizeFormatDatum(rev.datum_pristi);
+    pristiEl.textContent = 'P\u0159\xed\u0161t\xed: ' + formatDatum(rev.datum_pristi);
     rightCol.appendChild(pristiEl);
   }
 
@@ -403,8 +403,3 @@ function revizeStatus(datumPristi) {
   return 'ok';
 }
 
-function revizeFormatDatum(dateStr) {
-  if (!dateStr) return '\u2014';
-  var p = dateStr.split('-');
-  return p.length === 3 ? p[2] + '. ' + p[1] + '. ' + p[0] : dateStr;
-}

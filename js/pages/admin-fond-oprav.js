@@ -66,7 +66,7 @@ function fondLoad(statsWrap, chartWrap, listWrap, formWrap, user) {
   ]).then(function(results) {
     fondRenderStats(statsWrap, results[0]);
     fondRenderChart(chartWrap, results[0].mesice || {});
-    fondRenderList(listWrap, formWrap, results[1].zaznamy, user);
+    fondRenderList(listWrap, formWrap, statsWrap, chartWrap, results[1].zaznamy, user);
   }).catch(function() {
     listWrap.replaceChildren();
     var err = document.createElement('p');
@@ -83,8 +83,8 @@ function fondRenderStats(wrap, data) {
   grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px;';
 
   var items = [
-    { label: 'Z\u016fstatek', value: data.zustatek, color: data.zustatek >= 0 ? 'var(--success,#1a7c00)' : 'var(--danger)' },
-    { label: 'P\u0159\xedjmy celkem', value: data.prijem_celkem, color: 'var(--success,#1a7c00)' },
+    { label: 'Z\u016fstatek', value: data.zustatek, color: data.zustatek >= 0 ? 'var(--accent)' : 'var(--danger)' },
+    { label: 'P\u0159\xedjmy celkem', value: data.prijem_celkem, color: 'var(--accent)' },
     { label: 'V\xfddaje celkem', value: data.vydaj_celkem, color: 'var(--danger)' },
   ];
 
@@ -146,7 +146,7 @@ function fondRenderChart(wrap, mesice) {
     // Příjem bar
     var barP = document.createElement('div');
     var hP = Math.round((prijem / maxVal) * 70);
-    barP.style.cssText = 'width:10px;background:var(--success,#1a7c00);border-radius:2px 2px 0 0;opacity:0.85;';
+    barP.style.cssText = 'width:10px;background:var(--accent);border-radius:2px 2px 0 0;opacity:0.85;';
     barP.style.height = hP + 'px';
     barP.title = 'P\u0159. ' + fondFormatCastka(prijem) + ' K\u010d';
 
@@ -178,7 +178,7 @@ function fondRenderChart(wrap, mesice) {
   var legenda = document.createElement('div');
   legenda.style.cssText = 'display:flex;gap:14px;margin-top:4px;font-size:0.75rem;color:var(--text-light);';
   [
-    { color: 'var(--success,#1a7c00)', label: 'P\u0159\xedjmy' },
+    { color: 'var(--accent)', label: 'P\u0159\xedjmy' },
     { color: 'var(--danger)', label: 'V\xfddaje' },
   ].forEach(function(item) {
     var leg = document.createElement('div');
@@ -196,7 +196,7 @@ function fondRenderChart(wrap, mesice) {
   wrap.appendChild(section);
 }
 
-function fondRenderList(listWrap, formWrap, items, user) {
+function fondRenderList(listWrap, formWrap, statsWrap, chartWrap, items, user) {
   listWrap.replaceChildren();
   var isPriv = user.role === 'admin' || user.role === 'vybor';
 
@@ -219,7 +219,7 @@ function fondRenderList(listWrap, formWrap, items, user) {
 
     var typDot = document.createElement('span');
     typDot.style.cssText = 'width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:2px;' +
-      'background:' + (z.typ === 'prijem' ? 'var(--success,#1a7c00)' : 'var(--danger)') + ';';
+      'background:' + (z.typ === 'prijem' ? 'var(--accent)' : 'var(--danger)') + ';';
     row.appendChild(typDot);
 
     var info = document.createElement('div');
@@ -232,14 +232,14 @@ function fondRenderList(listWrap, formWrap, items, user) {
 
     var meta = document.createElement('div');
     meta.style.cssText = 'font-size:0.78rem;color:var(--text-light);margin-top:1px;';
-    meta.textContent = z.kategorie + ' \u00b7 ' + fondFormatDatum(z.datum);
+    meta.textContent = z.kategorie + ' \u00b7 ' + formatDatum(z.datum);
     info.appendChild(meta);
 
     row.appendChild(info);
 
     var castkaEl = document.createElement('div');
     castkaEl.style.cssText = 'font-weight:700;font-size:0.95rem;white-space:nowrap;' +
-      'color:' + (z.typ === 'prijem' ? 'var(--success,#1a7c00)' : 'var(--danger)') + ';';
+      'color:' + (z.typ === 'prijem' ? 'var(--accent)' : 'var(--danger)') + ';';
     castkaEl.textContent = (z.typ === 'prijem' ? '+' : '\u2212') + fondFormatCastka(z.castka) + '\xa0K\u010d';
     row.appendChild(castkaEl);
 
@@ -255,7 +255,7 @@ function fondRenderList(listWrap, formWrap, items, user) {
             Api.apiPost('api/fond_oprav.php?action=delete&id=' + z.id, {})
               .then(function() {
                 showToast('Z\xe1znam smaz\xe1n');
-                fondReload(listWrap, formWrap, user);
+                fondLoad(statsWrap, chartWrap, listWrap, formWrap, user);
               })
               .catch(function(e) { showToast(e.message || 'Chyba.', 'error'); });
           }
@@ -268,14 +268,6 @@ function fondRenderList(listWrap, formWrap, items, user) {
   });
 }
 
-function fondReload(listWrap, formWrap, user) {
-  // Najdeme statsWrap a chartWrap v DOM (rodiče listWrap)
-  var body = listWrap.parentElement;
-  var children = body.children;
-  var statsWrap = children[1];
-  var chartWrap = children[2];
-  fondLoad(statsWrap, chartWrap, listWrap, formWrap, user);
-}
 
 function fondShowForm(formWrap, listWrap, statsWrap, chartWrap, user, addBtn) {
   formWrap.replaceChildren();
@@ -414,8 +406,3 @@ function fondFormatCastka(val) {
   return n.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 }
 
-function fondFormatDatum(dateStr) {
-  if (!dateStr) return '\u2014';
-  var p = dateStr.split('-');
-  return p.length === 3 ? p[2] + '. ' + p[1] + '. ' + p[0] : dateStr;
-}

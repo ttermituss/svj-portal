@@ -92,7 +92,7 @@ function penbRenderStatus(statusWrap, formWrap, penb, user) {
 
   var nazevEl = document.createElement('div');
   nazevEl.style.cssText = 'font-weight:600;font-size:0.95rem;';
-  nazevEl.textContent = 'T\u0159\xedda ' + trida + ' \u2014 platnost do ' + penbFormatDatum(penb.datum_platnosti);
+  nazevEl.textContent = 'T\u0159\xedda ' + trida + ' \u2014 platnost do ' + formatDatum(penb.datum_platnosti);
   meta.appendChild(nazevEl);
 
   var expiryEl = document.createElement('div');
@@ -111,7 +111,7 @@ function penbRenderStatus(statusWrap, formWrap, penb, user) {
 
   var vystavEl = document.createElement('div');
   vystavEl.style.cssText = 'font-size:0.8rem;color:var(--text-light);margin-top:2px;';
-  vystavEl.textContent = 'Vystaveno: ' + penbFormatDatum(penb.datum_vystaveni);
+  vystavEl.textContent = 'Vystaveno: ' + formatDatum(penb.datum_vystaveni);
   meta.appendChild(vystavEl);
 
   row.appendChild(meta);
@@ -306,8 +306,3 @@ function penbShowForm(formWrap, penb, statusWrap, user) {
   });
 }
 
-function penbFormatDatum(dateStr) {
-  if (!dateStr) return '';
-  var p = dateStr.split('-');
-  return p.length === 3 ? p[2] + '. ' + p[1] + '. ' + p[0] : dateStr;
-}

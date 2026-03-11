@@ -23,10 +23,6 @@ Router.register('admin', function(el) {
   renderInvitesCard(el, user);
   renderKnCard(el, user);
   renderSfpiCard(el, user);
-  renderPenbCard(el, user);
-  renderRevizeCard(el, user);
-  renderFondOpravCard(el, user);
-  renderOkoliCard(el, user);
 
   if (user.role === 'admin') {
     renderSystemCard(el);
@@ -242,3 +238,9 @@ function showAdminBox(b, t) { b.textContent = t; b.style.display = ''; }
 function hideAdminBox(b)    { b.style.display = 'none'; b.textContent = ''; }
 
 /* showToast, showConfirmModal, copyToClipboard → js/ui.js */
+
+function formatDatum(dateStr) {
+  if (!dateStr) return '\u2014';
+  var p = dateStr.split('-');
+  return p.length === 3 ? p[2] + '. ' + p[1] + '. ' + p[0] : dateStr;
+}
