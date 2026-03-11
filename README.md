@@ -1,4 +1,4 @@
-# SVJ Portál
+# SVJ Portál v1.0.0
 
 Univerzální multi-tenant webový portál pro správu **Společenství vlastníků jednotek (SVJ)** v ČR.
 
@@ -11,38 +11,54 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 | Frontend | Vanilla JS (žádný framework, žádný build step) |
 | Webserver | Apache + mod_rewrite |
 
+---
+
 ## Funkce
 
-### Pro všechny členy SVJ
-- 📋 **Nástěnka** — příspěvky a oznámení
-- 🏢 **Jednotky** — přehled bytových a nebytových jednotek z KN (Využití, Podíl, LV, K.ú.)
-- 🗳️ **Hlasování** — ankety a hlasování s výsledky a quorem
-- 📁 **Dokumenty** — nahrávání, kategorie, náhled (PDF/obrázky/Markdown), datum platnosti
-- 🌤️ **Počasí** — aktuální počasí u budovy (OpenMeteo, GPS z RÚIAN)
+### 🏢 O domě — pro všechny vlastníky
+- 🏗️ **Info o budově** — adresa, GPS, rok dokončení, konstrukce, podlaží, výtah, vytápění (z RÚIAN/KN)
+- ⚡ **PENB** — průkaz energetické náročnosti (třída A–G, platnost, upload PDF, upozornění na vypršení)
+- 🔧 **Evidence revizí** — výtah, elektro, plyn, hromosvod, hasicí přístroje; automatický výpočet termínů
+- 💰 **Fond oprav** — příjmy/výdaje, zůstatek, měsíční sloupcový graf
+- 🗺️ **Okolí budovy** — MHD, obchody, lékárny, banky, pošta v okruhu 600 m (OpenStreetMap)
+- 🅿️ **Parkovací místa** — evidence garáží a stání, přiřazení k jednotce nebo nájemci
+- 📊 **Cenová mapa** — přímé odkazy na cenovamapa.org, ČÚZK cenové mapy, Sreality
+
+### 📋 Pro všechny členy SVJ
+- 📢 **Nástěnka** — příspěvky a oznámení
+- 🗳️ **Hlasování** — ankety s výsledky, progress bary a quorem
+- 📁 **Dokumenty** — drag & drop upload, kategorie, datum platnosti, náhled (PDF/obrázky/Markdown/TXT)
+- 🌤️ **Počasí** — aktuální + 7denní výhled u budovy (OpenMeteo, GPS z RÚIAN)
 - 👤 **Profil** — nastavení účtu, avatar
 
-### Pro výbor a správce
-- 👥 **Vlastníci** — seznam členů SVJ s ISIR deep linkem (insolvenční rejstřík)
+### 👥 Pro výbor a správce
+- 🏘️ **Jednotky** — přehled z KN (Využití, Podíl, LV, K.ú., plomba badge)
+- 👥 **Vlastníci** — seznam členů SVJ, ISIR deep link (insolvenční rejstřík)
 - 🗳️ **Hlasování** — vytvoření, ukončení, doplnění externích hlasů (papír/email/schůze)
 - 🏗️ **ČÚZK KN** — import jednotek, parcel a stavby z Katastru nemovitostí
 - 🗺️ **Mapa budovy** — OpenStreetMap iframe + odkaz na Mapy.cz
-- 💰 **Dotace** — přehled programů (Panel 2020+, NZÚ, IROP, MMR) s doporučením dle budovy
-- ⚡ **PENB** — průkaz energetické náročnosti (třída A–G, platnost, upload PDF, upozornění na vypršení)
+- 💰 **Dotace SFPI** — Panel 2020+, NZÚ, IROP, MMR s doporučením dle budovy
 
-### Pro správce (admin)
+### ⚙️ Pro správce (admin)
 - 👥 **Správa uživatelů** — role, pozvánky, smazání
-- ⚙️ **Systémová nastavení** — ČÚZK API klíč (šifrovaný AES-256)
 - 🏛️ **OR / ARES** — statutární orgán z Obchodního rejstříku
+- ⚙️ **Systémová nastavení** — ČÚZK API klíč (šifrovaný AES-256)
+
+---
 
 ## Integrace externích API
 
 | API | Účel | Auth |
 |---|---|---|
-| ARES | Data SVJ, statutární orgán | Zdarma, bez klíče |
-| ČÚZK KN | Katastr nemovitostí — jednotky, parcely, plomby | API klíč (500 volání/den) |
+| ARES | Data SVJ, statutární orgán z OR | Zdarma, bez klíče |
+| ČÚZK KN | Katastr — jednotky, parcely, plomby | API klíč (500 volání/den) |
 | RÚIAN ArcGIS | GPS, adresa, rok výstavby, konstrukce | Zdarma, bez klíče |
 | OpenMeteo | Počasí u budovy | Zdarma, bez klíče |
+| Overpass API | Okolí budovy (POI z OpenStreetMap) | Zdarma, bez klíče |
 | ISIR | Insolvenční rejstřík | Deep link (bez API) |
+| cenovamapa.org | Cenové mapy bytů | Deep link (bez API) |
+
+---
 
 ## Instalace
 
@@ -68,7 +84,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 3. **Spusť migrace**
    ```bash
    for f in api/migrations/*.sql; do sudo mysql svj_portal < "$f"; done
-   # Aktuálně: 001–015 (init → dokumenty)
+   # Aktuálně: 001–018 (init → parkovani)
    ```
 
 4. **Nastav Apache virtualhost**
@@ -84,36 +100,50 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 
 5. **Zaregistruj první SVJ** přes webové rozhraní (`/` → přihlášení → IČO)
 
+---
+
 ## Architektura
 
 ```
 SPA (index.html)
-├── js/router.js        # hash router
-├── js/auth.js          # session management
-├── js/api.js           # HTTP wrapper
-└── js/pages/*.js       # jednotlivé stránky
+├── js/router.js            # hash router (#page)
+├── js/auth.js              # session management
+├── js/api.js               # HTTP wrapper
+├── js/ui.js                # showToast, showConfirmModal, makeAvatarEl
+└── js/pages/
+    ├── home.js             # dashboard
+    ├── nastenka.js         # nástěnka
+    ├── hlasovani.js        # hlasování
+    ├── dokumenty.js        # dokumenty
+    ├── odom.js             # O domě (PENB, revize, fond, okolí, parkování)
+    ├── admin.js            # správa portálu + sdílené helpery
+    └── admin-*.js          # jednotlivé karty správy
 
 API (api/*.php)
-├── middleware.php       # auth, role check
-├── helpers.php          # jsonOk, jsonError
-├── svj_helper.php       # ARES + RÚIAN integrace
-└── *.php                # endpointy
+├── middleware.php          # requireAuth(), requireRole()
+├── helpers.php             # jsonOk, jsonError, sanitize
+├── svj_helper.php          # ARES + RÚIAN integrace
+└── *.php                   # endpointy
 ```
 
 ## Bezpečnost
 
-- Tenant isolation — `svj_id` vždy ze session, nikdy z user inputu
-- PDO prepared statements — žádný SQL injection
-- AES-256-CBC šifrování citlivých nastavení v DB (API klíče)
-- `bcrypt` pro hesla, `bin2hex(random_bytes(32))` pro tokeny
-- SameSite=Lax cookies, X-Frame-Options, X-Content-Type-Options
+- **Tenant isolation** — `svj_id` vždy ze session, nikdy z user inputu
+- **SQL injection** — PDO prepared statements, žádný string concat
+- **AES-256-CBC** — šifrování citlivých nastavení v DB (API klíče, hesla)
+- **bcrypt** pro hesla, `bin2hex(random_bytes(32))` pro tokeny
+- **SameSite=Lax** cookies, X-Frame-Options, X-Content-Type-Options
+- **MIME check** — `finfo` pro upload souborů, přímý přístup blokován `.htaccess`
 
 ## Témata
 
 Portál podporuje 3 vizuální témata (optimalizováno pro seniory):
-- `light` — světlý mód (výchozí)
-- `dark` — tmavý mód
-- `senior` — zvětšené písmo, vysoký kontrast
+
+| Atribut | Popis |
+|---|---|
+| `data-theme="light"` | Světlý mód (výchozí) |
+| `data-theme="dark"` | Tmavý mód |
+| `data-theme="senior"` | Zvětšené písmo (18px), vysoký kontrast |
 
 ## Databázové migrace
 
@@ -121,9 +151,24 @@ Portál podporuje 3 vizuální témata (optimalizováno pro seniory):
 sudo mysql svj_portal < api/migrations/00X_nazev.sql
 ```
 
+| Migrace | Obsah |
+|---|---|
+| 001–005 | Základ: svj, users, sessions, rate_limits, avatar |
+| 006–007 | Settings ext + ČÚZK klíč |
+| 008–011 | KN integrace, jednotky ext, RÚIAN, info o budově |
+| 012–013 | Hlasování + externí hlasy |
+| 014 | PENB |
+| 015 | Dokumenty |
+| 016 | Evidence revizí |
+| 017 | Fond oprav |
+| 018 | Parkovací místa |
+
 Nikdy neupravuj stávající migraci — vždy přidej novou.
+
+---
 
 ## Vývoj
 
 Viz [`CLAUDE.md`](CLAUDE.md) pro coding standards, pravidla a architekturu.
 Viz [`TODO.md`](TODO.md) pro roadmap a plánované funkce.
+Viz [`CHANGELOG.md`](CHANGELOG.md) pro historii verzí.

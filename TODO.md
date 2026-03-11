@@ -84,6 +84,12 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 - [x] Hlasování / ankety — vytvoření, hlasování, výsledky s progress bary, quorum, externí hlasy
 - [x] **PENB** — průkaz energetické náročnosti (třída A–G, datum platnosti, upload PDF, ⚠ upozornění)
 - [x] **Správa dokumentů** — drag & drop upload, kategorie, datum platnosti, přístup výbor/všichni, náhled (PDF/obrázky/MD/TXT inline, markdown renderer), moderní karty s type-box badges
+- [x] **Evidence revizí** — výtah, elektro, plyn, hromosvod, hasicí přístroje; interval, auto-termín, PDF protokol
+- [x] **Fond oprav** — příjmy/výdaje, zůstatek, měsíční sloupcový graf (CSS, bez knihoven)
+- [x] **Okolí budovy** — Overpass API, 600 m, MHD/obchody/zdraví/banky/pošta/parkování, vzdálenosti Haversine
+- [x] **Stránka O domě** — nová stránka přístupná všem vlastníkům (PENB, revize, fond, okolí, parkování, ceny)
+- [x] **Správa parkovacích míst** — garáže, stání, venkovní, moto; přiřazení k jednotce nebo nájemci
+- [x] **Cenová mapa bytů** — info karta s odkazy na cenovamapa.org, ČÚZK, Sreality; adresa z KN
 
 ---
 
