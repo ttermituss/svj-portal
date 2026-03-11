@@ -39,7 +39,7 @@
   --font-size:  14px;
   --line-height:1.5;
 
-  --sidebar-w:  240px;
+  --sidebar-w:  clamp(240px, 15vw, 320px);
   --header-h:   52px;
 
   --transition: 0.2s ease;
@@ -80,7 +80,7 @@
 [data-senior] {
   --font-size:  18px;
   --line-height:1.7;
-  --sidebar-w:  280px;
+  --sidebar-w:  clamp(280px, 18vw, 360px);
   --header-h:   60px;
   --radius:     8px;
   --radius-lg:  12px;

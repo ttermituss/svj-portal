@@ -136,8 +136,7 @@
 
 .content {
   flex: 1;
-  padding: 24px;
-  max-width: 960px;
+  padding: clamp(16px, 2.5vw, 48px);
   width: 100%;
 }
 
@@ -179,6 +178,6 @@
   }
 
   .content {
-    padding: 16px;
+    padding: 16px; /* clamp fallback pro mobil */
   }
 }
