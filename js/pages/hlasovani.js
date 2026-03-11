@@ -15,7 +15,6 @@ Router.register('hlasovani', function(el) {
   el.appendChild(title);
 
   var listWrap = document.createElement('div');
-  el.appendChild(listWrap);
 
   if (isPriv) {
     var createWrap = document.createElement('div');
@@ -23,6 +22,7 @@ Router.register('hlasovani', function(el) {
     renderCreateForm(createWrap, function() { loadList(listWrap, isPriv); });
   }
 
+  el.appendChild(listWrap);
   loadList(listWrap, isPriv);
 });
 
