@@ -20,6 +20,7 @@ Router.register('admin', function(el) {
   renderSvjBanner(el, user);
   renderOrCard(el, user);
   renderUsersCard(el, user);
+  renderVlastniciExtCard(el, user);
   renderInvitesCard(el, user);
   renderKnCard(el, user);
   renderSfpiCard(el, user);

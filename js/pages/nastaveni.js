@@ -49,15 +49,18 @@ function renderProfileCard(container, user) {
 
   var form = document.createElement('form');
 
-  var jmenoGrp    = makeField('Jméno *',  'text',  'p-jmeno',    user.jmeno    || '');
-  var prijmeniGrp = makeField('Příjmení', 'text',  'p-prijmeni', user.prijmeni || '');
-  var emailGrp    = makeField('E-mail *', 'email', 'p-email',    user.email    || '');
+  var jmenoGrp    = makeField('Jméno *',   'text',  'p-jmeno',    user.jmeno    || '');
+  var prijmeniGrp = makeField('Příjmení',  'text',  'p-prijmeni', user.prijmeni || '');
+  var emailGrp    = makeField('E-mail *',  'email', 'p-email',    user.email    || '');
+  var telefonGrp  = makeField('Telefon',   'tel',   'p-telefon',  user.telefon  || '');
+  telefonGrp.input.placeholder = 'např. +420 777 123 456';
 
   var btn = makeSubmitBtn('Uložit profil');
 
   form.appendChild(jmenoGrp.el);
   form.appendChild(prijmeniGrp.el);
   form.appendChild(emailGrp.el);
+  form.appendChild(telefonGrp.el);
   form.appendChild(err);
   form.appendChild(ok);
   form.appendChild(btn);
@@ -69,16 +72,17 @@ function renderProfileCard(container, user) {
     var jmeno    = jmenoGrp.input.value.trim();
     var prijmeni = prijmeniGrp.input.value.trim();
     var email    = emailGrp.input.value.trim();
+    var telefon  = telefonGrp.input.value.trim();
 
     if (!jmeno) { showBox(err, 'Jméno nesmí být prázdné.'); return; }
     if (!email) { showBox(err, 'E-mail nesmí být prázdný.'); return; }
 
     btn.disabled = true;
-    Api.apiPost('api/user.php?action=updateProfile', { jmeno: jmeno, prijmeni: prijmeni, email: email })
+    Api.apiPost('api/user.php?action=updateProfile', { jmeno: jmeno, prijmeni: prijmeni, email: email, telefon: telefon })
       .then(function() {
         showBox(ok, 'Profil byl uložen.');
         var u = Auth.getUser();
-        if (u) { u.jmeno = jmeno; u.prijmeni = prijmeni; u.email = email; buildNavWithUser(); }
+        if (u) { u.jmeno = jmeno; u.prijmeni = prijmeni; u.email = email; u.telefon = telefon; buildNavWithUser(); }
       })
       .catch(function(e) { showBox(err, e.message || 'Chyba při ukládání.'); })
       .finally(function() { btn.disabled = false; });

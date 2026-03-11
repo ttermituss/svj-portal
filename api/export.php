@@ -20,13 +20,17 @@ switch ($type) {
     case 'vlastnici':
         requireRole('admin', 'vybor');
         $stmt = $db->prepare(
-            'SELECT jmeno, prijmeni, email, role, created_at FROM users WHERE svj_id = ? ORDER BY prijmeni, jmeno'
+            'SELECT u.jmeno, u.prijmeni, u.email, u.telefon, u.role, u.created_at, j.cislo_jednotky
+             FROM users u
+             LEFT JOIN jednotky j ON j.id = u.jednotka_id
+             WHERE u.svj_id = ? ORDER BY u.prijmeni, u.jmeno'
         );
         $stmt->execute([$svjId]);
         $rows    = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $headers = ['Jméno', 'Příjmení', 'E-mail', 'Role', 'Registrace'];
+        $headers = ['Jméno', 'Příjmení', 'E-mail', 'Telefon', 'Jednotka', 'Role', 'Registrace'];
         $data    = array_map(fn($r) => [
-            $r['jmeno'], $r['prijmeni'], $r['email'],
+            $r['jmeno'], $r['prijmeni'], $r['email'], $r['telefon'] ?? '',
+            $r['cislo_jednotky'] ?? '',
             $r['role'],
             $r['created_at'] ? date('d.m.Y', strtotime($r['created_at'])) : '',
         ], $rows);
@@ -35,23 +39,38 @@ switch ($type) {
         break;
 
     case 'jednotky':
+        requireRole('admin', 'vybor');
         $stmt = $db->prepare(
-            'SELECT cislo_jednotky, typ_jednotky, zpusob_vyuziti, podil_citatel, podil_jmenovatel,
-                    lv, katastralni_uzemi, plomba_aktivni
-             FROM jednotky WHERE svj_id = ? ORDER BY cislo_jednotky'
+            'SELECT j.cislo_jednotky, j.typ_jednotky, j.zpusob_vyuziti,
+                    j.podil_citatel, j.podil_jmenovatel, j.lv, j.katastralni_uzemi,
+                    j.plomba_aktivni, j.pronajem,
+                    j.poznamka,
+                    COALESCE(u.jmeno, ve.jmeno, \'\')     AS vlastnik_jmeno,
+                    COALESCE(u.prijmeni, ve.prijmeni, \'\') AS vlastnik_prijmeni,
+                    j.najemce_jmeno, j.najemce_prijmeni, j.najemce_telefon
+             FROM jednotky j
+             LEFT JOIN users u        ON u.id  = (SELECT id FROM users WHERE jednotka_id = j.id LIMIT 1)
+             LEFT JOIN vlastnici_ext ve ON ve.id = (SELECT id FROM vlastnici_ext WHERE jednotka_id = j.id LIMIT 1)
+             WHERE j.svj_id = ? ORDER BY j.cislo_jednotky + 0'
         );
         $stmt->execute([$svjId]);
         $rows    = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $headers = ['Č. jednotky', 'Typ', 'Využití', 'Podíl citatel', 'Podíl jmenovatel', 'LV', 'K.ú.', 'Plomba'];
+        $headers = ['Č. jednotky', 'Typ', 'Využití', 'Podíl čit.', 'Podíl jmen.', 'LV', 'K.ú.',
+                    'Vlastník', 'Plomba', 'Pronájem', 'Nájemce', 'Tel. nájemce', 'Poznámka'];
         $data    = array_map(fn($r) => [
             $r['cislo_jednotky'],
-            $r['typ_jednotky'] ?? '',
+            $r['typ_jednotky']   ?? '',
             $r['zpusob_vyuziti'] ?? '',
-            $r['podil_citatel'] ?? '',
-            $r['podil_jmenovatel'] ?? '',
-            $r['lv'] ?? '',
+            $r['podil_citatel']      ?? '',
+            $r['podil_jmenovatel']   ?? '',
+            $r['lv']             ?? '',
             $r['katastralni_uzemi'] ?? '',
+            trim(($r['vlastnik_jmeno'] ?? '') . ' ' . ($r['vlastnik_prijmeni'] ?? '')),
             $r['plomba_aktivni'] ? 'Ano' : 'Ne',
+            $r['pronajem']       ? 'Ano' : 'Ne',
+            trim(($r['najemce_jmeno'] ?? '') . ' ' . ($r['najemce_prijmeni'] ?? '')),
+            $r['najemce_telefon'] ?? '',
+            $r['poznamka']       ?? '',
         ], $rows);
         $filename = 'jednotky';
         $sheet    = 'Jednotky';

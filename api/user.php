@@ -38,12 +38,16 @@ function handleUpdateProfile(): void
     $jmeno    = sanitize($body['jmeno']    ?? '');
     $prijmeni = sanitize($body['prijmeni'] ?? '');
     $email    = sanitize($body['email']    ?? '');
+    $telefon  = sanitize($body['telefon']  ?? '');
 
     if (!$jmeno) {
         jsonResponse(['error' => ['message' => 'Jméno nesmí být prázdné', 'code' => 'VALIDATION_ERROR']], 422);
     }
     if (strlen($jmeno) > 100 || strlen($prijmeni) > 100) {
         jsonResponse(['error' => ['message' => 'Jméno nebo příjmení je příliš dlouhé', 'code' => 'VALIDATION_ERROR']], 422);
+    }
+    if (strlen($telefon) > 20) {
+        jsonResponse(['error' => ['message' => 'Telefon je příliš dlouhý (max 20 znaků)', 'code' => 'VALIDATION_ERROR']], 422);
     }
 
     $db = getDb();
@@ -60,11 +64,13 @@ function handleUpdateProfile(): void
         if ($stmt->fetch()) {
             jsonResponse(['error' => ['message' => 'Tento e-mail je již použit', 'code' => 'EMAIL_EXISTS']], 409);
         }
-        $db->prepare('UPDATE users SET jmeno = :jmeno, prijmeni = :prijmeni, email = :email WHERE id = :id')
-           ->execute([':jmeno' => $jmeno, ':prijmeni' => $prijmeni, ':email' => $emailLower, ':id' => $user['id']]);
+        $db->prepare('UPDATE users SET jmeno=:jmeno, prijmeni=:prijmeni, email=:email, telefon=:telefon WHERE id=:id')
+           ->execute([':jmeno' => $jmeno, ':prijmeni' => $prijmeni, ':email' => $emailLower,
+                      ':telefon' => $telefon ?: null, ':id' => $user['id']]);
     } else {
-        $db->prepare('UPDATE users SET jmeno = :jmeno, prijmeni = :prijmeni WHERE id = :id')
-           ->execute([':jmeno' => $jmeno, ':prijmeni' => $prijmeni, ':id' => $user['id']]);
+        $db->prepare('UPDATE users SET jmeno=:jmeno, prijmeni=:prijmeni, telefon=:telefon WHERE id=:id')
+           ->execute([':jmeno' => $jmeno, ':prijmeni' => $prijmeni,
+                      ':telefon' => $telefon ?: null, ':id' => $user['id']]);
     }
 
     jsonResponse(['ok' => true]);

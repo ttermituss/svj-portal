@@ -1,4 +1,4 @@
-/* ===== VLASTNICI PAGE ===== */
+/* ===== VLASTNÍCI PAGE ===== */
 
 Router.register('vlastnici', function(el) {
   var user   = Auth.getUser();
@@ -9,11 +9,12 @@ Router.register('vlastnici', function(el) {
   var h1 = document.createElement('h1');
   h1.textContent = 'Vlastníci';
   var sub = document.createElement('p');
-  sub.textContent = 'Seznam členů SVJ registrovaných v portálu';
+  sub.textContent = 'Registrovaní členové SVJ a evidence dalších vlastníků';
   title.appendChild(h1);
   title.appendChild(sub);
   el.appendChild(title);
 
+  // Karta: registrovaní
   var card = document.createElement('div');
   card.className = 'card';
   var body = document.createElement('div');
@@ -23,32 +24,70 @@ Router.register('vlastnici', function(el) {
 
   var loading = document.createElement('div');
   loading.style.cssText = 'color:var(--text-light);font-size:0.9rem;';
-  loading.textContent = 'Na\u010d\u00edt\u00e1m\u2026';
+  loading.textContent = 'Načítám\u2026';
   body.appendChild(loading);
 
-  Api.apiGet('api/vlastnici.php')
-    .then(function(data) {
-      body.removeChild(loading);
-      if (!data.vlastnici || !data.vlastnici.length) {
-        renderEmpty(body);
-      } else {
-        renderTable(body, data.vlastnici, isPriv);
-      }
-    })
-    .catch(function(e) {
-      loading.textContent = 'Chyba: ' + (e.message || 'Nepoda\u0159ilo se na\u010d\u00edst vlastn\u00edky.');
-      loading.style.color = 'var(--danger)';
-    });
+  // Karta: neregistrovaní
+  var cardExt = document.createElement('div');
+  cardExt.className = 'card';
+  var hdrExt = document.createElement('div');
+  hdrExt.className = 'card-header';
+  var h2Ext = document.createElement('h2');
+  h2Ext.textContent = 'Ostatní vlastníci';
+  hdrExt.appendChild(h2Ext);
+  cardExt.appendChild(hdrExt);
+  var bodyExt = document.createElement('div');
+  bodyExt.className = 'card-body';
+  cardExt.appendChild(bodyExt);
+  el.appendChild(cardExt);
+
+  var loadingExt = document.createElement('div');
+  loadingExt.style.cssText = 'color:var(--text-light);font-size:0.9rem;';
+  loadingExt.textContent = 'Načítám\u2026';
+  bodyExt.appendChild(loadingExt);
+
+  // Paralelní načítání
+  Promise.all([
+    Api.apiGet('api/vlastnici.php'),
+    Api.apiGet('api/vlastnici_ext.php?action=list'),
+  ]).then(function(results) {
+    body.removeChild(loading);
+    bodyExt.removeChild(loadingExt);
+
+    var vlastnici    = results[0].vlastnici    || [];
+    var vlastniciExt = results[1].vlastnici_ext || [];
+
+    if (!vlastnici.length) {
+      renderEmptyReg(body);
+    } else {
+      renderTableReg(body, vlastnici, isPriv);
+    }
+
+    if (!vlastniciExt.length) {
+      var emptyMsg = document.createElement('p');
+      emptyMsg.style.cssText = 'color:var(--text-light);font-size:0.9rem;';
+      emptyMsg.textContent = 'Žádní neregistrovaní vlastníci. Správce je může přidat ve Správě portálu.';
+      bodyExt.appendChild(emptyMsg);
+    } else {
+      renderTableExt(bodyExt, vlastniciExt, isPriv);
+    }
+  }).catch(function(e) {
+    loading.textContent = 'Chyba: ' + (e.message || 'Nepodařilo se načíst data.');
+    loading.style.color = 'var(--danger)';
+    loadingExt.style.display = 'none';
+  });
 });
 
-function renderEmpty(body) {
+/* ===== REGISTROVANÍ VLASTNÍCI ===== */
+
+function renderEmptyReg(body) {
   var empty = document.createElement('div');
   empty.className = 'empty-state';
   var icon = document.createElement('div');
-  icon.className = 'icon';
+  icon.className  = 'icon';
   icon.textContent = '\uD83D\uDC65';
   var msg = document.createElement('p');
-  msg.textContent = 'Zat\u00edm nejsou registrov\u00e1ni \u017e\u00e1dn\u00ed \u010dlenov\u00e9 SVJ. Spr\u00e1vce m\u016f\u017ee pozvat vlastn\u00edky p\u0159es Spr\u00e1vu port\u00e1lu.';
+  msg.textContent = 'Zatím nejsou registrováni žádní členové SVJ. Správce může pozvat vlastníky přes Správu portálu.';
   empty.appendChild(icon);
   empty.appendChild(msg);
   body.appendChild(empty);
@@ -58,14 +97,14 @@ function exportVlastnici(format) {
   window.location.href = 'api/export.php?type=vlastnici&format=' + format;
 }
 
-function renderTable(body, vlastnici, isPriv) {
+function renderTableReg(body, vlastnici, isPriv) {
   if (isPriv) {
     var actions = document.createElement('div');
     actions.style.cssText = 'display:flex;gap:8px;justify-content:flex-end;margin-bottom:12px;';
     ['xlsx', 'csv'].forEach(function(fmt) {
       var btn = document.createElement('button');
       btn.className = 'btn btn-secondary';
-      btn.style.cssText = 'font-size:0.82rem;';
+      btn.style.fontSize = '0.82rem';
       btn.textContent = fmt === 'xlsx' ? '\uD83D\uDCCA Export XLSX' : '\uD83D\uDCC4 Export CSV';
       btn.addEventListener('click', function() { exportVlastnici(fmt); });
       actions.appendChild(btn);
@@ -73,8 +112,8 @@ function renderTable(body, vlastnici, isPriv) {
     body.appendChild(actions);
   }
 
-  var cols = ['Jm\u00e9no', 'E-mail', 'Role', 'Registrace'];
-  if (isPriv) cols.push('');
+  var cols = ['Jméno', 'Jednotka', 'Role', 'Registrace'];
+  if (isPriv) { cols.splice(1, 0, 'Telefon', 'E-mail'); cols.push(''); }
 
   var tbl = document.createElement('table');
   tbl.style.cssText = 'width:100%;border-collapse:collapse;font-size:0.9rem;';
@@ -84,8 +123,8 @@ function renderTable(body, vlastnici, isPriv) {
   cols.forEach(function(c) {
     var th = document.createElement('th');
     th.textContent = c;
-    th.style.cssText = 'text-align:left;padding:8px 12px;border-bottom:2px solid var(--border);'
-      + 'color:var(--text-light);font-weight:600;white-space:nowrap;';
+    th.style.cssText = 'text-align:left;padding:8px 12px;border-bottom:2px solid var(--border);' +
+                       'color:var(--text-light);font-weight:600;white-space:nowrap;';
     headRow.appendChild(th);
   });
   thead.appendChild(headRow);
@@ -97,22 +136,26 @@ function renderTable(body, vlastnici, isPriv) {
   vlastnici.forEach(function(v) {
     var tr = document.createElement('tr');
 
-    var vals = [
+    var cells = [
       (v.jmeno || '') + ' ' + (v.prijmeni || ''),
-      isPriv ? (v.email || '\u2014') : '\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022',
-      roleLabels[v.role] || v.role,
-      v.created_at ? new Date(v.created_at).toLocaleDateString('cs-CZ') : '\u2014',
     ];
+    if (isPriv) {
+      cells.push(v.telefon || '\u2014');
+      cells.push(v.email   || '\u2014');
+    }
+    cells.push(v.cislo_jednotky || '\u2014');
+    cells.push(roleLabels[v.role] || v.role);
+    cells.push(v.created_at ? new Date(v.created_at).toLocaleDateString('cs-CZ') : '\u2014');
 
-    vals.forEach(function(val, i) {
+    cells.forEach(function(val, i) {
       var td = document.createElement('td');
       td.textContent = val;
-      td.style.cssText = 'padding:8px 12px;border-bottom:1px solid var(--border);'
-        + (i === 0 ? 'font-weight:500;' : 'color:var(--text-light);');
+      td.style.cssText = 'padding:8px 12px;border-bottom:1px solid var(--border);' +
+        (i === 0 ? 'font-weight:500;' : 'color:var(--text-light);');
       tr.appendChild(td);
     });
 
-    // ISIR odkaz — jen pro admin/výbor
+    // ISIR — jen pro admin/výbor
     if (isPriv) {
       var tdIsir = document.createElement('td');
       tdIsir.style.cssText = 'padding:8px 12px;border-bottom:1px solid var(--border);white-space:nowrap;';
@@ -124,9 +167,9 @@ function renderTable(body, vlastnici, isPriv) {
         link.target = '_blank';
         link.rel    = 'noopener noreferrer';
         link.textContent = '\u2696\uFE0F ISIR';
-        link.title  = 'Ov\u011b\u0159it v Insolven\u010dn\u00edm rejst\u0159\u00edku (justice.cz)';
-        link.style.cssText = 'font-size:0.8rem;color:var(--text-light);text-decoration:none;'
-          + 'border:1px solid var(--border);border-radius:4px;padding:2px 7px;white-space:nowrap;';
+        link.title  = 'Ověřit v Insolvenčním rejstříku (justice.cz)';
+        link.style.cssText = 'font-size:0.8rem;color:var(--text-light);text-decoration:none;' +
+          'border:1px solid var(--border);border-radius:4px;padding:2px 7px;white-space:nowrap;';
         tdIsir.appendChild(link);
       }
       tr.appendChild(tdIsir);
@@ -140,12 +183,60 @@ function renderTable(body, vlastnici, isPriv) {
   if (isPriv) {
     var note = document.createElement('div');
     note.style.cssText = 'margin-top:10px;font-size:0.78rem;color:var(--text-light);';
-    note.textContent = '\u2696\uFE0F ISIR — odkaz otev\u0159e Insolven\u010dn\u00ed rejst\u0159\u00edk se p\u0159edvypln\u011bn\u00fdm jm\u00e9nem. Pouze pro interní potřebu výboru.';
+    note.textContent = '\u2696\uFE0F ISIR — odkaz otevře Insolvenční rejstřík se předvyplněným jménem. Pouze pro interní potřebu výboru.';
     body.appendChild(note);
   }
 
   var count = document.createElement('div');
   count.style.cssText = 'margin-top:' + (isPriv ? '4px' : '10px') + ';font-size:0.78rem;color:var(--text-light);';
-  count.textContent = vlastnici.length + ' registrovan\u00fdch \u010dlen\u016f SVJ';
+  count.textContent = vlastnici.length + ' registrovaných členů SVJ';
   body.appendChild(count);
+}
+
+/* ===== NEREGISTROVANÍ VLASTNÍCI ===== */
+
+function renderTableExt(body, list, isPriv) {
+  var cols = ['Jméno', 'Jednotka'];
+  if (isPriv) cols.splice(1, 0, 'Telefon', 'E-mail');
+  cols.push('Poznámka');
+
+  var tbl = document.createElement('table');
+  tbl.style.cssText = 'width:100%;border-collapse:collapse;font-size:0.9rem;';
+
+  var thead = document.createElement('thead');
+  var headRow = document.createElement('tr');
+  cols.forEach(function(c) {
+    var th = document.createElement('th');
+    th.textContent = c;
+    th.style.cssText = 'text-align:left;padding:8px 12px;border-bottom:2px solid var(--border);' +
+                       'color:var(--text-light);font-weight:600;white-space:nowrap;';
+    headRow.appendChild(th);
+  });
+  thead.appendChild(headRow);
+  tbl.appendChild(thead);
+
+  var tbody = document.createElement('tbody');
+  list.forEach(function(v) {
+    var tr = document.createElement('tr');
+    var cells = [(((v.jmeno || '') + ' ' + (v.prijmeni || '')).trim()) || '\u2014'];
+    if (isPriv) { cells.push(v.telefon || '\u2014'); cells.push(v.email || '\u2014'); }
+    cells.push(v.cislo_jednotky || '\u2014');
+    cells.push(v.poznamka       || '\u2014');
+
+    cells.forEach(function(val, i) {
+      var td = document.createElement('td');
+      td.textContent = val;
+      td.style.cssText = 'padding:8px 12px;border-bottom:1px solid var(--border);' +
+        (i === 0 ? 'font-weight:500;' : 'color:var(--text-light);');
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  tbl.appendChild(tbody);
+  body.appendChild(tbl);
+
+  var note = document.createElement('div');
+  note.style.cssText = 'margin-top:10px;font-size:0.78rem;color:var(--text-light);';
+  note.textContent = list.length + ' evidovaných vlastníků \u00b7 Správa ve Správě portálu';
+  body.appendChild(note);
 }

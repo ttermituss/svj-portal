@@ -8,11 +8,12 @@ require_once __DIR__ . '/settings_crypto.php';
 $action = getParam('action', '');
 
 switch ($action) {
-    case 'listUsers':     handleListUsers();     break;
-    case 'updateRole':    handleUpdateRole();    break;
-    case 'deleteUser':    handleDeleteUser();    break;
-    case 'getSettings':   handleGetSettings();   break;
-    case 'updateSetting': handleUpdateSetting(); break;
+    case 'listUsers':       handleListUsers();       break;
+    case 'updateRole':      handleUpdateRole();      break;
+    case 'updateUserUnit':  handleUpdateUserUnit();  break;
+    case 'deleteUser':      handleDeleteUser();      break;
+    case 'getSettings':     handleGetSettings();     break;
+    case 'updateSetting':   handleUpdateSetting();   break;
     default: jsonError('Neznámá akce', 400, 'UNKNOWN_ACTION');
 }
 
@@ -21,21 +22,60 @@ function handleListUsers(): void
     requireMethod('GET');
     requireRole('admin', 'vybor');
 
-    $db = getDb();
+    $db   = getDb();
     $stmt = $db->prepare(
-        'SELECT id, email, jmeno, prijmeni, role, svj_id, created_at FROM users ORDER BY created_at DESC'
+        'SELECT u.id, u.email, u.jmeno, u.prijmeni, u.role, u.svj_id,
+                u.telefon, u.jednotka_id, u.created_at,
+                j.cislo_jednotky
+         FROM users u
+         LEFT JOIN jednotky j ON j.id = u.jednotka_id
+         ORDER BY u.created_at DESC'
     );
     $stmt->execute();
     $users = $stmt->fetchAll();
 
-    // Přetypovat id a svj_id na int
     foreach ($users as &$u) {
-        $u['id']     = (int)$u['id'];
-        $u['svj_id'] = $u['svj_id'] !== null ? (int)$u['svj_id'] : null;
+        $u['id']          = (int)$u['id'];
+        $u['svj_id']      = $u['svj_id']     !== null ? (int)$u['svj_id']     : null;
+        $u['jednotka_id'] = $u['jednotka_id'] !== null ? (int)$u['jednotka_id'] : null;
     }
     unset($u);
 
     jsonResponse(['users' => $users]);
+}
+
+function handleUpdateUserUnit(): void
+{
+    requireMethod('POST');
+    $currentUser = requireRole('admin', 'vybor');
+    $svjId       = (int)($currentUser['svj_id'] ?? 0);
+    if (!$svjId) jsonError('SVJ není přiřazeno', 403);
+
+    $body       = getJsonBody();
+    $userId     = isset($body['user_id']) ? (int)$body['user_id'] : 0;
+    $jednotkaId = (isset($body['jednotka_id']) && $body['jednotka_id'] !== '' && $body['jednotka_id'] !== null)
+        ? (int)$body['jednotka_id'] : null;
+
+    if (!$userId) jsonError('Chybí user_id', 422, 'VALIDATION_ERROR');
+
+    $db = getDb();
+
+    // Tenant isolation — user musí patřit do SVJ
+    $chk = $db->prepare('SELECT id FROM users WHERE id = :id AND svj_id = :svj_id');
+    $chk->execute([':id' => $userId, ':svj_id' => $svjId]);
+    if (!$chk->fetch()) jsonError('Uživatel nenalezen', 404, 'NOT_FOUND');
+
+    // Tenant isolation — jednotka musí patřit do SVJ
+    if ($jednotkaId !== null) {
+        $chk = $db->prepare('SELECT id FROM jednotky WHERE id = :id AND svj_id = :svj_id');
+        $chk->execute([':id' => $jednotkaId, ':svj_id' => $svjId]);
+        if (!$chk->fetch()) jsonError('Jednotka nenalezena', 404, 'NOT_FOUND');
+    }
+
+    $db->prepare('UPDATE users SET jednotka_id = :jid WHERE id = :id')
+       ->execute([':jid' => $jednotkaId, ':id' => $userId]);
+
+    jsonResponse(['ok' => true]);
 }
 
 function handleUpdateRole(): void
