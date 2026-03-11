@@ -26,6 +26,7 @@ Router.register('admin', function(el) {
   renderPenbCard(el, user);
   renderRevizeCard(el, user);
   renderFondOpravCard(el, user);
+  renderOkoliCard(el, user);
 
   if (user.role === 'admin') {
     renderSystemCard(el);
