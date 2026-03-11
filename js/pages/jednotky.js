@@ -221,7 +221,7 @@ function renderTable(body, jednotky, isPriv, reloadFn) {
   body.appendChild(note);
 }
 
-/* ===== MODAL: EDIT JEDNOTKY (pronájem, nájemce, poznámka) ===== */
+/* ===== MODAL: EDIT JEDNOTKY (vlastník, pronájem, nájemce, poznámka) ===== */
 
 function showJednotkaModal(j, reloadFn) {
   var overlay = document.createElement('div');
@@ -230,15 +230,15 @@ function showJednotkaModal(j, reloadFn) {
 
   var modal = document.createElement('div');
   modal.style.cssText = 'background:var(--bg-card);border-radius:12px;padding:28px 28px 24px;' +
-    'max-width:440px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,0.25);max-height:90vh;overflow-y:auto;';
+    'max-width:480px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,0.25);max-height:90vh;overflow-y:auto;';
 
-  var title = document.createElement('h3');
-  title.style.cssText = 'margin:0 0 4px;font-size:1.05rem;';
-  title.textContent = 'Jednotka ' + (j.cislo_jednotky || '');
+  var titleEl = document.createElement('h3');
+  titleEl.style.cssText = 'margin:0 0 4px;font-size:1.05rem;';
+  titleEl.textContent = 'Jednotka ' + (j.cislo_jednotky || '');
   var sub = document.createElement('div');
   sub.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-bottom:18px;';
   sub.textContent = j.zpusob_vyuziti || j.typ_jednotky || '';
-  modal.appendChild(title);
+  modal.appendChild(titleEl);
   modal.appendChild(sub);
 
   var errBox = document.createElement('div');
@@ -246,43 +246,55 @@ function showJednotkaModal(j, reloadFn) {
   errBox.style.cssText = 'display:none;margin-bottom:12px;';
   modal.appendChild(errBox);
 
-  // Pronájem checkbox
+  // ===== SEKCE VLASTNÍK =====
+  var ownerReady = false;
+  var ownerGetData = function() { return {}; };
+
+  var ownerWrap = document.createElement('div');
+  ownerWrap.style.cssText = 'border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:14px;';
+  var ownerHdr = document.createElement('div');
+  ownerHdr.style.cssText = 'font-weight:600;font-size:0.88rem;margin-bottom:10px;color:var(--text-light);' +
+    'text-transform:uppercase;letter-spacing:0.05em;';
+  ownerHdr.textContent = 'Vlastník jednotky';
+  ownerWrap.appendChild(ownerHdr);
+  var ownerBody = document.createElement('div');
+  ownerBody.style.cssText = 'color:var(--text-light);font-size:0.88rem;';
+  ownerBody.textContent = 'Načítám\u2026';
+  ownerWrap.appendChild(ownerBody);
+  modal.appendChild(ownerWrap);
+
+  // ===== SEKCE PRONÁJEM =====
   var pronajemWrap = document.createElement('div');
   pronajemWrap.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:16px;';
   var pronajemChk = document.createElement('input');
-  pronajemChk.type    = 'checkbox';
-  pronajemChk.id      = 'j-pronajem';
+  pronajemChk.type = 'checkbox'; pronajemChk.id = 'j-pronajem';
   pronajemChk.checked = !!j.pronajem;
   pronajemChk.style.cssText = 'width:18px;height:18px;cursor:pointer;';
   var pronajemLbl = document.createElement('label');
-  pronajemLbl.htmlFor    = 'j-pronajem';
-  pronajemLbl.textContent = 'Byt je pronajímán';
+  pronajemLbl.htmlFor = 'j-pronajem'; pronajemLbl.textContent = 'Byt je pronajímán';
   pronajemLbl.style.cssText = 'font-weight:500;font-size:0.95rem;cursor:pointer;';
   pronajemWrap.appendChild(pronajemChk);
   pronajemWrap.appendChild(pronajemLbl);
   modal.appendChild(pronajemWrap);
 
-  // Sekce nájemce — viditelná jen když je zaškrtnuto pronájem
   var najemceSection = document.createElement('div');
   najemceSection.style.cssText = 'border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:14px;' +
     (j.pronajem ? '' : 'display:none;');
-
-  var sectionTitle = document.createElement('div');
-  sectionTitle.style.cssText = 'font-weight:600;font-size:0.88rem;margin-bottom:12px;color:var(--text-light);text-transform:uppercase;letter-spacing:0.05em;';
-  sectionTitle.textContent = 'Kontakt na nájemce';
-  najemceSection.appendChild(sectionTitle);
+  var njHdr = document.createElement('div');
+  njHdr.style.cssText = 'font-weight:600;font-size:0.88rem;margin-bottom:12px;color:var(--text-light);' +
+    'text-transform:uppercase;letter-spacing:0.05em;';
+  njHdr.textContent = 'Kontakt na nájemce';
+  najemceSection.appendChild(njHdr);
 
   function makeField(lbl, type, id, val) {
     var wrap = document.createElement('div');
     wrap.style.marginBottom = '12px';
     var label = document.createElement('label');
-    label.htmlFor     = id;
-    label.textContent = lbl;
+    label.htmlFor = id; label.textContent = lbl;
     label.style.cssText = 'display:block;margin-bottom:3px;font-size:0.88rem;font-weight:500;';
     var inp = document.createElement('input');
     inp.type = type; inp.id = id; inp.className = 'form-input'; inp.value = val || '';
-    wrap.appendChild(label);
-    wrap.appendChild(inp);
+    wrap.appendChild(label); wrap.appendChild(inp);
     return { el: wrap, input: inp };
   }
 
@@ -290,12 +302,8 @@ function showJednotkaModal(j, reloadFn) {
   var nprijmeni = makeField('Příjmení nájemce', 'text',  'j-nprijmeni', j.najemce_prijmeni || '');
   var ntelefon  = makeField('Telefon nájemce',  'tel',   'j-ntelefon',  j.najemce_telefon  || '');
   var nemail    = makeField('E-mail nájemce',   'email', 'j-nemail',    j.najemce_email    || '');
-  najemceSection.appendChild(njmeno.el);
-  najemceSection.appendChild(nprijmeni.el);
-  najemceSection.appendChild(ntelefon.el);
-  najemceSection.appendChild(nemail.el);
+  [njmeno, nprijmeni, ntelefon, nemail].forEach(function(f) { najemceSection.appendChild(f.el); });
   modal.appendChild(najemceSection);
-
   pronajemChk.addEventListener('change', function() {
     najemceSection.style.display = pronajemChk.checked ? '' : 'none';
   });
@@ -303,21 +311,18 @@ function showJednotkaModal(j, reloadFn) {
   var poznamka = makeField('Poznámka k jednotce', 'text', 'j-poznamka', j.poznamka || '');
   modal.appendChild(poznamka.el);
 
+  // ===== TLAČÍTKA =====
   var btns = document.createElement('div');
   btns.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;margin-top:6px;';
-
   var cancelBtn = document.createElement('button');
-  cancelBtn.className   = 'btn btn-secondary';
-  cancelBtn.textContent = 'Zrušit';
+  cancelBtn.className = 'btn btn-secondary'; cancelBtn.textContent = 'Zrušit';
   cancelBtn.addEventListener('click', function() { document.body.removeChild(overlay); });
-
   var saveBtn = document.createElement('button');
-  saveBtn.className   = 'btn btn-primary';
-  saveBtn.textContent = 'Uložit';
+  saveBtn.className = 'btn btn-primary'; saveBtn.textContent = 'Uložit';
   saveBtn.addEventListener('click', function() {
     errBox.style.display = 'none';
     saveBtn.disabled = true;
-    Api.apiPost('api/jednotky.php?action=update', {
+    var payload = Object.assign({
       id:               j.id,
       pronajem:         pronajemChk.checked,
       najemce_jmeno:    njmeno.input.value.trim(),
@@ -325,27 +330,107 @@ function showJednotkaModal(j, reloadFn) {
       najemce_telefon:  ntelefon.input.value.trim(),
       najemce_email:    nemail.input.value.trim(),
       poznamka:         poznamka.input.value.trim(),
-    })
-      .then(function() {
-        document.body.removeChild(overlay);
-        reloadFn();
-        showToast('Jednotka uložena.');
-      })
-      .catch(function(e) {
-        errBox.textContent  = e.message || 'Chyba při ukládání.';
-        errBox.style.display = '';
-      })
+    }, ownerGetData());
+    Api.apiPost('api/jednotky.php?action=update', payload)
+      .then(function() { document.body.removeChild(overlay); reloadFn(); showToast('Jednotka uložena.'); })
+      .catch(function(e) { errBox.textContent = e.message || 'Chyba při ukládání.'; errBox.style.display = ''; })
       .finally(function() { saveBtn.disabled = false; });
   });
-
   btns.appendChild(cancelBtn);
   btns.appendChild(saveBtn);
   modal.appendChild(btns);
   overlay.appendChild(modal);
-  overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) document.body.removeChild(overlay);
-  });
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) document.body.removeChild(overlay); });
   document.body.appendChild(overlay);
+
+  // ===== NAČTENÍ VLASTNÍKŮ (async) =====
+  Promise.all([
+    Api.apiGet('api/admin.php?action=listUsers'),
+    Api.apiGet('api/vlastnici_ext.php?action=list')
+  ]).then(function(res) {
+    var users = res[0].users       || [];
+    var exts  = res[1].vlastnici_ext || [];
+    ownerBody.replaceChildren();
+
+    var initType = j.vlastnik_user_id ? 'user' : (j.vlastnik_ext_id ? 'ext' : 'none');
+
+    function makeRadio(value, labelText) {
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:6px;';
+      var r = document.createElement('input');
+      r.type = 'radio'; r.name = 'j-owner-type'; r.value = value;
+      r.checked = (initType === value);
+      r.style.cssText = 'width:16px;height:16px;cursor:pointer;flex-shrink:0;';
+      var lbl = document.createElement('label');
+      lbl.textContent = labelText;
+      lbl.style.cssText = 'cursor:pointer;font-size:0.92rem;';
+      lbl.addEventListener('click', function() { r.checked = true; r.dispatchEvent(new Event('change', {bubbles: true})); });
+      row.appendChild(r); row.appendChild(lbl);
+      return row;
+    }
+
+    function makeSelect(opts, selectedId) {
+      var sel = document.createElement('select');
+      sel.className = 'form-input';
+      sel.style.cssText = 'margin:4px 0 10px 24px;max-width:calc(100% - 24px);';
+      var opt0 = document.createElement('option'); opt0.value = ''; opt0.textContent = '— vyberte —';
+      sel.appendChild(opt0);
+      opts.forEach(function(o) {
+        var opt = document.createElement('option');
+        opt.value = o.id; opt.textContent = o.label;
+        if (String(o.id) === String(selectedId)) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      return sel;
+    }
+
+    ownerBody.appendChild(makeRadio('none', 'Bez přiřazeného vlastníka'));
+
+    ownerBody.appendChild(makeRadio('user', 'Registrovaný člen portálu:'));
+    var userSel = makeSelect(
+      users.map(function(u) {
+        return { id: u.id, label: ((u.prijmeni || '') + ' ' + (u.jmeno || '')).trim() +
+          (u.cislo_jednotky ? ' (j.\u202f' + u.cislo_jednotky + ')' : '') };
+      }),
+      j.vlastnik_user_id
+    );
+    userSel.style.display = (initType === 'user') ? '' : 'none';
+    ownerBody.appendChild(userSel);
+
+    ownerBody.appendChild(makeRadio('ext', 'Neregistrovaný vlastník:'));
+    var extSel = makeSelect(
+      exts.map(function(e) {
+        return { id: e.id, label: ((e.prijmeni || '') + ' ' + (e.jmeno || '')).trim() +
+          (e.cislo_jednotky ? ' (j.\u202f' + e.cislo_jednotky + ')' : '') };
+      }),
+      j.vlastnik_ext_id
+    );
+    extSel.style.display = (initType === 'ext') ? '' : 'none';
+    ownerBody.appendChild(extSel);
+
+    var note = document.createElement('div');
+    note.style.cssText = 'font-size:0.76rem;color:var(--text-muted);margin-top:4px;';
+    note.textContent = 'Neregistrované vlastníky přidáte v Admin \u2192 Neregistrovaní vlastníci.';
+    ownerBody.appendChild(note);
+
+    ownerBody.addEventListener('change', function(e) {
+      if (e.target.name !== 'j-owner-type') return;
+      userSel.style.display = e.target.value === 'user' ? '' : 'none';
+      extSel.style.display  = e.target.value === 'ext'  ? '' : 'none';
+    });
+
+    ownerReady = true;
+    ownerGetData = function() {
+      var checked = ownerBody.querySelector('input[name="j-owner-type"]:checked');
+      var t = checked ? checked.value : 'none';
+      return {
+        owner_user_id: t === 'user' ? (parseInt(userSel.value) || null) : null,
+        owner_ext_id:  t === 'ext'  ? (parseInt(extSel.value)  || null) : null,
+      };
+    };
+  }).catch(function() {
+    ownerBody.textContent = 'Nepodařilo se načíst vlastníky.';
+  });
 }
 
 /* ===== QR KÓDY ===== */

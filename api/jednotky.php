@@ -117,5 +117,37 @@ function handleUpdate(): void
         ':svj_id'     => $svjId,
     ]);
 
+    // Přiřazení vlastníka — jen pokud klíče přišly v requestu
+    if (array_key_exists('owner_user_id', $body) || array_key_exists('owner_ext_id', $body)) {
+        $ownerUserId = isset($body['owner_user_id']) ? ((int)$body['owner_user_id'] ?: null) : null;
+        $ownerExtId  = isset($body['owner_ext_id'])  ? ((int)$body['owner_ext_id']  ?: null) : null;
+
+        if ($ownerUserId) {
+            $chk = $db->prepare('SELECT id FROM users WHERE id = :id AND svj_id = :svj');
+            $chk->execute([':id' => $ownerUserId, ':svj' => $svjId]);
+            if (!$chk->fetch()) jsonError('Uživatel nenalezen', 404);
+        }
+        if ($ownerExtId) {
+            $chk = $db->prepare('SELECT id FROM vlastnici_ext WHERE id = :id AND svj_id = :svj');
+            $chk->execute([':id' => $ownerExtId, ':svj' => $svjId]);
+            if (!$chk->fetch()) jsonError('Vlastník nenalezen', 404);
+        }
+
+        // Zrušit stávající přiřazení → nastavit nové
+        $db->prepare('UPDATE users SET jednotka_id = NULL WHERE jednotka_id = :jid AND svj_id = :svj')
+           ->execute([':jid' => $id, ':svj' => $svjId]);
+        if ($ownerUserId) {
+            $db->prepare('UPDATE users SET jednotka_id = :jid WHERE id = :uid AND svj_id = :svj')
+               ->execute([':jid' => $id, ':uid' => $ownerUserId, ':svj' => $svjId]);
+        }
+
+        $db->prepare('UPDATE vlastnici_ext SET jednotka_id = NULL WHERE jednotka_id = :jid AND svj_id = :svj')
+           ->execute([':jid' => $id, ':svj' => $svjId]);
+        if ($ownerExtId) {
+            $db->prepare('UPDATE vlastnici_ext SET jednotka_id = :jid WHERE id = :eid AND svj_id = :svj')
+               ->execute([':jid' => $id, ':eid' => $ownerExtId, ':svj' => $svjId]);
+        }
+    }
+
     jsonOk(['ok' => true]);
 }
