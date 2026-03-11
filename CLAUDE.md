@@ -47,11 +47,12 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
 │       ├── admin-parkovani.js  # karta: parkovací místa (garáž, stání, venkovní, moto)
 │       ├── admin-cenova-mapa.js# karta: cenová mapa — odkazy cenovamapa.org, ČÚZK, Sreality
 │       ├── odom.js         # stránka O domě: info o budově + PENB + revize + fond oprav + okolí + parkování + ceny
-│       ├── jednotky.js     # jednotky — přehled, QR kódy (modal, tisk), export XLSX/CSV
-│       └── vlastnici.js    # vlastníci — přehled, ISIR link, export XLSX/CSV (jen admin/výbor)
+│       ├── jednotky.js     # jednotky — přehled, Vlastník, Pronájem badge, QR kódy, export XLSX/CSV; modal Upravit (pronájem/nájemce)
+│       ├── vlastnici.js    # vlastníci — registrovaní (telefon, jednotka, ISIR) + neregistrovaní (vlastnici_ext)
 │       ├── hlasovani.js    # hlasování/ankety (list, create, vote, výsledky)
 │       ├── dokumenty.js    # dokumenty — drag&drop upload, kategorie, karty se stahováním
 │       ├── dokumenty-preview.js # preview modal (PDF/obrázky/MD/TXT) + markdown renderer
+│       ├── admin-vlastnici-ext.js # karta: neregistrovaní vlastníci (vlastnici_ext CRUD + modal)
 │       └── admin-settings.js# karta: systémová nastavení (jen admin)
 └── api/
     ├── config.php          # DB + konstanty (není v gitu — v .gitignore!)
@@ -67,7 +68,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
     ├── admin.php           # listUsers, updateRole, deleteUser, getSettings, updateSetting
     ├── kn.php              # ČÚZK API KN: status, findBuilding, importUnits
     ├── jednotky.php        # seznam jednotek pro SVJ
-    ├── vlastnici.php       # seznam registrovaných členů SVJ
+    ├── vlastnici.php       # seznam registrovaných členů SVJ (+ telefon, cislo_jednotky)
+    ├── vlastnici_ext.php   # CRUD neregistrovaných vlastníků (list/save/delete, tenant isolation)
     ├── stats.php           # dashboard statistiky (vlastníci, jednotky, plomby)
     ├── weather.php         # počasí — proxy OpenMeteo (zdarma, bez klíče), vstup: GPS z RÚIAN
     ├── hlasovani.php       # hlasování/ankety: list, get, create, vote, close, delete, setExterni
@@ -100,7 +102,9 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
         ├── 016_revize.sql            # tabulka revize (typ, nazev, datum, interval, soubor)
         ├── 017_fond_oprav.sql        # tabulka fond_oprav (typ, kategorie, castka, datum)
         ├── 018_parkovani.sql         # tabulka parkovani (cislo, typ, cislo_jednotky, najemce)
-        └── 019_isds.sql              # isds_id VARCHAR do svj (ID datové schránky)
+        ├── 019_isds.sql              # isds_id VARCHAR do svj (ID datové schránky)
+        ├── 020_datovka.sql           # tabulky datovka_zpravy + datovka_prilohy
+        └── 021_vlastnici_ext.sql     # users.telefon/jednotka_id, jednotky pronájem/nájemce, tabulka vlastnici_ext
 ```
 
 ## Coding Standards — POVINNÉ

@@ -1,4 +1,4 @@
-# SVJ Portál v1.0.0
+# SVJ Portál v1.3.0
 
 Univerzální multi-tenant webový portál pro správu **Společenství vlastníků jednotek (SVJ)** v ČR.
 
@@ -32,8 +32,9 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 - 👤 **Profil** — nastavení účtu, avatar
 
 ### 👥 Pro výbor a správce
-- 🏘️ **Jednotky** — přehled z KN (Využití, Podíl, LV, K.ú., plomba badge), QR kódy + tisk, export XLSX/CSV
-- 👥 **Vlastníci** — seznam členů SVJ, ISIR deep link (insolvenční rejstřík), export XLSX/CSV
+- 🏘️ **Jednotky** — přehled z KN (Vlastník, Využití, Podíl, LV, K.ú., plomba badge), QR kódy + tisk, export XLSX/CSV
+- 🔑 **Pronájmy** — označení pronajímané jednotky + evidence kontaktu na nájemce
+- 👥 **Vlastníci** — registrovaní členové + neregistrovaní vlastníci; telefon, přiřazená jednotka, ISIR deep link, export XLSX/CSV
 - 🗳️ **Hlasování** — vytvoření, ukončení, doplnění externích hlasů (papír/email/schůze)
 - 🏗️ **ČÚZK KN** — import jednotek, parcel a stavby z Katastru nemovitostí
 - 🗺️ **Mapa budovy** — OpenStreetMap iframe + odkaz na Mapy.cz
@@ -47,7 +48,8 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 - **Průvodce** — 5 kroků jak stáhnout ZFO z mojedatovaschranka.cz + FAQ (fikce doručení, 90denní mazání...)
 
 ### ⚙️ Pro správce (admin)
-- 👥 **Správa uživatelů** — role, pozvánky, smazání
+- 👥 **Správa uživatelů** — role, pozvánky, smazání; přiřazení jednotky + telefon
+- 👤 **Neregistrovaní vlastníci** — evidence kontaktů a propojení s jednotkami (vlastnici_ext)
 - 🏛️ **OR / ARES** — statutární orgán z Obchodního rejstříku
 - 📬 **ID datové schránky** — uložení ISDS ID, odkaz na ověření (mojedatovaschranka.cz)
 - ⚙️ **Systémová nastavení** — ČÚZK API klíč (šifrovaný AES-256)
@@ -94,7 +96,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 3. **Spusť migrace**
    ```bash
    for f in api/migrations/*.sql; do sudo mysql svj_portal < "$f"; done
-   # Aktuálně: 001–019 (init → isds)
+   # Aktuálně: 001–021 (init → vlastnici_ext)
    ```
 
 4. **Nastav Apache virtualhost**
@@ -173,6 +175,8 @@ sudo mysql svj_portal < api/migrations/00X_nazev.sql
 | 017 | Fond oprav |
 | 018 | Parkovací místa |
 | 019 | Datová schránka ISDS (isds_id do svj) |
+| 020 | Archiv datové schránky (zprávy + přílohy) |
+| 021 | Vlastníci ↔ jednotky: telefon, jednotka_id, pronájem, vlastnici_ext |
 
 Nikdy neupravuj stávající migraci — vždy přidej novou.
 

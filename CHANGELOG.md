@@ -5,6 +5,36 @@ Formát: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [1.3.0] — 2026-03-11
+
+### Přidáno
+
+#### Propojení vlastníků s jednotkami
+- Nové pole `telefon` u registrovaných uživatelů — každý si nastaví sám v Nastavení účtu
+- Nové pole `jednotka_id` v tabulce `users` — admin/výbor přiřadí konkrétní byt ke každému uživateli
+- Správa portálu → Uživatelé: nové sloupce Telefon a Jednotka, tlačítko „Přiřadit/Změnit"
+
+#### Pronájmy a nájemci
+- Každá jednotka může být označena jako pronajímaná (příznak + kontakt na nájemce)
+- Pole: `pronajem`, `najemce_jmeno`, `najemce_prijmeni`, `najemce_email`, `najemce_telefon`, `poznamka`
+- Stránka Jednotky: sloupec Vlastník, badge „Pronájem", tlačítko „Upravit" → modal (jen výbor/admin)
+- Kontakty nájemce skryté pro řadové vlastníky
+
+#### Neregistrovaní vlastníci (`vlastnici_ext`)
+- Nová tabulka a endpoint `api/vlastnici_ext.php` pro vlastníky bez portálového účtu
+- Evidence: jméno, příjmení, telefon, e-mail, přiřazená jednotka, poznámka
+- Správa portálu: nová karta „Neregistrovaní vlastníci" s přidáním, úpravou a smazáním
+- Stránka Vlastníci: druhá sekce „Ostatní vlastníci" ze stejného zdroje
+
+#### Export rozšířen
+- Export vlastníků: přidány sloupce Telefon a Jednotka
+- Export jednotek: přidány sloupce Vlastník, Pronájem, Nájemce, Tel. nájemce, Poznámka (vyžaduje výbor/admin)
+
+### Migrace
+- `021_vlastnici_ext.sql` — `users.telefon`, `users.jednotka_id`, pronájem/nájemce do `jednotky`, nová tabulka `vlastnici_ext`
+
+---
+
 ## [1.2.1] — 2026-03-11
 
 ### Opraveno

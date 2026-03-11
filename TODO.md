@@ -177,3 +177,6 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 - [x] **Export výkazů XLSX/CSV** — vlastníci, jednotky, fond oprav, revize, parkovací místa
 - [x] **Integrace s datovou schránkou (ISDS)** — ID v svj tabulce, ověření přes mojedatovaschranka.cz
 - [x] **Archiv datové schránky** — upload .zfo, ZFO parser (CMS/PKCS7), kartotéka zpráv, náhled příloh, průvodce
+- [x] **Propojení vlastníků s jednotkami** — `users.jednotka_id`, telefon, přiřazení v admin; sloupec Vlastník v Jednotkách
+- [x] **Pronájmy a nájemci** — příznak + kontakt na nájemce u každé jednotky, modal Upravit (výbor/admin), badge v přehledu
+- [x] **Neregistrovaní vlastníci (`vlastnici_ext`)** — evidence jméno/telefon/email/jednotka bez portálového účtu, CRUD v admin kartě
