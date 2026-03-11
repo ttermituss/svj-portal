@@ -151,6 +151,8 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
   - Data: MHD zastávky, obchody, lékaři, lékárny, banky, pošta, parkoviště
   - Kde: karta ve správě portálu, načítání na vyžádání, vzdálenosti Haversine
 
+- [x] **Stránka O domě** — nová stránka přístupná všem vlastníkům (PENB, revize, fond oprav, okolí, info o budově)
+
 - [ ] **Správa parkovacích míst**
   - Evidence stání (číslo, vlastník/nájemce, typ)
   - Přiřazení k jednotce

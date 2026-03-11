@@ -44,6 +44,7 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
 │       ├── admin-revize.js # karta: evidence revizí (výtah, elektro, plyn…) + PDF protokol
 │       ├── admin-fond-oprav.js # karta: fond oprav — příjmy/výdaje, zůstatek, měsíční graf
 │       ├── admin-okoli.js  # karta: okolí budovy — Overpass API (MHD, obchody, zdraví…)
+│       ├── odom.js         # stránka O domě: info o budově + PENB + revize + fond oprav + okolí
 │       ├── hlasovani.js    # hlasování/ankety (list, create, vote, výsledky)
 │       ├── dokumenty.js    # dokumenty — drag&drop upload, kategorie, karty se stahováním
 │       ├── dokumenty-preview.js # preview modal (PDF/obrázky/MD/TXT) + markdown renderer
