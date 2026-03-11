@@ -41,6 +41,9 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
 │       ├── admin-kn.js     # karta: ČÚZK KN import jednotek
 │       ├── admin-sfpi.js   # karta: dotace pro SVJ (Panel 2020+, NZÚ, IROP…)
 │       ├── admin-penb.js   # karta: PENB — průkaz energetické náročnosti (třída, platnost, PDF)
+│       ├── admin-revize.js # karta: evidence revizí (výtah, elektro, plyn…) + PDF protokol
+│       ├── admin-fond-oprav.js # karta: fond oprav — příjmy/výdaje, zůstatek, měsíční graf
+│       ├── admin-okoli.js  # karta: okolí budovy — Overpass API (MHD, obchody, zdraví…)
 │       ├── hlasovani.js    # hlasování/ankety (list, create, vote, výsledky)
 │       ├── dokumenty.js    # dokumenty — drag&drop upload, kategorie, karty se stahováním
 │       ├── dokumenty-preview.js # preview modal (PDF/obrázky/MD/TXT) + markdown renderer
@@ -64,6 +67,9 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
     ├── weather.php         # počasí — proxy OpenMeteo (zdarma, bez klíče), vstup: GPS z RÚIAN
     ├── hlasovani.php       # hlasování/ankety: list, get, create, vote, close, delete, setExterni
     ├── penb.php            # PENB: get, save (upsert + PDF upload), delete, download (auth)
+    ├── revize.php          # revize: list, save, delete, download (PDF protokol)
+    ├── fond_oprav.php      # fond oprav: list, stats (měsíce), add, delete
+    ├── okoli.php           # okolí budovy: proxy Overpass API (OSM), POI v 600 m
     ├── dokumenty.php       # dokumenty: list, upload, download, preview (inline), delete
     ├── avatar.php          # upload + delete avataru
     ├── user.php            # updateProfile
@@ -82,7 +88,9 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
         ├── 012_hlasovani.sql         # tabulky hlasovani + hlasy
         ├── 013_hlasovani_ext.sql     # externi_hlasy do hlasovani (papír/email/schůze)
         ├── 014_penb.sql              # tabulka penb (třída, datums, soubor, poznámka)
-        └── 015_dokumenty.sql         # tabulka dokumenty (kategorie, platnost, přístup, uploaded_by)
+        ├── 015_dokumenty.sql         # tabulka dokumenty (kategorie, platnost, přístup, uploaded_by)
+        ├── 016_revize.sql            # tabulka revize (typ, nazev, datum, interval, soubor)
+        └── 017_fond_oprav.sql        # tabulka fond_oprav (typ, kategorie, castka, datum)
 ```
 
 ## Coding Standards — POVINNÉ

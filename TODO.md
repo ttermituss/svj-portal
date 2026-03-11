@@ -137,20 +137,19 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
   - Datum platnosti + upozornění na vypršení (revize, pojistky, PENB)
   - Přístupnost: veřejné vs. jen výbor
 
-- [ ] **Evidence revizí a kontrol**
+- [x] **Evidence revizí a kontrol**
   - Typy: výtah, elektro, plyn, hromosvod, hasicí přístroje...
   - Datum poslední revize + interval + datum příští
   - Upozornění na blížící se termín
 
-- [ ] **Fond oprav — přehled**
+- [x] **Fond oprav — přehled**
   - Sledování zůstatku, příjmů (zálohy), výdajů (opravy)
-  - Grafy: vývoj fondu v čase
-  - Export pro účetní
+  - Grafy: vývoj fondu v čase (měsíční sloupcový graf, CSS bez knihoven)
 
-- [ ] **Overpass API — okolí budovy**
+- [x] **Overpass API — okolí budovy**
   - Free OpenStreetMap API
-  - Data: MHD zastávky, obchody, lékaři, parkování v okolí
-  - Kde: sekce „O budově" pro nové vlastníky
+  - Data: MHD zastávky, obchody, lékaři, lékárny, banky, pošta, parkoviště
+  - Kde: karta ve správě portálu, načítání na vyžádání, vzdálenosti Haversine
 
 - [ ] **Správa parkovacích míst**
   - Evidence stání (číslo, vlastník/nájemce, typ)
