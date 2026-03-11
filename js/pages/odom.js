@@ -20,6 +20,8 @@ Router.register('odom', function(el) {
   renderRevizeCard(el, user);
   renderFondOpravCard(el, user);
   renderOkoliCard(el, user);
+  renderParkovaniCard(el, user);
+  renderCenovaMapaCard(el, user);
 });
 
 function renderBudovaInfoCard(el, user) {
