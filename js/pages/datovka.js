@@ -450,8 +450,8 @@ function datovkaShowPreview(area, p) {
   if (p.mimetype === 'text/html') {
     var iframe = document.createElement('iframe');
     iframe.src = 'api/datovka.php?action=download&priloha_id=' + p.id + '&inline=1';
-    iframe.sandbox = 'allow-same-origin';
-    iframe.style.cssText = 'width:100%;height:500px;border:none;';
+    iframe.sandbox = 'allow-scripts allow-same-origin';
+    iframe.style.cssText = 'width:100%;height:500px;border:none;background:#fff;';
     area.appendChild(iframe);
   } else if (p.mimetype === 'application/pdf') {
     var iframe2 = document.createElement('iframe');
