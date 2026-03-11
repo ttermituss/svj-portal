@@ -25,6 +25,7 @@ Router.register('admin', function(el) {
   renderSfpiCard(el, user);
 
   if (user.role === 'admin') {
+    renderIsdsCard(el, user);
     renderSystemCard(el);
   }
 });
@@ -193,6 +194,99 @@ function renderOrResult(wrap, or, errBox) {
   note.style.cssText = 'font-size:0.78rem;color:var(--text-light);';
   note.textContent = 'Zdroj: ARES / Obchodní rejstřík \u00b7 Data mohou být zpožděná o 1\u20132 dny.';
   wrap.appendChild(note);
+}
+
+/* ===== KARTA: DATOVÁ SCHRÁNKA (ISDS) ===== */
+
+function renderIsdsCard(el, user) {
+  if (!user.svj_id) return;
+
+  var card = makeAdminCard('Datov\xe1 schr\xe1nka (ISDS)');
+  var body = card.body;
+
+  var hint = document.createElement('p');
+  hint.style.cssText = 'margin:0 0 14px;font-size:0.88rem;color:var(--text-light);';
+  hint.textContent = 'ID datov\xe9 schr\xe1nky SVJ (ISDS). Umo\u017e\u0148uje ov\u011b\u0159en\xed aktivn\xed schr\xe1nky a p\u0159\xedm\xe9 odkazov\xe1n\xed na slu\u017ebu Moje Datov\xe1 Schr\xe1nka.';
+  body.appendChild(hint);
+
+  var statusWrap = document.createElement('div');
+  statusWrap.style.marginBottom = '14px';
+  body.appendChild(statusWrap);
+
+  var err = makeAdminInfoBox(false);
+  var ok  = makeAdminInfoBox(true);
+  body.appendChild(err);
+  body.appendChild(ok);
+
+  var grp  = makeAdminField('ID datov\xe9 schr\xe1nky (nap\u0159. abc1234)', 'text', 'isds-id-input', '');
+  grp.input.maxLength = 7;
+  grp.input.placeholder = 'nap\u0159. abc1234';
+  grp.input.style.maxWidth = '200px';
+  body.appendChild(grp.el);
+
+  var btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;';
+
+  var saveBtn = document.createElement('button');
+  saveBtn.className = 'btn btn-primary';
+  saveBtn.textContent = 'Ulo\u017eit';
+
+  var linkBtn = document.createElement('a');
+  linkBtn.className = 'btn btn-secondary';
+  linkBtn.target = '_blank';
+  linkBtn.rel = 'noopener noreferrer';
+  linkBtn.textContent = '\uD83D\uDCEC Ov\u011b\u0159it schr\xe1nku';
+  linkBtn.style.display = 'none';
+
+  btnRow.appendChild(saveBtn);
+  btnRow.appendChild(linkBtn);
+  body.appendChild(btnRow);
+  el.appendChild(card.card);
+
+  // Načtení aktuální hodnoty
+  Api.apiGet('api/svj.php?action=getIsds')
+    .then(function(data) {
+      var id = data.isds_id || '';
+      grp.input.value = id;
+      isdsUpdateStatus(statusWrap, linkBtn, id);
+    })
+    .catch(function() {});
+
+  saveBtn.addEventListener('click', function() {
+    hideAdminBox(err); hideAdminBox(ok);
+    saveBtn.disabled = true;
+    var val = grp.input.value.trim();
+    Api.apiPost('api/svj.php?action=updateIsds', { isds_id: val })
+      .then(function() {
+        showAdminBox(ok, 'ID datov\xe9 schr\xe1nky ulo\u017eeno.');
+        isdsUpdateStatus(statusWrap, linkBtn, val);
+      })
+      .catch(function(e) { showAdminBox(err, e.message || 'Chyba p\u0159i ukl\xe1d\xe1n\xed.'); })
+      .finally(function() { saveBtn.disabled = false; });
+  });
+}
+
+function isdsUpdateStatus(wrap, linkBtn, id) {
+  wrap.replaceChildren();
+  if (!id) {
+    var msg = document.createElement('div');
+    msg.className = 'info-box info-box-warning';
+    msg.style.margin = '0 0 8px';
+    msg.textContent = 'Datov\xe1 schr\xe1nka nen\xed nastavena. SVJ je ze z\xe1kona povinno m\xedt aktivn\xed datovou schr\xe1nku.';
+    wrap.appendChild(msg);
+    linkBtn.style.display = 'none';
+    return;
+  }
+  var row = document.createElement('div');
+  row.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:8px;';
+  var badge = document.createElement('span');
+  badge.className = 'badge badge-success';
+  badge.textContent = '\uD83D\uDCEC ' + id;
+  badge.style.fontSize = '0.95rem';
+  row.appendChild(badge);
+  wrap.appendChild(row);
+  linkBtn.href = 'https://www.mojedatovaschranka.cz/sds/detail.do?login=' + encodeURIComponent(id);
+  linkBtn.style.display = '';
 }
 
 /* ===== SDÍLENÉ HELPERY (používají admin-users, admin-invites, admin-settings) ===== */

@@ -47,6 +47,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
 │       ├── admin-parkovani.js  # karta: parkovací místa (garáž, stání, venkovní, moto)
 │       ├── admin-cenova-mapa.js# karta: cenová mapa — odkazy cenovamapa.org, ČÚZK, Sreality
 │       ├── odom.js         # stránka O domě: info o budově + PENB + revize + fond oprav + okolí + parkování + ceny
+│       ├── jednotky.js     # jednotky — přehled, QR kódy (modal, tisk), export XLSX/CSV
+│       └── vlastnici.js    # vlastníci — přehled, ISIR link, export XLSX/CSV (jen admin/výbor)
 │       ├── hlasovani.js    # hlasování/ankety (list, create, vote, výsledky)
 │       ├── dokumenty.js    # dokumenty — drag&drop upload, kategorie, karty se stahováním
 │       ├── dokumenty-preview.js # preview modal (PDF/obrázky/MD/TXT) + markdown renderer
@@ -73,6 +75,9 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
     ├── revize.php          # revize: list, save, delete, download (PDF protokol)
     ├── fond_oprav.php      # fond oprav: list, stats (měsíce), add, delete
     ├── okoli.php           # okolí budovy: proxy Overpass API (OSM), POI v 600 m
+    ├── parkovani.php       # parkovací místa: list, save (upsert), delete
+    ├── export.php          # export výkazů: CSV/XLSX (vlastnici/jednotky/fond_oprav/revize/parkovani)
+    ├── xlsx_helper.php     # minimální XLSX writer (ZipArchive, žádné závislosti)
     ├── dokumenty.php       # dokumenty: list, upload, download, preview (inline), delete
     ├── avatar.php          # upload + delete avataru
     ├── user.php            # updateProfile
@@ -94,7 +99,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
         ├── 015_dokumenty.sql         # tabulka dokumenty (kategorie, platnost, přístup, uploaded_by)
         ├── 016_revize.sql            # tabulka revize (typ, nazev, datum, interval, soubor)
         ├── 017_fond_oprav.sql        # tabulka fond_oprav (typ, kategorie, castka, datum)
-        └── 018_parkovani.sql         # tabulka parkovani (cislo, typ, cislo_jednotky, najemce)
+        ├── 018_parkovani.sql         # tabulka parkovani (cislo, typ, cislo_jednotky, najemce)
+        └── 019_isds.sql              # isds_id VARCHAR do svj (ID datové schránky)
 ```
 
 ## Coding Standards — POVINNÉ

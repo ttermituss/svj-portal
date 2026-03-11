@@ -9,9 +9,11 @@ require_once __DIR__ . '/svj_helper.php';
 $action = getParam('action', '');
 
 switch ($action) {
-    case 'lookup':   handleLookup();   break;
-    case 'link':     handleLink();     break;
-    case 'fetchOr':  handleFetchOr();  break;
+    case 'lookup':    handleLookup();    break;
+    case 'link':      handleLink();      break;
+    case 'fetchOr':   handleFetchOr();   break;
+    case 'getIsds':   handleGetIsds();   break;
+    case 'updateIsds':handleUpdateIsds();break;
     default: jsonError('Neznámá akce', 400, 'UNKNOWN_ACTION');
 }
 
@@ -79,4 +81,38 @@ function handleFetchOr(): void
     }
 
     jsonResponse(['or' => $orData]);
+}
+
+function handleGetIsds(): void
+{
+    requireMethod('GET');
+    $user = requireAuth();
+    if (!$user['svj_id']) jsonError('Účet není přiřazen k SVJ', 400, 'NO_SVJ');
+
+    $db   = getDb();
+    $stmt = $db->prepare('SELECT isds_id FROM svj WHERE id = :id');
+    $stmt->execute([':id' => $user['svj_id']]);
+    $row  = $stmt->fetch();
+
+    jsonResponse(['isds_id' => $row['isds_id'] ?? null]);
+}
+
+function handleUpdateIsds(): void
+{
+    requireMethod('POST');
+    $user = requireRole('admin');
+    if (!$user['svj_id']) jsonError('Účet není přiřazen k SVJ', 400, 'NO_SVJ');
+
+    $body   = getJsonBody();
+    $isdsId = sanitize($body['isds_id'] ?? '');
+    // ISDS ID: max 7 alfanumerických znaků (nebo prázdný = smazat)
+    if ($isdsId !== '' && !preg_match('/^[a-z0-9]{4,7}$/i', $isdsId)) {
+        jsonError('Neplatný formát ID datové schránky (4–7 alfanumerických znaků)', 422, 'INVALID_ISDS');
+    }
+
+    $db   = getDb();
+    $stmt = $db->prepare('UPDATE svj SET isds_id = :isds WHERE id = :id');
+    $stmt->execute([':isds' => $isdsId !== '' ? $isdsId : null, ':id' => $user['svj_id']]);
+
+    jsonResponse(['ok' => true]);
 }

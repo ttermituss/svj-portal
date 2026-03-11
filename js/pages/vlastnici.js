@@ -54,7 +54,25 @@ function renderEmpty(body) {
   body.appendChild(empty);
 }
 
+function exportVlastnici(format) {
+  window.location.href = 'api/export.php?type=vlastnici&format=' + format;
+}
+
 function renderTable(body, vlastnici, isPriv) {
+  if (isPriv) {
+    var actions = document.createElement('div');
+    actions.style.cssText = 'display:flex;gap:8px;justify-content:flex-end;margin-bottom:12px;';
+    ['xlsx', 'csv'].forEach(function(fmt) {
+      var btn = document.createElement('button');
+      btn.className = 'btn btn-secondary';
+      btn.style.cssText = 'font-size:0.82rem;';
+      btn.textContent = fmt === 'xlsx' ? '\uD83D\uDCCA Export XLSX' : '\uD83D\uDCC4 Export CSV';
+      btn.addEventListener('click', function() { exportVlastnici(fmt); });
+      actions.appendChild(btn);
+    });
+    body.appendChild(actions);
+  }
+
   var cols = ['Jm\u00e9no', 'E-mail', 'Role', 'Registrace'];
   if (isPriv) cols.push('');
 

@@ -168,7 +168,11 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 
 - Push notifikace (PWA) — plomby, hlasování, novinky na nástěnce
 - Mobilní app (PWA shell)
-- Export výkazů do PDF/XLSX
-- Integrace s datovou schránkou (ISDS) — ověření aktivní schránky SVJ
-- QR kódy pro jednotky (pro revizní techniky)
+- Export do PDF (jsPDF nebo wkhtmltopdf na serveru)
 - API pro správcovské firmy (multi-SVJ správa)
+
+## ✅ Hotovo (doplňky po v1.0.0)
+
+- [x] **QR kódy pro jednotky** — modal, tisk, api.qrserver.com
+- [x] **Export výkazů XLSX/CSV** — vlastníci, jednotky, fond oprav, revize, parkovací místa
+- [x] **Integrace s datovou schránkou (ISDS)** — ID v svj tabulce, ověření přes mojedatovaschranka.cz

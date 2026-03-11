@@ -32,16 +32,18 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 - 👤 **Profil** — nastavení účtu, avatar
 
 ### 👥 Pro výbor a správce
-- 🏘️ **Jednotky** — přehled z KN (Využití, Podíl, LV, K.ú., plomba badge)
-- 👥 **Vlastníci** — seznam členů SVJ, ISIR deep link (insolvenční rejstřík)
+- 🏘️ **Jednotky** — přehled z KN (Využití, Podíl, LV, K.ú., plomba badge), QR kódy + tisk, export XLSX/CSV
+- 👥 **Vlastníci** — seznam členů SVJ, ISIR deep link (insolvenční rejstřík), export XLSX/CSV
 - 🗳️ **Hlasování** — vytvoření, ukončení, doplnění externích hlasů (papír/email/schůze)
 - 🏗️ **ČÚZK KN** — import jednotek, parcel a stavby z Katastru nemovitostí
 - 🗺️ **Mapa budovy** — OpenStreetMap iframe + odkaz na Mapy.cz
 - 💰 **Dotace SFPI** — Panel 2020+, NZÚ, IROP, MMR s doporučením dle budovy
+- 📤 **Export výkazů** — XLSX/CSV pro revize, fond oprav, parkovací místa
 
 ### ⚙️ Pro správce (admin)
 - 👥 **Správa uživatelů** — role, pozvánky, smazání
 - 🏛️ **OR / ARES** — statutární orgán z Obchodního rejstříku
+- 📬 **Datová schránka (ISDS)** — ID datové schránky SVJ, ověření aktivní schránky (mojedatovaschranka.cz)
 - ⚙️ **Systémová nastavení** — ČÚZK API klíč (šifrovaný AES-256)
 
 ---
@@ -57,6 +59,8 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 | Overpass API | Okolí budovy (POI z OpenStreetMap) | Zdarma, bez klíče |
 | ISIR | Insolvenční rejstřík | Deep link (bez API) |
 | cenovamapa.org | Cenové mapy bytů | Deep link (bez API) |
+| mojedatovaschranka.cz | Ověření datové schránky SVJ | Deep link (bez API) |
+| api.qrserver.com | QR kódy jednotek | Zdarma, bez klíče |
 
 ---
 
@@ -84,7 +88,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 3. **Spusť migrace**
    ```bash
    for f in api/migrations/*.sql; do sudo mysql svj_portal < "$f"; done
-   # Aktuálně: 001–018 (init → parkovani)
+   # Aktuálně: 001–019 (init → isds)
    ```
 
 4. **Nastav Apache virtualhost**
@@ -162,6 +166,7 @@ sudo mysql svj_portal < api/migrations/00X_nazev.sql
 | 016 | Evidence revizí |
 | 017 | Fond oprav |
 | 018 | Parkovací místa |
+| 019 | Datová schránka ISDS (isds_id do svj) |
 
 Nikdy neupravuj stávající migraci — vždy přidej novou.
 

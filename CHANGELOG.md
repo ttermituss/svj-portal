@@ -5,6 +5,31 @@ Formát: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [1.1.0] — 2026-03-11
+
+### Přidáno
+
+#### QR kódy pro jednotky
+- QR tlačítko u každé jednotky → modal s QR kódem (api.qrserver.com)
+- Obsah QR: č. jednotky, SVJ, k.ú., LV, využití
+- Tisk QR kódu jednotlivé jednotky nebo všech najednou (print window)
+
+#### Export výkazů (XLSX/CSV)
+- Nový endpoint `api/export.php` — unified export pro 5 typů dat
+- Čistý XLSX writer `api/xlsx_helper.php` (ZipArchive, žádné závislosti, tučná hlavička)
+- CSV s UTF-8 BOM (správné otevření v Excelu)
+- Exportovatelné: vlastníci, jednotky, fond oprav, revize, parkovací místa
+- Export tlačítka v: Jednotky, Vlastníci, Fond oprav, Revize (jen výbor/admin)
+
+#### Integrace s datovou schránkou (ISDS) — `019_isds.sql`
+- Pole `isds_id` přidáno do tabulky `svj`
+- API akce `getIsds` a `updateIsds` v `svj.php`
+- Karta "Datová schránka" v Správě portálu (jen admin)
+- Validace formátu ID (4–7 alfanumerických znaků)
+- Odkaz na ověření schránky: mojedatovaschranka.cz
+
+---
+
 ## [1.0.0] — 2026-03-11
 
 ### Přidáno
