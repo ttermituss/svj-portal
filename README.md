@@ -40,10 +40,16 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 - 💰 **Dotace SFPI** — Panel 2020+, NZÚ, IROP, MMR s doporučením dle budovy
 - 📤 **Export výkazů** — XLSX/CSV pro revize, fond oprav, parkovací místa
 
+### 📬 Datová schránka (ISDS) — jen admin/výbor
+- **Archiv zpráv** — upload `.zfo` souborů (drag & drop), kartotéka s odesílatelem, předmětem, datem
+- **ZFO parser** — automatická extrakce metadat + příloh z CMS/PKCS7 obálky (HTML, PDF, XML…)
+- **Náhled příloh** — HTML inline (sandboxed iframe), PDF inline, stažení libovolného souboru
+- **Průvodce** — 5 kroků jak stáhnout ZFO z mojedatovaschranka.cz + FAQ (fikce doručení, 90denní mazání...)
+
 ### ⚙️ Pro správce (admin)
 - 👥 **Správa uživatelů** — role, pozvánky, smazání
 - 🏛️ **OR / ARES** — statutární orgán z Obchodního rejstříku
-- 📬 **Datová schránka (ISDS)** — ID datové schránky SVJ, ověření aktivní schránky (mojedatovaschranka.cz)
+- 📬 **ID datové schránky** — uložení ISDS ID, odkaz na ověření (mojedatovaschranka.cz)
 - ⚙️ **Systémová nastavení** — ČÚZK API klíč (šifrovaný AES-256)
 
 ---
@@ -59,7 +65,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 | Overpass API | Okolí budovy (POI z OpenStreetMap) | Zdarma, bez klíče |
 | ISIR | Insolvenční rejstřík | Deep link (bez API) |
 | cenovamapa.org | Cenové mapy bytů | Deep link (bez API) |
-| mojedatovaschranka.cz | Ověření datové schránky SVJ | Deep link (bez API) |
+| mojedatovaschranka.cz | Ověření datové schránky + archiv zpráv (ZFO) | Deep link (bez API) |
 | api.qrserver.com | QR kódy jednotek | Zdarma, bez klíče |
 
 ---

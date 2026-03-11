@@ -5,6 +5,16 @@ Formát: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [1.2.1] — 2026-03-11
+
+### Opraveno
+
+- **Iframe náhled HTML/PDF v datové schránce** — odstraněn konflikt dvou X-Frame-Options hlaviček (`DENY` z `api/.htaccess` + `SAMEORIGIN` z virtualhostu → Chrome volil přísnější DENY a blokoval iframe)
+- `api/.htaccess`: odstraněn `Header DENY`, virtualhost `SAMEORIGIN` zůstává jako jediný zdroj
+- Sandbox iframe rozšířen na `allow-scripts allow-same-origin` pro správné renderování HTML zpráv z datovky
+
+---
+
 ## [1.2.0] — 2026-03-11
 
 ### Přidáno
