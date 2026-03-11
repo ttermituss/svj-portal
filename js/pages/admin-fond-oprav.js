@@ -1,7 +1,7 @@
 /* ===== Fond oprav ===== */
 
 var FOND_KAT_PRIJEM = [
-  'Z\xe1lohy vlastn\xedk\u016f', 'Dotace / subvence', '\xdároky z \xfa\u010dtu',
+  'Z\xe1lohy vlastn\xedk\u016f', 'Dotace / subvence', '\xdaroky z \xfa\u010dtu',
   'Pojistn\xe9 pln\u011bn\xed', 'Ostatn\xed p\u0159\xedjmy',
 ];
 var FOND_KAT_VYDAJ = [
