@@ -196,13 +196,12 @@ function handleDownload(): void
     $disp    = $inline ? 'inline' : 'attachment';
     $mime    = $p['mimetype'] ?: 'application/octet-stream';
 
-    // HTML inline — servírovat jako text/html v sandbox iframe
     header('Content-Type: ' . $mime);
     header('Content-Disposition: ' . $disp . '; filename="' . rawurlencode($p['filename']) . '"');
     header('Content-Length: ' . filesize($absPath));
     header('X-Content-Type-Options: nosniff');
-    // Zabránit frame-jacking pro neHTML
-    if ($mime !== 'text/html') {
+    // Inline náhled v iframe — nezakazovat framing; attachment — SAMEORIGIN
+    if (!$inline) {
         header('X-Frame-Options: SAMEORIGIN');
     }
     readfile($absPath);

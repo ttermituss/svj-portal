@@ -11,4 +11,4 @@
 
 # Security headers pro API
 Header always set X-Content-Type-Options "nosniff"
-Header always set X-Frame-Options "DENY"
+# X-Frame-Options nastavuje PHP endpoint dle kontextu (inline náhled vs. stažení)
