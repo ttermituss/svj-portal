@@ -127,10 +127,9 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 
 ### Priorita 3 — Zajímavé doplňky
 
-- [ ] **Cenová mapa bytů**
-  - Zdroj: cenovamapa.org (ČSOB), ČÚZK cenové mapy (WFS)
-  - Data: odhadní cena m² v lokalitě → přehled pro pojistnou hodnotu
-  - Kde: info karta ve správě portálu
+- [x] **Cenová mapa bytů**
+  - Odkazy na cenovamapa.org, ČÚZK cenové mapy, Sreality — adresa předvyplněna z KN
+  - Kde: karta v O domě
 
 - [x] **Správa dokumentů — rozšíření**
   - Kategorie dokumentů (smlouvy, revize, zápisy ze schůzí, pojistky)
@@ -153,9 +152,9 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 
 - [x] **Stránka O domě** — nová stránka přístupná všem vlastníkům (PENB, revize, fond oprav, okolí, info o budově)
 
-- [ ] **Správa parkovacích míst**
-  - Evidence stání (číslo, vlastník/nájemce, typ)
-  - Přiřazení k jednotce
+- [x] **Správa parkovacích míst**
+  - Evidence stání (číslo, vlastník/nájemce, typ: garáž/stání/venkovní/moto)
+  - Přiřazení k jednotce nebo nájemci, seskupení dle typu
 
 ---
 

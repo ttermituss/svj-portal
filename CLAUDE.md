@@ -44,7 +44,9 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
 │       ├── admin-revize.js # karta: evidence revizí (výtah, elektro, plyn…) + PDF protokol
 │       ├── admin-fond-oprav.js # karta: fond oprav — příjmy/výdaje, zůstatek, měsíční graf
 │       ├── admin-okoli.js  # karta: okolí budovy — Overpass API (MHD, obchody, zdraví…)
-│       ├── odom.js         # stránka O domě: info o budově + PENB + revize + fond oprav + okolí
+│       ├── admin-parkovani.js  # karta: parkovací místa (garáž, stání, venkovní, moto)
+│       ├── admin-cenova-mapa.js# karta: cenová mapa — odkazy cenovamapa.org, ČÚZK, Sreality
+│       ├── odom.js         # stránka O domě: info o budově + PENB + revize + fond oprav + okolí + parkování + ceny
 │       ├── hlasovani.js    # hlasování/ankety (list, create, vote, výsledky)
 │       ├── dokumenty.js    # dokumenty — drag&drop upload, kategorie, karty se stahováním
 │       ├── dokumenty-preview.js # preview modal (PDF/obrázky/MD/TXT) + markdown renderer
@@ -91,7 +93,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
         ├── 014_penb.sql              # tabulka penb (třída, datums, soubor, poznámka)
         ├── 015_dokumenty.sql         # tabulka dokumenty (kategorie, platnost, přístup, uploaded_by)
         ├── 016_revize.sql            # tabulka revize (typ, nazev, datum, interval, soubor)
-        └── 017_fond_oprav.sql        # tabulka fond_oprav (typ, kategorie, castka, datum)
+        ├── 017_fond_oprav.sql        # tabulka fond_oprav (typ, kategorie, castka, datum)
+        └── 018_parkovani.sql         # tabulka parkovani (cislo, typ, cislo_jednotky, najemce)
 ```
 
 ## Coding Standards — POVINNÉ
