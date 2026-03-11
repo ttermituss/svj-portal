@@ -5,6 +5,28 @@ Formát: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [1.2.0] — 2026-03-11
+
+### Přidáno
+
+#### Archiv datové schránky (ISDS) — nová stránka `#datovka`
+- Nová položka v menu (jen admin/výbor): 📬 Datová schránka
+- Upload `.zfo` souborů (drag & drop nebo klik) — každá zpráva stažená z datovky
+- ZFO parser (`api/zfo_parser.php`) — zpracuje CMS/PKCS7 binární obálku:
+  - Extrahuje metadata: ID zprávy, odesílatel, ISDS ID, předmět, č. jednací, timestamp
+  - Dekóduje base64 přílohy (HTML, PDF, XML, libovolný typ)
+  - Zvládá ASN.1 OCTET STRING chunking (přílohy rozdělené po 1000 bytech)
+  - Extrahuje čas zprávy z kvalifikovaného timestampu (PostSignum TSA)
+- Kartotéka zpráv — seznam karet s odesílatelem, předmětem, datem, počtem příloh
+- Detail zprávy — modal s metadaty + přílohami (stáhnout / náhled inline)
+- Náhled příloh: HTML v sandboxed iframe, PDF inline
+- Ochrana: přílohy v `uploads/datovka/{svj_id}/{zprava_id}/` za `.htaccess`
+- Duplicita: zpráva se stejným dm_id se nahrát nedá
+- Průvodce tab — 5 kroků jak stáhnout ZFO z datovky + FAQ
+- Migration: `020_datovka.sql` (tabulky datovka_zpravy + datovka_prilohy)
+
+---
+
 ## [1.1.0] — 2026-03-11
 
 ### Přidáno

@@ -21,7 +21,8 @@ var NAV_ITEMS_AUTH = [
 
 // Extra položky pouze pro správce (vybor + admin)
 var NAV_ITEMS_ADMIN = [
-  { page: 'admin', icon: '\uD83D\uDEE1\uFE0F', label: 'Správa portálu' },
+  { page: 'datovka', icon: '\uD83D\uDCEC', label: 'Datová schránka' },
+  { page: 'admin',   icon: '\uD83D\uDEE1\uFE0F', label: 'Správa portálu' },
 ];
 
 function renderNavItems(nav, items) {

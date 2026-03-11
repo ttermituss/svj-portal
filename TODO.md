@@ -176,3 +176,4 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 - [x] **QR kódy pro jednotky** — modal, tisk, api.qrserver.com
 - [x] **Export výkazů XLSX/CSV** — vlastníci, jednotky, fond oprav, revize, parkovací místa
 - [x] **Integrace s datovou schránkou (ISDS)** — ID v svj tabulce, ověření přes mojedatovaschranka.cz
+- [x] **Archiv datové schránky** — upload .zfo, ZFO parser (CMS/PKCS7), kartotéka zpráv, náhled příloh, průvodce
