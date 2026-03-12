@@ -32,53 +32,62 @@ function revizeLoadKontakty() {
   }).catch(function() { return []; });
 }
 
-function renderRevizeCard(el, user) {
+/* ── Mini karta pro stránku O domě (read-only) ───── */
+function renderRevizeMiniCard(el, user) {
   if (!user.svj_id) return;
 
-  var card = makeAdminCard('Evidence revizí a kontrol');
+  var card = makeAdminCard('Evidence reviz\xed');
   var body = card.body;
-
-  var hint = document.createElement('p');
-  hint.style.cssText = 'margin:0 0 14px;font-size:0.88rem;color:var(--text-light);';
-  hint.textContent = 'Sledov\xe1n\xed term\xedn\u016f povinn\xfdch reviz\xed. Upozorn\u011bn\xed p\u0159i bl\xed\u017e\xedc\xedm se nebo prohl\xe9\u0161en\xe9m term\xednu.';
-  body.appendChild(hint);
-
-  var isPriv = user.role === 'admin' || user.role === 'vybor';
 
   var listWrap = document.createElement('div');
   body.appendChild(listWrap);
 
-  var formWrap = document.createElement('div');
-  formWrap.style.display = 'none';
-  body.appendChild(formWrap);
+  Api.apiGet('api/revize.php?action=list')
+    .then(function(data) {
+      var items = data.revize || [];
+      if (!items.length) {
+        var empty = document.createElement('p');
+        empty.style.cssText = 'color:var(--text-light);font-size:0.9rem;';
+        empty.textContent = '\u017d\xe1dn\xe9 revize.';
+        listWrap.appendChild(empty);
+        return;
+      }
+      items.forEach(function(rev) {
+        var row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:6px 0;' +
+          'border-bottom:1px solid var(--border);font-size:0.9rem;';
 
-  if (isPriv) {
-    var addBtn = document.createElement('button');
-    addBtn.className = 'btn btn-primary btn-sm';
-    addBtn.style.marginTop = '12px';
-    addBtn.textContent = '+ P\u0159idat revizi';
-    addBtn.addEventListener('click', function() {
-      revizeShowForm(formWrap, null, listWrap, user, addBtn);
-    });
-    body.appendChild(addBtn);
+        var icon = document.createElement('span');
+        icon.textContent = revizeTypIcon(rev.typ);
+        icon.style.cssText = 'font-size:1.1rem;flex-shrink:0;';
+        row.appendChild(icon);
 
-    var exportWrap = document.createElement('div');
-    exportWrap.style.cssText = 'display:inline-flex;gap:6px;margin-left:8px;';
-    ['pdf', 'xlsx', 'csv'].forEach(function(fmt) {
-      var btn = document.createElement('button');
-      btn.className = 'btn btn-secondary btn-sm';
-      btn.style.marginTop = '12px';
-      btn.textContent = fmt === 'pdf' ? '\uD83D\uDCC3 PDF' : fmt === 'xlsx' ? '\uD83D\uDCCA XLSX' : '\uD83D\uDCC4 CSV';
-      btn.addEventListener('click', function() {
-        window.location.href = 'api/export.php?type=revize&format=' + fmt;
+        var name = document.createElement('span');
+        name.style.cssText = 'flex:1;min-width:0;';
+        name.textContent = rev.nazev;
+        row.appendChild(name);
+
+        var status = revizeStatus(rev.datum_pristi);
+        var badge = document.createElement('span');
+        badge.style.cssText = 'padding:2px 8px;border-radius:12px;font-size:0.75rem;font-weight:600;color:#fff;flex-shrink:0;';
+        if (status === 'expired') { badge.style.background = 'var(--danger)'; badge.textContent = 'Prohl\xe1\u0161l\xe1'; }
+        else if (status === 'warning') { badge.style.background = '#f08600'; badge.textContent = 'Brzy'; }
+        else { badge.style.background = 'var(--accent)'; badge.textContent = 'OK'; }
+        row.appendChild(badge);
+
+        listWrap.appendChild(row);
       });
-      exportWrap.appendChild(btn);
-    });
-    body.appendChild(exportWrap);
-  }
+    })
+    .catch(function() {});
+
+  var link = document.createElement('a');
+  link.href = '#revize';
+  link.className = 'btn btn-secondary btn-sm';
+  link.style.marginTop = '12px';
+  link.textContent = '\uD83D\uDD27 Zobrazit detail reviz\xed';
+  body.appendChild(link);
 
   el.appendChild(card.card);
-  revizeLoad(listWrap, formWrap, user);
 }
 
 function revizeLoad(listWrap, formWrap, user) {

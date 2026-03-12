@@ -18,6 +18,7 @@ var NAV_ITEMS_AUTH = [
   { page: 'kalendar',  icon: '\uD83D\uDCC5', label: 'Kalend\u00e1\u0159' },
   { page: 'odom', icon: '\uD83C\uDFE2', label: 'O dom\u011b' },
   { page: 'kontakty', icon: '\uD83D\uDCDE', label: 'Kontakty' },
+  { page: 'revize',   icon: '\uD83D\uDD27', label: 'Revize' },
   { sep: true },
   { page: 'nastaveni', icon: '\u2699\uFE0F', label: 'Nastavení' },
 ];

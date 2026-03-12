@@ -17,7 +17,7 @@ Router.register('odom', function(el) {
 
   renderBudovaInfoCard(el, user);
   renderPenbCard(el, user);
-  renderRevizeCard(el, user);
+  renderRevizeMiniCard(el, user);
   renderFondOpravCard(el, user);
   renderOkoliCard(el, user);
   renderParkovaniCard(el, user);
