@@ -1,0 +1,16 @@
+-- 025: Bankovní účty SVJ pro fond oprav
+CREATE TABLE IF NOT EXISTS fond_ucty (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    svj_id INT UNSIGNED NOT NULL,
+    nazev VARCHAR(150) NOT NULL,
+    cislo_uctu VARCHAR(50) DEFAULT NULL,
+    banka VARCHAR(100) DEFAULT NULL,
+    typ ENUM('bezny','sporici','terminovany','jiny') NOT NULL DEFAULT 'bezny',
+    zustatek DECIMAL(14,2) NOT NULL DEFAULT 0,
+    urokova_sazba DECIMAL(5,3) DEFAULT NULL,
+    poznamka TEXT DEFAULT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_fu_svj (svj_id),
+    FOREIGN KEY (svj_id) REFERENCES svj(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_czech_ci;

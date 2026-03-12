@@ -43,7 +43,9 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
 │       ├── admin-sfpi.js   # karta: dotace pro SVJ (Panel 2020+, NZÚ, IROP…)
 │       ├── admin-penb.js   # karta: PENB — průkaz energetické náročnosti (třída, platnost, PDF)
 │       ├── admin-revize.js # karta: evidence revizí (výtah, elektro, plyn…) + PDF protokol
-│       ├── admin-fond-oprav.js # karta: fond oprav — příjmy/výdaje, zůstatek, měsíční graf
+│       ├── admin-fond-oprav.js # karta: fond oprav — READ-ONLY mini (zůstatek + graf) pro O domě
+│       ├── fond-oprav.js      # stránka: fond oprav dashboard (admin/výbor) — grafy, trend, účty
+│       ├── fond-oprav-detail.js # fond oprav: roční tabulka, statistiky, účty render, záznamy
 │       ├── admin-okoli.js  # karta: okolí budovy — Overpass API (MHD, obchody, zdraví…)
 │       ├── admin-parkovani.js  # karta: parkovací místa (garáž, stání, venkovní, moto)
 │       ├── admin-cenova-mapa.js# karta: cenová mapa — odkazy cenovamapa.org, ČÚZK, Sreality
@@ -80,7 +82,7 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
     ├── hlasovani.php       # hlasování/ankety: list, get, create, vote, close, delete, setExterni
     ├── penb.php            # PENB: get, save (upsert + PDF upload), delete, download (auth)
     ├── revize.php          # revize: list, save, delete, download (PDF protokol)
-    ├── fond_oprav.php      # fond oprav: list, stats (měsíce), add, delete
+    ├── fond_oprav.php      # fond oprav: list, stats, statsRocni, statsKat, add, delete, uctyList/Save/Delete
     ├── okoli.php           # okolí budovy: proxy Overpass API (OSM), POI v 600 m
     ├── parkovani.php       # parkovací místa: list, save (upsert), delete
     ├── zavady.php          # hlášení závad: list, get, add, update, comment, delete, photo
@@ -121,7 +123,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
         ├── 021_vlastnici_ext.sql     # users.telefon/jednotka_id, jednotky pronájem/nájemce, tabulka vlastnici_ext
         ├── 022_zavady.sql            # tabulky zavady + zavady_historie (hlášení závad, workflow, komentáře)
         ├── 023_kalendar_udalosti.sql # tabulka kalendar_udalosti (vlastní události)
-        └── 024_notifikace.sql        # tabulka notifikace + users.notif_* preference
+        ├── 024_notifikace.sql        # tabulka notifikace + users.notif_* preference
+        └── 025_fond_ucty.sql         # tabulka fond_ucty (bankovní účty SVJ)
 ```
 
 ## Coding Standards — POVINNÉ

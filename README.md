@@ -1,4 +1,4 @@
-# SVJ Portál v1.6.0
+# SVJ Portál v1.7.0
 
 Univerzální multi-tenant webový portál pro správu **Společenství vlastníků jednotek (SVJ)** v ČR.
 
@@ -19,7 +19,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 - 🏗️ **Info o budově** — adresa, GPS, rok dokončení, konstrukce, podlaží, výtah, vytápění (z RÚIAN/KN)
 - ⚡ **PENB** — průkaz energetické náročnosti (třída A–G, platnost, upload PDF, upozornění na vypršení)
 - 🔧 **Evidence revizí** — výtah, elektro, plyn, hromosvod, hasicí přístroje; automatický výpočet termínů
-- 💰 **Fond oprav** — příjmy/výdaje, zůstatek, měsíční sloupcový graf
+- 💰 **Fond oprav** — příjmy/výdaje, zůstatek, měsíční sloupcový graf (read-only přehled)
 - 🗺️ **Okolí budovy** — MHD, obchody, lékárny, banky, pošta v okruhu 600 m (OpenStreetMap)
 - 🅿️ **Parkovací místa** — evidence garáží a stání, přiřazení k jednotce nebo nájemci
 - 📊 **Cenová mapa** — přímé odkazy na cenovamapa.org, ČÚZK cenové mapy, Sreality
@@ -43,6 +43,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 - 🗺️ **Mapa budovy** — OpenStreetMap iframe + odkaz na Mapy.cz
 - 💰 **Dotace SFPI** — Panel 2020+, NZÚ, IROP, MMR s doporučením dle budovy
 - ⚠️ **Správa závad** — změna stavu (Nová/V řešení/Vyřešeno/Zamítnuto), priority, přiřazení zodpovědné osoby; smazání (admin)
+- 💰 **Fond oprav — dashboard** — bankovní účty SVJ, roční přehled, trend zůstatku (SVG), top výdaje, průměry
 - 📅 **Vlastní události** — vytvoření, editace a smazání událostí v kalendáři (kategorie, opakování, připomenutí)
 - 📤 **Export výkazů** — PDF/XLSX/CSV pro revize, fond oprav, parkovací místa, závady
 
@@ -185,6 +186,7 @@ sudo mysql svj_portal < api/migrations/00X_nazev.sql
 | 022 | Závady — zavady + zavady_historie |
 | 023 | Vlastní události v kalendáři (kalendar_udalosti) |
 | 024 | Notifikace + uživatelské preference (notifikace, users.notif_*) |
+| 025 | Bankovní účty SVJ (fond_ucty) |
 
 Nikdy neupravuj stávající migraci — vždy přidej novou.
 

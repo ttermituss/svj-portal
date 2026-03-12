@@ -23,6 +23,7 @@ var NAV_ITEMS_AUTH = [
 
 // Extra položky pouze pro správce (vybor + admin)
 var NAV_ITEMS_ADMIN = [
+  { page: 'fond-oprav', icon: '\uD83D\uDCB0', label: 'Fond oprav' },
   { page: 'datovka', icon: '\uD83D\uDCEC', label: 'Datová schránka' },
   { page: 'admin',   icon: '\uD83D\uDEE1\uFE0F', label: 'Správa portálu' },
 ];

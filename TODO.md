@@ -184,3 +184,4 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 - [x] **Kalendář** — měsíční přehled událostí ze všech modulů (revize, PENB, hlasování, dokumenty, závady, fond oprav)
 - [x] **Vlastní události v kalendáři** — admin/výbor vytváří události (schůzka, údržba, kontrola…), editace, smazání
 - [x] **Notifikace** — zvonkový badge, dropdown panel, per-user preference (události, závady, hlasování, revize)
+- [x] **Fond oprav — dashboard** — separátní stránka, bankovní účty, roční přehled, trend graf, top výdaje, průměry

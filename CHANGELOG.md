@@ -5,6 +5,28 @@ Formát: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [1.7.0] — 2026-03-12
+
+### Přidáno
+
+#### Fond oprav — plnohodnotný dashboard (`#fond-oprav`)
+- Nová separátní stránka v menu (jen admin/výbor) s kompletním přehledem hospodaření
+- **Bankovní účty SVJ** — evidence účtů (název, číslo, banka, typ, zůstatek, úrok. sazba), CRUD modaly, celkový zůstatek
+- **Roční přehled** — tabulka po rocích (příjmy, výdaje, saldo, kumulativní zůstatek), meziročí porovnání
+- **Trend zůstatku** — SVG čárový graf vývoje zůstatku za 24 měsíců
+- **Rozšířené statistiky** — top kategorie výdajů (horizontal bar chart), průměrné měsíční příjmy/výdaje
+- **Měsíční graf** — rozšířen na 120px výšku, větší bary
+- Přidání záznamu přes moderní modal (místo inline formuláře)
+- Stránka O domě: zjednodušen na read-only (zůstatek, mini graf, odkaz na detail)
+- Export PDF/XLSX/CSV zachován
+- Migration: `025_fond_ucty.sql` (tabulka `fond_ucty`)
+- API rozšířeno: `statsRocni`, `statsKat`, `uctyList`, `uctySave`, `uctyDelete`
+
+### Změněno
+- Barvy v kalendáři: modrá (hlasování/dokumenty), oranžová (závady), fialová (události) — lepší rozlišení
+
+---
+
 ## [1.6.0] — 2026-03-12
 
 ### Přidáno
