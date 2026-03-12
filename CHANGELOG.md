@@ -5,6 +5,34 @@ Formát: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [1.5.0] — 2026-03-12
+
+### Přidáno
+
+#### Hlášení závad — nová stránka `#zavady`
+- Každý přihlášený člen může nahlásit závadu (název, popis, místo v domě, priorita, volitelná fotka)
+- Přehled závad s filtrem dle stavu (Nová / V řešení / Vyřešeno / Zamítnuto) a počítadla
+- Detail závady v modalu: info, fotka, timeline historie změn, komentáře
+- Výbor/admin: změna stavu, priority, přiřazení zodpovědné osoby/firmy
+- Admin: smazání závady (včetně fotky a historie)
+- Upload fotek: JPEG, PNG, WebP (max 5 MB), servírováno přes auth endpoint
+- Komentáře: každý člen může přidávat poznámky k závadě
+- Timeline: chronologická historie všech změn stavu, priority, přiřazení a komentářů
+- Export závad: PDF/XLSX/CSV (jen výbor/admin)
+- Migration: `022_zavady.sql` (tabulky `zavady` + `zavady_historie`)
+
+#### Kalendář — nová stránka `#kalendar`
+- Měsíční kalendář s navigací (předchozí/následující měsíc, tlačítko Dnes)
+- Agregované události ze všech modulů: revize, PENB, hlasování, dokumenty, závady, fond oprav
+- Barevné tečky na dnech dle typu události (červená = deadline, oranžová = termín, modrá = závady, zelená = vyřešeno)
+- Kliknutí na den → detail panel s výpisem událostí a navigací na příslušnou stránku
+- Zvýrazněný aktuální den, automatické zobrazení dnešních událostí
+- Legenda typů událostí
+- API endpoint `api/kalendar.php` — unified event aggregation ze 6 tabulek
+- Fond oprav viditelný v kalendáři jen pro výbor/admin
+
+---
+
 ## [1.4.0] — 2026-03-12
 
 ### Přidáno

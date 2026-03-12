@@ -52,6 +52,9 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
 │       ├── hlasovani.js    # hlasování/ankety (list, create, vote, výsledky)
 │       ├── dokumenty.js    # dokumenty — drag&drop upload, kategorie, karty se stahováním
 │       ├── dokumenty-preview.js # preview modal (PDF/obrázky/MD/TXT) + markdown renderer
+│       ├── zavady.js       # hlášení závad — seznam, filtr, formulář nahlášení (fotka upload)
+│       ├── zavady-detail.js # detail modal — info, fotka, timeline, komentáře, admin správa
+│       ├── kalendar.js     # měsíční kalendář — události ze všech modulů, denní detail
 │       ├── admin-vlastnici-ext.js # karta: neregistrovaní vlastníci (vlastnici_ext CRUD + modal)
 │       └── admin-settings.js# karta: systémová nastavení (jen admin)
 └── api/
@@ -78,7 +81,9 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
     ├── fond_oprav.php      # fond oprav: list, stats (měsíce), add, delete
     ├── okoli.php           # okolí budovy: proxy Overpass API (OSM), POI v 600 m
     ├── parkovani.php       # parkovací místa: list, save (upsert), delete
-    ├── export.php          # export výkazů: PDF/CSV/XLSX (vlastnici/jednotky/fond_oprav/revize/parkovani)
+    ├── zavady.php          # hlášení závad: list, get, add, update, comment, delete, photo
+    ├── kalendar.php        # kalendář: events (agregace ze 6 tabulek)
+    ├── export.php          # export výkazů: PDF/CSV/XLSX (vlastnici/jednotky/fond_oprav/revize/parkovani/zavady)
     ├── xlsx_helper.php     # minimální XLSX writer (ZipArchive, žádné závislosti)
     ├── pdf_helper.php      # minimální PDF writer (TTF embedding, CIDFont, žádné závislosti)
     ├── fonts/
@@ -109,7 +114,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
         ├── 018_parkovani.sql         # tabulka parkovani (cislo, typ, cislo_jednotky, najemce)
         ├── 019_isds.sql              # isds_id VARCHAR do svj (ID datové schránky)
         ├── 020_datovka.sql           # tabulky datovka_zpravy + datovka_prilohy
-        └── 021_vlastnici_ext.sql     # users.telefon/jednotka_id, jednotky pronájem/nájemce, tabulka vlastnici_ext
+        ├── 021_vlastnici_ext.sql     # users.telefon/jednotka_id, jednotky pronájem/nájemce, tabulka vlastnici_ext
+        └── 022_zavady.sql            # tabulky zavady + zavady_historie (hlášení závad, workflow, komentáře)
 ```
 
 ## Coding Standards — POVINNÉ

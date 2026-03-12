@@ -1,4 +1,4 @@
-# SVJ Portál v1.4.0
+# SVJ Portál v1.5.0
 
 Univerzální multi-tenant webový portál pro správu **Společenství vlastníků jednotek (SVJ)** v ČR.
 
@@ -28,6 +28,8 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 - 📢 **Nástěnka** — příspěvky a oznámení
 - 🗳️ **Hlasování** — ankety s výsledky, progress bary a quorem
 - 📁 **Dokumenty** — drag & drop upload, kategorie, datum platnosti, náhled (PDF/obrázky/Markdown/TXT)
+- ⚠️ **Hlášení závad** — nahlášení závady (název, popis, místo, priorita, fotka), sledování stavu, komentáře, timeline
+- 📅 **Kalendář** — měsíční přehled událostí ze všech modulů (revize, PENB, hlasování, dokumenty, závady, fond oprav)
 - 🌤️ **Počasí** — aktuální + 7denní výhled u budovy (OpenMeteo, GPS z RÚIAN)
 - 👤 **Profil** — nastavení účtu, avatar
 
@@ -39,7 +41,8 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 - 🏗️ **ČÚZK KN** — import jednotek, parcel a stavby z Katastru nemovitostí
 - 🗺️ **Mapa budovy** — OpenStreetMap iframe + odkaz na Mapy.cz
 - 💰 **Dotace SFPI** — Panel 2020+, NZÚ, IROP, MMR s doporučením dle budovy
-- 📤 **Export výkazů** — PDF/XLSX/CSV pro revize, fond oprav, parkovací místa
+- ⚠️ **Správa závad** — změna stavu (Nová/V řešení/Vyřešeno/Zamítnuto), priority, přiřazení zodpovědné osoby; smazání (admin)
+- 📤 **Export výkazů** — PDF/XLSX/CSV pro revize, fond oprav, parkovací místa, závady
 
 ### 📬 Datová schránka (ISDS) — jen admin/výbor
 - **Archiv zpráv** — upload `.zfo` souborů (drag & drop), kartotéka s odesílatelem, předmětem, datem

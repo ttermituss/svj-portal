@@ -12,7 +12,7 @@ $format = $_GET['format'] ?? 'csv';
 
 if (!in_array($format, ['csv', 'xlsx', 'pdf'], true)) jsonError('Nepodporovaný formát', 400);
 
-$allowed = ['vlastnici', 'jednotky', 'fond_oprav', 'revize', 'parkovani'];
+$allowed = ['vlastnici', 'jednotky', 'fond_oprav', 'revize', 'parkovani', 'zavady'];
 if (!in_array($type, $allowed, true)) jsonError('Nepodporovaný typ exportu', 400);
 
 $db = getDb();
@@ -133,6 +133,37 @@ switch ($type) {
         ], $rows);
         $filename = 'parkovani';
         $sheet    = 'Parkovací místa';
+        break;
+
+    case 'zavady':
+        requireRole('admin', 'vybor');
+        $stmt = $db->prepare(
+            'SELECT z.nazev, z.popis, z.lokace, z.priorita, z.stav,
+                    z.zodpovedna_osoba, z.created_at, z.uzavreno_at,
+                    u.jmeno, u.prijmeni
+             FROM zavady z
+             JOIN users u ON u.id = z.vytvoril_id
+             WHERE z.svj_id = ? ORDER BY z.created_at DESC'
+        );
+        $stmt->execute([$svjId]);
+        $rows    = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stavMap = ['nova' => 'Nová', 'v_reseni' => 'V řešení', 'vyreseno' => 'Vyřešeno', 'zamitnuto' => 'Zamítnuto'];
+        $prioMap = ['nizka' => 'Nízká', 'normalni' => 'Normální', 'vysoka' => 'Vysoká', 'kriticka' => 'Kritická'];
+        $headers = ['Název', 'Popis', 'Místo', 'Priorita', 'Stav',
+                    'Zodpovědná osoba', 'Nahlásil/a', 'Vytvořeno', 'Uzavřeno'];
+        $data    = array_map(fn($r) => [
+            $r['nazev'],
+            $r['popis'] ?? '',
+            $r['lokace'] ?? '',
+            $prioMap[$r['priorita']] ?? $r['priorita'],
+            $stavMap[$r['stav']] ?? $r['stav'],
+            $r['zodpovedna_osoba'] ?? '',
+            trim(($r['jmeno'] ?? '') . ' ' . ($r['prijmeni'] ?? '')),
+            $r['created_at'] ? date('d.m.Y', strtotime($r['created_at'])) : '',
+            $r['uzavreno_at'] ? date('d.m.Y', strtotime($r['uzavreno_at'])) : '',
+        ], $rows);
+        $filename = 'zavady';
+        $sheet    = 'Hlášení závad';
         break;
 
     default:

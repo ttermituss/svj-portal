@@ -180,3 +180,5 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 - [x] **Pronájmy a nájemci** — příznak + kontakt na nájemce u každé jednotky, modal Upravit (výbor/admin), badge v přehledu
 - [x] **Neregistrovaní vlastníci (`vlastnici_ext`)** — evidence jméno/telefon/email/jednotka bez portálového účtu, CRUD v admin kartě
 - [x] **Export do PDF** — pure PHP PDF generátor s DejaVu Sans fontem, A4 landscape, stránkování, české znaky; vlastníci, jednotky, fond oprav, revize
+- [x] **Hlášení závad** — nahlášení (název, popis, místo, priorita, fotka), stav workflow, komentáře, timeline, export PDF/XLSX/CSV
+- [x] **Kalendář** — měsíční přehled událostí ze všech modulů (revize, PENB, hlasování, dokumenty, závady, fond oprav)
