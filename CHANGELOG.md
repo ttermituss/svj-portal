@@ -5,6 +5,31 @@ Formát: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [1.6.0] — 2026-03-12
+
+### Přidáno
+
+#### Vlastní události v kalendáři
+- Admin/výbor může vytvářet vlastní události přímo v kalendáři (tlačítko „+ Nová událost")
+- Modal formulář: název, popis, datum od/do, celodení/časové, místo, kategorie (schůzka/údržba/kontrola/společenská/jiné), opakování
+- Editace a smazání existujících vlastních událostí z denního detailu
+- Vícedenní události zobrazeny na každém dni v rozsahu
+- Nový API endpoint `api/kalendar_udalosti.php` (CRUD: list/save/delete)
+- Migration: `023_kalendar_udalosti.sql`
+
+#### Notifikace
+- Zvonkový badge v hlavičce s počtem nepřečtených notifikací (polling 60s)
+- Dropdown panel s výpisem notifikací — ikona dle typu, čas, označení jako přečtené
+- Tlačítko „Označit vše" pro hromadné přečtení
+- Klik na notifikaci → navigace na příslušnou stránku
+- Automatické vytvoření notifikací při nové události (pro členy SVJ s preference zapnutou)
+- Nový API endpoint `api/notifikace.php` (count/list/read/readAll)
+- Uživatelské preference notifikací v Nastavení účtu — toggle pro: události, závady, hlasování, revize
+- Nový endpoint `api/user.php?action=getNotifPrefs/updateNotifPrefs`
+- Migration: `024_notifikace.sql` (tabulka `notifikace` + 4 preference sloupce na `users`)
+
+---
+
 ## [1.5.0] — 2026-03-12
 
 ### Přidáno

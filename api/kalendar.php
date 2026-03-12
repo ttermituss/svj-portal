@@ -56,6 +56,9 @@ function handleEvents(): void
         $events = array_merge($events, fetchFondOprav($db, $svjId, $od, $do));
     }
 
+    // 7. Vlastní události (kalendar_udalosti)
+    $events = array_merge($events, fetchVlastniUdalosti($db, $svjId, $od, $do));
+
     jsonOk(['events' => $events, 'rok' => $rok, 'mesic' => $mesic]);
 }
 
@@ -116,7 +119,7 @@ function fetchHlasovani(PDO $db, int $svjId, string $od, string $do): array
             'nazev'  => 'Hlasování: ' . $r['nazev'],
             'detail' => $r['stav'] === 'aktivni' ? 'Aktivní' : 'Ukončeno',
             'id'     => (int) $r['id'],
-            'barva'  => 'warning',
+            'barva'  => 'blue',
         ];
     }
     return $out;
@@ -137,7 +140,7 @@ function fetchDokumenty(PDO $db, int $svjId, string $od, string $do): array
             'nazev'  => 'Dokument: ' . $r['nazev'],
             'detail' => $r['kategorie'] ?? '',
             'id'     => (int) $r['id'],
-            'barva'  => 'warning',
+            'barva'  => 'blue',
         ];
     }
     return $out;
@@ -161,7 +164,7 @@ function fetchZavady(PDO $db, int $svjId, string $od, string $do): array
             'nazev'  => 'Závada: ' . $r['nazev'],
             'detail' => $stavLabel[$r['stav']] ?? $r['stav'],
             'id'     => (int) $r['id'],
-            'barva'  => 'info',
+            'barva'  => 'orange',
         ];
     }
 
@@ -204,6 +207,53 @@ function fetchFondOprav(PDO $db, int $svjId, string $od, string $do): array
             'id'     => (int) $r['id'],
             'barva'  => 'muted',
         ];
+    }
+    return $out;
+}
+
+function fetchVlastniUdalosti(PDO $db, int $svjId, string $od, string $do): array
+{
+    $stmt = $db->prepare(
+        'SELECT ku.id, ku.nazev, ku.popis, ku.datum_od, ku.datum_do, ku.celodenny,
+                ku.cas_od, ku.misto, ku.kategorie, u.jmeno, u.prijmeni
+         FROM kalendar_udalosti ku
+         JOIN users u ON u.id = ku.vytvoril_id
+         WHERE ku.svj_id = :sid
+           AND (ku.datum_od BETWEEN :od1 AND :do1
+                OR ku.datum_do BETWEEN :od2 AND :do2
+                OR (ku.datum_od <= :od3 AND COALESCE(ku.datum_do, ku.datum_od) >= :do3))'
+    );
+    $stmt->execute([
+        ':sid' => $svjId,
+        ':od1' => $od, ':do1' => $do,
+        ':od2' => $od, ':do2' => $do,
+        ':od3' => $od, ':do3' => $do,
+    ]);
+    $out = [];
+    $katLabel = [
+        'schuzka' => 'Schůzka', 'udrzba' => 'Údržba', 'kontrola' => 'Kontrola',
+        'spolecenska' => 'Společenská', 'jine' => 'Jiné',
+    ];
+    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $r) {
+        $detail = $katLabel[$r['kategorie']] ?? $r['kategorie'];
+        if ($r['misto']) $detail .= ' · ' . $r['misto'];
+        if (!$r['celodenny'] && $r['cas_od']) $detail .= ' · ' . substr($r['cas_od'], 0, 5);
+
+        $start = max($od, $r['datum_od']);
+        $end   = $r['datum_do'] ? min($do, $r['datum_do']) : $start;
+        $cur = $start;
+        while ($cur <= $end) {
+            $out[] = [
+                'typ'    => 'vlastni',
+                'datum'  => $cur,
+                'nazev'  => $r['nazev'],
+                'detail' => $detail,
+                'id'     => (int) $r['id'],
+                'barva'  => 'purple',
+                'autor'  => trim($r['jmeno'] . ' ' . $r['prijmeni']),
+            ];
+            $cur = date('Y-m-d', strtotime($cur . ' +1 day'));
+        }
     }
     return $out;
 }

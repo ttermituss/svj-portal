@@ -27,6 +27,12 @@ Router.register('nastaveni', function(el) {
   renderProfileCard(grid, user);
   renderPasswordCard(grid);
 
+  // Notifikace karta — full width
+  var notifWrap = document.createElement('div');
+  notifWrap.style.cssText = 'grid-column:1/-1;';
+  renderNotifPrefsCard(notifWrap);
+  grid.appendChild(notifWrap);
+
   // Responzivita — stacked na mobilu
   var mq = window.matchMedia('(max-width: 768px)');
   function applyMq(e) {
@@ -132,6 +138,100 @@ function renderPasswordCard(container) {
   });
 
   body.appendChild(form);
+  container.appendChild(card.card);
+}
+
+/* ===== KARTA: NOTIFIKACE ===== */
+
+function renderNotifPrefsCard(container) {
+  var card = makeCard('Notifikace');
+  var body = card.body;
+
+  var desc = document.createElement('p');
+  desc.style.cssText = 'font-size:0.85rem;color:var(--text-light);margin:0 0 16px;';
+  desc.textContent = 'Zvolte, kter\u00e9 notifikace chcete dost\u00e1vat v port\u00e1lu.';
+  body.appendChild(desc);
+
+  var prefs = [
+    { key: 'notif_udalosti',  label: 'Ud\u00e1losti v kalend\u00e1\u0159i',  icon: '\uD83D\uDCC5' },
+    { key: 'notif_zavady',    label: 'Hl\u00e1\u0161en\u00ed z\u00e1vad',     icon: '\u26A0\uFE0F' },
+    { key: 'notif_hlasovani', label: 'Nov\u00e1 hlasov\u00e1n\u00ed',          icon: '\uD83D\uDDF3\uFE0F' },
+    { key: 'notif_revize',    label: 'Bl\u00ed\u017e\u00edc\u00ed se revize',  icon: '\uD83D\uDD27' },
+  ];
+
+  var toggles = {};
+  var loading = document.createElement('div');
+  loading.style.cssText = 'text-align:center;padding:12px;color:var(--text-light);font-size:0.85rem;';
+  loading.textContent = 'Na\u010d\u00edt\u00e1m\u2026';
+  body.appendChild(loading);
+
+  Api.apiGet('api/user.php?action=getNotifPrefs')
+    .then(function(data) {
+      loading.remove();
+      prefs.forEach(function(p) {
+        var row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;'
+          + 'padding:10px 0;border-bottom:1px solid var(--border);';
+
+        var left = document.createElement('div');
+        left.style.cssText = 'display:flex;align-items:center;gap:10px;';
+        var iconEl = document.createElement('span');
+        iconEl.style.fontSize = '1.1rem';
+        iconEl.textContent = p.icon;
+        left.appendChild(iconEl);
+        var labelEl = document.createElement('span');
+        labelEl.style.cssText = 'font-size:0.9rem;';
+        labelEl.textContent = p.label;
+        left.appendChild(labelEl);
+        row.appendChild(left);
+
+        // Toggle switch
+        var toggle = document.createElement('label');
+        toggle.style.cssText = 'position:relative;display:inline-block;width:44px;height:24px;cursor:pointer;';
+        var cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = !!data[p.key];
+        cb.style.cssText = 'opacity:0;width:0;height:0;';
+        var slider = document.createElement('span');
+        slider.style.cssText = 'position:absolute;inset:0;background:var(--border);border-radius:12px;transition:0.2s;';
+        var knob = document.createElement('span');
+        knob.style.cssText = 'position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;'
+          + 'border-radius:50%;transition:0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);';
+
+        function syncToggle() {
+          if (cb.checked) {
+            slider.style.background = 'var(--accent)';
+            knob.style.transform = 'translateX(20px)';
+          } else {
+            slider.style.background = 'var(--border)';
+            knob.style.transform = 'translateX(0)';
+          }
+        }
+        syncToggle();
+
+        cb.addEventListener('change', function() {
+          syncToggle();
+          var payload = {};
+          payload[p.key] = cb.checked ? 1 : 0;
+          Api.apiPost('api/user.php?action=updateNotifPrefs', payload)
+            .then(function() { showToast('Nastaven\u00ed ulo\u017eeno.', 'success'); })
+            .catch(function() { showToast('Chyba p\u0159i ukl\u00e1d\u00e1n\u00ed.', 'error'); cb.checked = !cb.checked; syncToggle(); });
+        });
+
+        slider.appendChild(knob);
+        toggle.appendChild(cb);
+        toggle.appendChild(slider);
+        row.appendChild(toggle);
+
+        toggles[p.key] = cb;
+        body.appendChild(row);
+      });
+    })
+    .catch(function() {
+      loading.textContent = 'Chyba na\u010d\u00edt\u00e1n\u00ed nastaven\u00ed.';
+      loading.style.color = 'var(--danger)';
+    });
+
   container.appendChild(card.card);
 }
 

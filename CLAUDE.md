@@ -25,6 +25,7 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
 │   ├── auth.js             # Auth modul (session, user, svj cache)
 │   ├── router.js           # hash router (#page)
 │   ├── api.js              # Api modul (apiGet, apiPost, createInvite…)
+│   ├── notifikace.js       # NotifBadge modul (badge, dropdown, polling)
 │   ├── app.js              # init, buildNavWithUser, avatary v nav
 │   └── pages/
 │       ├── login.js        # přihlášení + registrace IČO (admin)
@@ -56,7 +57,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
 │       ├── zavady-detail.js # detail modal — info, fotka, timeline, komentáře, admin správa
 │       ├── kalendar.js     # měsíční kalendář — události ze všech modulů, denní detail
 │       ├── admin-vlastnici-ext.js # karta: neregistrovaní vlastníci (vlastnici_ext CRUD + modal)
-│       └── admin-settings.js# karta: systémová nastavení (jen admin)
+│       ├── admin-settings.js# karta: systémová nastavení (jen admin)
+│       └── kalendar-modal.js   # modal pro vytvoření/editaci vlastní události
 └── api/
     ├── config.php          # DB + konstanty (není v gitu — v .gitignore!)
     ├── settings_crypto.php # AES-256-CBC šifrování citlivých settings
@@ -82,7 +84,9 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
     ├── okoli.php           # okolí budovy: proxy Overpass API (OSM), POI v 600 m
     ├── parkovani.php       # parkovací místa: list, save (upsert), delete
     ├── zavady.php          # hlášení závad: list, get, add, update, comment, delete, photo
-    ├── kalendar.php        # kalendář: events (agregace ze 6 tabulek)
+    ├── kalendar.php        # kalendář: events (agregace ze 7 zdrojů vč. vlastních událostí)
+    ├── kalendar_udalosti.php # vlastní události: list, save, delete (admin/výbor)
+    ├── notifikace.php      # notifikace: count, list, read, readAll
     ├── export.php          # export výkazů: PDF/CSV/XLSX (vlastnici/jednotky/fond_oprav/revize/parkovani/zavady)
     ├── xlsx_helper.php     # minimální XLSX writer (ZipArchive, žádné závislosti)
     ├── pdf_helper.php      # minimální PDF writer (TTF embedding, CIDFont, žádné závislosti)
@@ -92,7 +96,7 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
     │   └── .htaccess           # blokuje přímý přístup
     ├── dokumenty.php       # dokumenty: list, upload, download, preview (inline), delete
     ├── avatar.php          # upload + delete avataru
-    ├── user.php            # updateProfile
+    ├── user.php            # updateProfile, changePassword, getNotifPrefs, updateNotifPrefs
     └── migrations/
         ├── 001_init.sql              # základní tabulky: svj, users, sessions
         ├── 002_rate_limits.sql
@@ -115,7 +119,9 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
         ├── 019_isds.sql              # isds_id VARCHAR do svj (ID datové schránky)
         ├── 020_datovka.sql           # tabulky datovka_zpravy + datovka_prilohy
         ├── 021_vlastnici_ext.sql     # users.telefon/jednotka_id, jednotky pronájem/nájemce, tabulka vlastnici_ext
-        └── 022_zavady.sql            # tabulky zavady + zavady_historie (hlášení závad, workflow, komentáře)
+        ├── 022_zavady.sql            # tabulky zavady + zavady_historie (hlášení závad, workflow, komentáře)
+        ├── 023_kalendar_udalosti.sql # tabulka kalendar_udalosti (vlastní události)
+        └── 024_notifikace.sql        # tabulka notifikace + users.notif_* preference
 ```
 
 ## Coding Standards — POVINNÉ

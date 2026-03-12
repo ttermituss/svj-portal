@@ -166,7 +166,7 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 
 ## 💡 Nápady do budoucna
 
-- Push notifikace (PWA) — plomby, hlasování, novinky na nástěnce
+- Push notifikace (PWA) — rozšíření stávajících in-app notifikací o browser push
 - Mobilní app (PWA shell)
 - API pro správcovské firmy (multi-SVJ správa)
 
@@ -182,3 +182,5 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 - [x] **Export do PDF** — pure PHP PDF generátor s DejaVu Sans fontem, A4 landscape, stránkování, české znaky; vlastníci, jednotky, fond oprav, revize
 - [x] **Hlášení závad** — nahlášení (název, popis, místo, priorita, fotka), stav workflow, komentáře, timeline, export PDF/XLSX/CSV
 - [x] **Kalendář** — měsíční přehled událostí ze všech modulů (revize, PENB, hlasování, dokumenty, závady, fond oprav)
+- [x] **Vlastní události v kalendáři** — admin/výbor vytváří události (schůzka, údržba, kontrola…), editace, smazání
+- [x] **Notifikace** — zvonkový badge, dropdown panel, per-user preference (události, závady, hlasování, revize)

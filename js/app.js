@@ -159,6 +159,7 @@ function buildNavWithUser() {
   Auth.check().then(function() {
     if (Auth.isLoggedIn()) {
       buildNavWithUser();
+      NotifBadge.init();
     } else {
       buildNav();
     }

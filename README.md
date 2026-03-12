@@ -1,4 +1,4 @@
-# SVJ Portál v1.5.0
+# SVJ Portál v1.6.0
 
 Univerzální multi-tenant webový portál pro správu **Společenství vlastníků jednotek (SVJ)** v ČR.
 
@@ -29,7 +29,8 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 - 🗳️ **Hlasování** — ankety s výsledky, progress bary a quorem
 - 📁 **Dokumenty** — drag & drop upload, kategorie, datum platnosti, náhled (PDF/obrázky/Markdown/TXT)
 - ⚠️ **Hlášení závad** — nahlášení závady (název, popis, místo, priorita, fotka), sledování stavu, komentáře, timeline
-- 📅 **Kalendář** — měsíční přehled událostí ze všech modulů (revize, PENB, hlasování, dokumenty, závady, fond oprav)
+- 📅 **Kalendář** — měsíční přehled událostí ze všech modulů (revize, PENB, hlasování, dokumenty, závady, fond oprav, vlastní události)
+- 🔔 **Notifikace** — zvonkový badge s nepřečtenými, dropdown panel, volitelné preference (události, závady, hlasování, revize)
 - 🌤️ **Počasí** — aktuální + 7denní výhled u budovy (OpenMeteo, GPS z RÚIAN)
 - 👤 **Profil** — nastavení účtu, avatar
 
@@ -42,6 +43,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 - 🗺️ **Mapa budovy** — OpenStreetMap iframe + odkaz na Mapy.cz
 - 💰 **Dotace SFPI** — Panel 2020+, NZÚ, IROP, MMR s doporučením dle budovy
 - ⚠️ **Správa závad** — změna stavu (Nová/V řešení/Vyřešeno/Zamítnuto), priority, přiřazení zodpovědné osoby; smazání (admin)
+- 📅 **Vlastní události** — vytvoření, editace a smazání událostí v kalendáři (kategorie, opakování, připomenutí)
 - 📤 **Export výkazů** — PDF/XLSX/CSV pro revize, fond oprav, parkovací místa, závady
 
 ### 📬 Datová schránka (ISDS) — jen admin/výbor
@@ -180,6 +182,9 @@ sudo mysql svj_portal < api/migrations/00X_nazev.sql
 | 019 | Datová schránka ISDS (isds_id do svj) |
 | 020 | Archiv datové schránky (zprávy + přílohy) |
 | 021 | Vlastníci ↔ jednotky: telefon, jednotka_id, pronájem, vlastnici_ext |
+| 022 | Závady — zavady + zavady_historie |
+| 023 | Vlastní události v kalendáři (kalendar_udalosti) |
+| 024 | Notifikace + uživatelské preference (notifikace, users.notif_*) |
 
 Nikdy neupravuj stávající migraci — vždy přidej novou.
 

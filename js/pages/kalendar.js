@@ -8,13 +8,15 @@ var KAL_TYP_IKONY = {
   zavady:          { icon: '\u26A0\uFE0F', label: 'Z\u00e1vada' },
   zavady_uzavreno: { icon: '\u2705',       label: 'Vy\u0159e\u0161eno' },
   fond_oprav:      { icon: '\uD83D\uDCB0', label: 'Fond oprav' },
+  vlastni:         { icon: '\uD83D\uDCC5', label: 'Ud\u00e1lost' },
 };
 
 var KAL_BARVY = {
   danger:  'var(--danger, #e53e3e)',
-  warning: 'var(--warning, #f59e0b)',
-  info:    'var(--accent, #3b82f6)',
+  blue:    '#3b82f6',
+  orange:  '#f59e0b',
   success: 'var(--success, #22c55e)',
+  purple:  '#8b5cf6',
   muted:   'var(--text-light)',
 };
 
@@ -71,14 +73,28 @@ Router.register('kalendar', function(el) {
   navBar.appendChild(monthLabel);
   navBar.appendChild(nextBtn);
   navBar.appendChild(todayBtn);
+
+  var isPriv = user && (user.role === 'admin' || user.role === 'vybor');
+  if (isPriv) {
+    var addBtn = document.createElement('button');
+    addBtn.className = 'btn btn-primary';
+    addBtn.style.cssText = 'font-size:0.9rem;margin-left:auto;';
+    addBtn.textContent = '+ Nov\u00e1 ud\u00e1lost';
+    addBtn.addEventListener('click', function() {
+      var defaultDate = rok + '-' + String(mesic).padStart(2, '0') + '-01';
+      kalOpenEventModal(null, defaultDate, update);
+    });
+    navBar.appendChild(addBtn);
+  }
+
   el.appendChild(navBar);
 
   // Legend
   var legend = document.createElement('div');
   legend.style.cssText = 'display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;font-size:0.8rem;';
   [
-    ['danger', 'Revize / PENB'], ['warning', 'Hlasov\u00e1n\u00ed / Dokumenty'],
-    ['info', 'Z\u00e1vady'], ['success', 'Vy\u0159e\u0161eno'], ['muted', 'Fond oprav'],
+    ['danger', 'Revize / PENB'], ['blue', 'Hlasov\u00e1n\u00ed / Dokumenty'],
+    ['orange', 'Z\u00e1vady'], ['success', 'Vy\u0159e\u0161eno'], ['purple', 'Ud\u00e1losti'], ['muted', 'Fond oprav'],
   ].forEach(function(item) {
     var chip = document.createElement('span');
     chip.style.cssText = 'display:flex;align-items:center;gap:4px;';
@@ -230,7 +246,9 @@ function kalRenderGrid(gridWrap, detailWrap, rok, mesic, eventsByDay) {
       cell.appendChild(dotsWrap);
 
       cell.addEventListener('click', function() {
-        kalShowDayDetail(detailWrap, rok, mesic, day, dayEvents);
+        kalShowDayDetail(detailWrap, rok, mesic, day, dayEvents, function() {
+          kalLoadMonth(gridWrap, detailWrap, rok, mesic);
+        });
       });
 
       grid.appendChild(cell);
@@ -241,13 +259,15 @@ function kalRenderGrid(gridWrap, detailWrap, rok, mesic, eventsByDay) {
 
   // Show today's events by default
   if (isCurrentMonth && eventsByDay[todayDate]) {
-    kalShowDayDetail(detailWrap, rok, mesic, todayDate, eventsByDay[todayDate]);
+    kalShowDayDetail(detailWrap, rok, mesic, todayDate, eventsByDay[todayDate], function() {
+      kalLoadMonth(gridWrap, detailWrap, rok, mesic);
+    });
   }
 }
 
 /* ===== DAY DETAIL ===== */
 
-function kalShowDayDetail(wrap, rok, mesic, day, events) {
+function kalShowDayDetail(wrap, rok, mesic, day, events, onRefresh) {
   wrap.replaceChildren();
 
   var card = document.createElement('div');
@@ -307,6 +327,50 @@ function kalShowDayDetail(wrap, rok, mesic, day, events) {
       typBadge.textContent = iconInfo.label;
       row.appendChild(typBadge);
 
+      // Vlastní události — edit/delete pro admin/výbor
+      var curUser = Auth.getUser();
+      var isPriv = curUser && (curUser.role === 'admin' || curUser.role === 'vybor');
+      if (ev.typ === 'vlastni' && isPriv) {
+        var actRow = document.createElement('div');
+        actRow.style.cssText = 'display:flex;gap:6px;flex-shrink:0;';
+
+        var editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.className = 'btn btn-secondary btn-sm';
+        editBtn.style.cssText = 'padding:2px 8px;font-size:0.75rem;';
+        editBtn.textContent = 'Upravit';
+        editBtn.addEventListener('click', function(e2) {
+          e2.stopPropagation();
+          // Load full event data then open modal
+          Api.apiGet('api/kalendar_udalosti.php?action=list&rok=' + rok + '&mesic=' + mesic)
+            .then(function(data) {
+              var found = (data.udalosti || []).find(function(u) { return parseInt(u.id) === ev.id; });
+              kalOpenEventModal(found || ev, '', function() { if (onRefresh) onRefresh(); });
+            });
+        });
+
+        var delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'btn btn-sm';
+        delBtn.style.cssText = 'padding:2px 8px;font-size:0.75rem;color:var(--danger);';
+        delBtn.textContent = 'Smazat';
+        delBtn.addEventListener('click', function(e2) {
+          e2.stopPropagation();
+          showConfirmModal('Smazat ud\u00e1lost?', 'Ud\u00e1lost \"' + ev.nazev + '\" bude trvale smaz\u00e1na.', function() {
+            Api.apiPost('api/kalendar_udalosti.php?action=delete', { id: ev.id })
+              .then(function() {
+                showToast('Ud\u00e1lost smaz\u00e1na.', 'success');
+                if (onRefresh) onRefresh();
+              })
+              .catch(function(err) { showToast(err.message || 'Chyba.', 'error'); });
+          });
+        });
+
+        actRow.appendChild(editBtn);
+        actRow.appendChild(delBtn);
+        row.appendChild(actRow);
+      }
+
       // Kliknutí na událost → navigace
       row.style.cursor = 'pointer';
       row.addEventListener('click', function() {
@@ -338,6 +402,8 @@ function kalNavigateToEvent(ev) {
       Router.navigate('zavady'); break;
     case 'fond_oprav':
       Router.navigate('odom'); break;
+    case 'vlastni':
+      break; // Already on calendar
     default:
       break;
   }

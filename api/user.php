@@ -10,6 +10,8 @@ switch ($action) {
     case 'profile':        handleProfile();        break;
     case 'updateProfile':  handleUpdateProfile();  break;
     case 'changePassword': handleChangePassword(); break;
+    case 'updateNotifPrefs': handleUpdateNotifPrefs(); break;
+    case 'getNotifPrefs':    handleGetNotifPrefs();    break;
     default: jsonError('Neznámá akce', 400, 'UNKNOWN_ACTION');
 }
 
@@ -109,6 +111,52 @@ function handleChangePassword(): void
     $stmt->execute([':hash' => $newHash, ':id' => $user['id']]);
 
     jsonResponse(['ok' => true]);
+}
+
+function handleGetNotifPrefs(): void
+{
+    requireMethod('GET');
+    $user = requireAuth();
+
+    $db = getDb();
+    $stmt = $db->prepare(
+        'SELECT notif_udalosti, notif_zavady, notif_hlasovani, notif_revize FROM users WHERE id = :id'
+    );
+    $stmt->execute([':id' => $user['id']]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    jsonOk([
+        'notif_udalosti'  => (int) $row['notif_udalosti'],
+        'notif_zavady'    => (int) $row['notif_zavady'],
+        'notif_hlasovani' => (int) $row['notif_hlasovani'],
+        'notif_revize'    => (int) $row['notif_revize'],
+    ]);
+}
+
+function handleUpdateNotifPrefs(): void
+{
+    requireMethod('POST');
+    $user = requireAuth();
+    $body = getJsonBody();
+
+    $fields = ['notif_udalosti', 'notif_zavady', 'notif_hlasovani', 'notif_revize'];
+    $updates = [];
+    $params = [':id' => $user['id']];
+
+    foreach ($fields as $f) {
+        if (isset($body[$f])) {
+            $updates[] = "$f = :$f";
+            $params[":$f"] = $body[$f] ? 1 : 0;
+        }
+    }
+
+    if (empty($updates)) jsonError('Žádné změny', 422, 'VALIDATION_ERROR');
+
+    $db = getDb();
+    $db->prepare('UPDATE users SET ' . implode(', ', $updates) . ' WHERE id = :id')
+       ->execute($params);
+
+    jsonOk(['ok' => true]);
 }
 
 // updateSvj záměrně odstraněno — přiřazení SVJ probíhá výhradně přes invite tokeny.
