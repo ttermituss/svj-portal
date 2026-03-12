@@ -44,12 +44,38 @@ function merShowModal(existing, user, onSaved) {
   jednWrap.appendChild(jednSelect);
   modal.appendChild(jednWrap);
 
-  // Načti jednotky
-  Api.apiGet('api/jednotky.php?action=list').then(function(data) {
-    (data.jednotky || []).forEach(function(j) {
+  // Načti jednotky + existující měřidla pro hints
+  Promise.all([
+    Api.apiGet('api/jednotky.php?action=list'),
+    Api.apiGet('api/meridla.php?action=list'),
+  ]).then(function(results) {
+    var jednotky = results[0].jednotky || [];
+    var meridla  = results[1].meridla || [];
+
+    // Mapa: jednotka_id → pole typů měřidel
+    var merMap = {};
+    meridla.forEach(function(m) {
+      if (m.umisteni_typ === 'jednotka' && m.jednotka_id) {
+        var key = String(m.jednotka_id);
+        if (!merMap[key]) merMap[key] = [];
+        merMap[key].push(m.typ);
+      }
+    });
+
+    jednotky.forEach(function(j) {
       var opt = document.createElement('option');
       opt.value = j.id;
-      opt.textContent = j.cislo_jednotky + (j.vlastnik_jmeno ? ' \u2014 ' + j.vlastnik_jmeno : '');
+      var label = j.cislo_jednotky + (j.vlastnik_jmeno ? ' \u2014 ' + j.vlastnik_jmeno : '');
+      var typy = merMap[String(j.id)];
+      if (typy && typy.length) {
+        var icons = typy.map(function(t) { return merTypInfo(t).icon; });
+        // Odstraním duplicity
+        icons = icons.filter(function(v, i, a) { return a.indexOf(v) === i; });
+        label += ' [' + icons.join('') + ']';
+      } else {
+        label += ' (\u017e\xe1dn\xe9 m\u011b\u0159idlo)';
+      }
+      opt.textContent = label;
       if (existing && existing.jednotka_id && String(existing.jednotka_id) === String(j.id)) opt.selected = true;
       jednSelect.appendChild(opt);
     });
