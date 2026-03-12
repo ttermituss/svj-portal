@@ -6,7 +6,7 @@ var KONT_KATEGORIE = [
   { value: 'elektro',       label: 'Elektro',             icon: '\u26A1' },
   { value: 'plyn',          label: 'Plyn',                icon: '\uD83D\uDD25' },
   { value: 'voda',          label: 'Voda',                icon: '\uD83D\uDCA7' },
-  { value: 'topeni',        label: 'Top\u0165n\xed',      icon: '\uD83C\uDF21' },
+  { value: 'topeni',        label: 'Topen\xed',            icon: '\uD83C\uDF21' },
   { value: 'klicova_sluzba',label: 'Kl\xed\u010dov\xe1 slu\u017eba', icon: '\uD83D\uDD11' },
   { value: 'uklid',         label: '\xdaklid',            icon: '\uD83E\uDDF9' },
   { value: 'zahradnik',     label: 'Zahradn\xedk',        icon: '\uD83C\uDF3F' },
@@ -74,7 +74,7 @@ function kontLoad(listWrap, user) {
   listWrap.appendChild(loading);
 
   Api.apiGet('api/kontakty.php?action=list')
-    .then(function(items) { kontRenderList(listWrap, items, user); })
+    .then(function(data) { kontRenderList(listWrap, data.kontakty || [], user); })
     .catch(function() {
       listWrap.replaceChildren();
       var err = document.createElement('p');

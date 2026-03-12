@@ -33,7 +33,7 @@ function handleList(int $svjId): void
         ORDER BY kategorie, nazev
     ');
     $st->execute([$svjId]);
-    jsonOk($st->fetchAll(PDO::FETCH_ASSOC));
+    jsonOk(['kontakty' => $st->fetchAll(PDO::FETCH_ASSOC)]);
 }
 
 /* ── Save (insert / update) ───────────────────────── */
