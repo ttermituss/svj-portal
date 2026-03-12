@@ -1,4 +1,4 @@
-# SVJ Portál v1.8.0
+# SVJ Portál v1.9.0
 
 Univerzální multi-tenant webový portál pro správu **Společenství vlastníků jednotek (SVJ)** v ČR.
 
@@ -26,6 +26,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 
 ### 📋 Pro všechny členy SVJ
 - 📞 **Kontakty** — servisní firmy, řemeslníci, dodavatelé (12 kategorií); CRUD pro výbor/admin
+- 💧 **Měřidla a odečty** — vodoměry, plynoměry, elektroměry, měřiče tepla; self-service odečty, spotřeba, cejch
 - 📢 **Nástěnka** — příspěvky a oznámení
 - 🗳️ **Hlasování** — ankety s výsledky, progress bary a quorem
 - 📁 **Dokumenty** — drag & drop upload, kategorie, datum platnosti, náhled (PDF/obrázky/Markdown/TXT)
@@ -190,6 +191,7 @@ sudo mysql svj_portal < api/migrations/00X_nazev.sql
 | 025 | Bankovní účty SVJ (fond_ucty) |
 | 026 | Kontakty — servisní firmy a řemeslníci |
 | 027 | Revize rozšíření — historie, kontakt, náklady, notifikace |
+| 028 | Měřidla a odečty (meridla + odecty) |
 
 Nikdy neupravuj stávající migraci — vždy přidej novou.
 

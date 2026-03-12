@@ -61,6 +61,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
 │       ├── zavady-detail.js # detail modal — info, fotka, timeline, komentáře, admin správa
 │       ├── kalendar.js     # měsíční kalendář — události ze všech modulů, denní detail
 │       ├── kontakty.js     # stránka: servisní kontakty — karty, kategorie, CRUD modal
+│       ├── meridla.js     # stránka: měřidla — seznam karet, seskupení, cejch badge
+│       ├── meridla-modal.js # modaly: přidání/úprava měřidla + odečty (tabulka, inline přidání)
 │       ├── admin-vlastnici-ext.js # karta: neregistrovaní vlastníci (vlastnici_ext CRUD + modal)
 │       ├── admin-settings.js# karta: systémová nastavení (jen admin)
 │       └── kalendar-modal.js   # modal pro vytvoření/editaci vlastní události
@@ -89,6 +91,7 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
     ├── okoli.php           # okolí budovy: proxy Overpass API (OSM), POI v 600 m
     ├── parkovani.php       # parkovací místa: list, save (upsert), delete
     ├── kontakty.php        # kontakty: list, save (upsert), delete — servisní firmy, řemeslníci
+    ├── meridla.php         # měřidla: list, save, delete, odectyList/Save/Delete, spotreba
     ├── zavady.php          # hlášení závad: list, get, add, update, comment, delete, photo
     ├── kalendar.php        # kalendář: events (agregace ze 7 zdrojů vč. vlastních událostí)
     ├── kalendar_udalosti.php # vlastní události: list, save, delete (admin/výbor)
@@ -130,7 +133,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
         ├── 024_notifikace.sql        # tabulka notifikace + users.notif_* preference
         ├── 025_fond_ucty.sql         # tabulka fond_ucty (bankovní účty SVJ)
         ├── 026_kontakty.sql          # tabulka kontakty (servisní firmy, řemeslníci)
-        └── 027_revize_ext.sql        # revize: kontakt_id, naklady, pripomenout_dni + tabulka revize_historie
+        ├── 027_revize_ext.sql        # revize: kontakt_id, naklady, pripomenout_dni + tabulka revize_historie
+        └── 028_meridla.sql           # tabulky meridla + odecty (vodoměry, plynoměry, elektroměry…)
 ```
 
 ## Coding Standards — POVINNÉ

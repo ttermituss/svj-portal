@@ -5,6 +5,27 @@ Formát: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [1.9.0] — 2026-03-12
+
+### Přidáno
+
+#### Měřidla a odečty — nová stránka `#meridla`
+- Evidence vodoměrů, plynoměrů, elektroměrů a měřičů tepla
+- 6 typů: studená voda, teplá voda, plyn, elektřina, teplo, jiné
+- Karty seskupené dle umístění (společné / per jednotka), cejch badge (OK/Brzy/Vypršel)
+- CRUD měřidel pro admin/výbor: modal s výběrem jednotky, typ, výrobní číslo, cejchování
+- **Self-service odečty** — vlastník vidí měřidla své jednotky + může zapsat odečet
+- Modal odečtů: tabulka s historií, automatický výpočet spotřeby (delta), kdo odečetl
+- Inline přidání odečtu přímo v modalu (datum + hodnota)
+- API endpoint `api/meridla.php` (list/save/delete/odectyList/odectySave/odectyDelete/spotreba)
+- Migration: `028_meridla.sql` (tabulky `meridla` + `odecty`)
+
+#### Revize — přesun do levého menu
+- Revize mají vlastní stránku `#revize` v menu (jen admin/výbor)
+- Stránka O domě zobrazuje jen mini read-only přehled s odkazem na detail
+
+---
+
 ## [1.8.0] — 2026-03-12
 
 ### Přidáno

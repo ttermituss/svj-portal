@@ -20,11 +20,13 @@
 
 ## Fáze 3 — Měřidla a odečty
 
-- [ ] **Tabulka `meridla`** — typ (voda studená/teplá, plyn, elektřina, teplo), výrobní číslo, umístění (jednotka_id/společné), datum instalace, datum cejchu, interval cejchování
-- [ ] **Tabulka `odecty`** — meridlo_id, datum, stav (hodnota), kdo odečetl, poznámka
-- [ ] **Dashboard měřidel** — poslední odečet, spotřeba za období, upozornění na cejch
-- [ ] **Self-service odečty** — vlastník vidí měřidla své jednotky + může zadat odečet
-- [ ] **Hromadný odečet** — výbor/admin zadá odečty pro celý dům najednou
-- [ ] **Grafy spotřeby** — vývoj spotřeby v čase (per jednotka i celý dům)
-- [ ] **Export** — CSV/XLSX/PDF pro rozúčtování
-- [ ] **Migrace** `02X_meridla.sql`
+- [x] **Tabulka `meridla`** — typ (voda studená/teplá, plyn, elektřina, teplo), výrobní číslo, umístění (jednotka/společné), cejch, aktivní
+- [x] **Tabulka `odecty`** — meridlo_id, datum, stav (hodnota), kdo odečetl, poznámka
+- [x] **Dashboard měřidel** — karty seskupené dle umístění, poslední odečet, cejch badge
+- [x] **Self-service odečty** — vlastník vidí měřidla své jednotky + může zadat odečet
+- [x] **Odečty modal** — tabulka s historií odečtů, spotřeba (delta), inline přidání odečtu
+- [x] **CRUD měřidel** — admin/výbor: přidání, úprava, smazání (modal s výběrem jednotky)
+- [x] **Migrace** `028_meridla.sql`
+- [ ] **Hromadný odečet** — výbor/admin zadá odečty pro celý dům najednou (budoucí)
+- [ ] **Grafy spotřeby** — vývoj spotřeby v čase (per jednotka i celý dům) (budoucí)
+- [ ] **Export** — CSV/XLSX/PDF pro rozúčtování (budoucí)
