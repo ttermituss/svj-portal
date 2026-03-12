@@ -11,7 +11,7 @@ const SETTINGS_CIPHER     = 'AES-256-CBC';
 const SETTINGS_ENC_PREFIX = 'enc:';
 
 /** Klíče, které se šifrují automaticky při uložení. */
-const SETTINGS_SECRET_KEYS = ['smtp_heslo', 'cuzk_api_klic'];
+const SETTINGS_SECRET_KEYS = ['smtp_heslo', 'cuzk_api_klic', 'google_client_secret'];
 
 function encryptSetting(string $value): string
 {

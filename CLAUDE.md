@@ -36,6 +36,9 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
 │       ├── jednotky.js     # přehled jednotek (z KN importu)
 │       ├── dokumenty.js    # nahrávání dokumentů
 │       ├── nastaveni.js    # profil + avatar uživatele
+│       ├── nastaveni-google.js # karta: Google integrace (připojit/odpojit Google účet)
+│       ├── gmail.js           # stránka: Gmail inbox, detail zprávy, compose modal
+│       ├── kalendar-gcal.js   # modal: Google Calendar sync (push/pull)
 │       ├── admin.js        # správa portálu: router + SVJ banner + OR karta + helpery
 │       ├── admin-users.js  # karta: správa uživatelů
 │       ├── admin-invites.js# karta: pozvaánky
@@ -106,6 +109,12 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
     ├── dokumenty.php       # dokumenty: list, upload, download, preview (inline), delete
     ├── avatar.php          # upload + delete avataru
     ├── user.php            # updateProfile, changePassword, getNotifPrefs, updateNotifPrefs
+    ├── google_helper.php   # Google API klient, token store/load (AES šifrování), auto-refresh, OAuth state
+    ├── google_oauth.php    # Google OAuth: authUrl, callback, status, disconnect
+    ├── google_gmail.php    # Gmail API: inbox, message detail, send (admin/výbor)
+    ├── google_calendar.php # Google Calendar sync: push/pull/delete events
+    ├── composer.json       # Composer (google/apiclient — Calendar, Drive, Gmail, Oauth2)
+    ├── vendor/             # Composer dependencies (v .gitignore)
     └── migrations/
         ├── 001_init.sql              # základní tabulky: svj, users, sessions
         ├── 002_rate_limits.sql
@@ -134,7 +143,9 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
         ├── 025_fond_ucty.sql         # tabulka fond_ucty (bankovní účty SVJ)
         ├── 026_kontakty.sql          # tabulka kontakty (servisní firmy, řemeslníci)
         ├── 027_revize_ext.sql        # revize: kontakt_id, naklady, pripomenout_dni + tabulka revize_historie
-        └── 028_meridla.sql           # tabulky meridla + odecty (vodoměry, plynoměry, elektroměry…)
+        ├── 028_meridla.sql           # tabulky meridla + odecty (vodoměry, plynoměry, elektroměry…)
+        ├── 029_google_sync.sql       # tabulky google_tokens + google_calendar_sync
+        └── 030_google_settings.sql   # Google OAuth credentials v settings tabulce
 ```
 
 ## Coding Standards — POVINNÉ

@@ -1,12 +1,13 @@
 /* ===== SYSTÉMOVÁ NASTAVENÍ (jen admin) ===== */
 
-var SECRET_KEYS = ['api_klic', 'smtp_heslo', 'cuzk_heslo', 'cuzk_api_klic'];
+var SECRET_KEYS = ['api_klic', 'smtp_heslo', 'cuzk_heslo', 'cuzk_api_klic', 'google_client_secret'];
 
 var SETTINGS_SECTIONS = {
-  smtp: { prefix: 'smtp_',    title: 'E-mail (SMTP)' },
-  ares: { prefix: 'ares_',    title: 'Integrace: ARES (automatické načítání dat SVJ)' },
-  cuzk: { prefix: 'cuzk_',    title: 'Integrace: ČÚZK — Katastr nemovitostí (API KN)' },
-  svj:  { prefix: 'svj_',     title: 'Základní informace o portálu' },
+  smtp:   { prefix: 'smtp_',    title: 'E-mail (SMTP)' },
+  ares:   { prefix: 'ares_',    title: 'Integrace: ARES (automatick\u00e9 na\u010d\u00edt\u00e1n\u00ed dat SVJ)' },
+  cuzk:   { prefix: 'cuzk_',    title: 'Integrace: \u010c\u00daZK \u2014 Katastr nemovitost\u00ed (API KN)' },
+  google: { prefix: 'google_',  title: 'Integrace: Google (Gmail, Drive, Kalend\u00e1\u0159)' },
+  svj:    { prefix: 'svj_',     title: 'Z\u00e1kladn\u00ed informace o port\u00e1lu' },
 };
 
 function renderSystemCard(el) {
@@ -62,6 +63,18 @@ function renderSettingsForm(wrap, settings, errBox, okBox) {
         toggle.textContent = grp.input.type === 'password' ? 'Zobrazit' : 'Skr\u00fdt';
       });
       grp.el.appendChild(toggle);
+    }
+
+    // Redirect URI — auto-fill + readonly hint
+    if (s.key === 'google_redirect_uri') {
+      var autoUri = window.location.origin + '/api/google_oauth.php?action=callback';
+      if (!grp.input.value) grp.input.value = autoUri;
+      grp.input.readOnly = true;
+      grp.input.style.color = 'var(--text-light)';
+      var uriHint = document.createElement('div');
+      uriHint.style.cssText = 'font-size:0.78rem;color:var(--text-light);margin-top:3px;';
+      uriHint.textContent = 'Generov\u00e1no automaticky \u2014 tuto adresu zadejte v Google Cloud Console jako Redirect URI.';
+      grp.el.appendChild(uriHint);
     }
 
     form.appendChild(grp.el);

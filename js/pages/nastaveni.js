@@ -33,6 +33,31 @@ Router.register('nastaveni', function(el) {
   renderNotifPrefsCard(notifWrap);
   grid.appendChild(notifWrap);
 
+  // Google integrace karta — full width
+  var googleWrap = document.createElement('div');
+  googleWrap.style.cssText = 'grid-column:1/-1;';
+  renderGoogleCard(googleWrap);
+  grid.appendChild(googleWrap);
+
+  // Toast po úspěšném připojení Google
+  var params = new URLSearchParams(window.location.hash.split('?')[1] || '');
+  if (params.get('google') === 'connected') {
+    showToast('Google \u00fa\u010det byl \u00fasp\u011b\u0161n\u011b propojen.', 'success');
+    history.replaceState(null, '', '/#nastaveni');
+  }
+  if (params.get('google_error')) {
+    var errMap = {
+      session_expired: 'Sezen\u00ed vypr\u0161elo, p\u0159ihlaste se znovu.',
+      invalid_state: 'Neplatn\u00fd po\u017eadavek. Zkuste to znovu.',
+      token_exchange_failed: 'P\u0159ipojen\u00ed selhalo. Zkuste to znovu.',
+      access_denied: 'P\u0159\u00edstup byl odm\u00edtnut.',
+      not_configured: 'Google OAuth nen\u00ed nastaven. Vypl\u0148te Client ID a Secret v Syst\u00e9mov\u00fdch nastaven\u00edch.',
+      missing_params: 'Chyb\u011bj\u00edc\u00ed parametry z Google. Zkuste to znovu.',
+    };
+    showToast(errMap[params.get('google_error')] || 'Chyba p\u0159i p\u0159ipojov\u00e1n\u00ed Google \u00fa\u010dtu.', 'error');
+    history.replaceState(null, '', '/#nastaveni');
+  }
+
   // Responzivita — stacked na mobilu
   var mq = window.matchMedia('(max-width: 768px)');
   function applyMq(e) {
@@ -414,3 +439,5 @@ function renderAvatarWidget(body, user) {
     });
   });
 }
+
+/* renderGoogleCard() je v nastaveni-google.js */

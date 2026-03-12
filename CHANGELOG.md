@@ -5,6 +5,34 @@ Formát: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [2.0.0] — 2026-03-12
+
+### Přidáno
+
+#### Google integrace — OAuth 2.0, Gmail, Calendar sync
+- **OAuth 2.0** — bezpečné propojení Google účtu (per-user tokeny šifrované AES-256-CBC)
+  - HMAC-signed state parametr proti CSRF
+  - Auto-refresh tokenů, odpojení účtu
+  - Credentials (Client ID + Secret) zadává admin ve Správě portálu → Systémová nastavení (ne na serveru)
+- **Gmail** — nová stránka `#gmail` (jen admin/výbor)
+  - Čtení inboxu s vyhledáváním a stránkováním
+  - Detail zprávy v modalu (HTML v sandboxed iframe)
+  - Odesílání emailů přes propojený Google účet (UTF-8, B-encoding)
+- **Google Calendar** — obousměrná synchronizace s kalendářem portálu
+  - Push: odeslání vlastních událostí do Google Calendar (celodenní i časové)
+  - Pull: načtení událostí z Google Calendar pro aktuální měsíc
+  - Sync tracking tabulka (`google_calendar_sync`) pro deduplikaci
+  - Tlačítko „🔄 Google" v kalendáři (zobrazeno jen pokud je Google připojen)
+- **In-app průvodce** — 5 kroků jak nastavit Google Cloud projekt + FAQ
+  - Interaktivní akordeon s copy-to-clipboard na kódové bloky
+  - Auto-generated redirect URI
+- **Composer** — `google/apiclient` v2.x, cleanup script (jen Calendar/Drive/Gmail/Oauth2 services)
+- API: `google_helper.php`, `google_oauth.php`, `google_gmail.php`, `google_calendar.php`
+- Frontend: `nastaveni-google.js`, `gmail.js`, `kalendar-gcal.js`
+- Migrations: `029_google_sync.sql`, `030_google_settings.sql`
+
+---
+
 ## [1.9.0] — 2026-03-12
 
 ### Přidáno

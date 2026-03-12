@@ -5,6 +5,9 @@ api/config.php
 # Logs
 *.log
 
+# Composer
+api/vendor/
+
 # OS
 .DS_Store
 Thumbs.db

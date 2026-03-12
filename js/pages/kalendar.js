@@ -76,15 +76,39 @@ Router.register('kalendar', function(el) {
 
   var isPriv = user && (user.role === 'admin' || user.role === 'vybor');
   if (isPriv) {
+    var rightBtns = document.createElement('div');
+    rightBtns.style.cssText = 'display:flex;gap:8px;margin-left:auto;';
+
     var addBtn = document.createElement('button');
     addBtn.className = 'btn btn-primary';
-    addBtn.style.cssText = 'font-size:0.9rem;margin-left:auto;';
+    addBtn.style.cssText = 'font-size:0.9rem;';
     addBtn.textContent = '+ Nov\u00e1 ud\u00e1lost';
     addBtn.addEventListener('click', function() {
       var defaultDate = rok + '-' + String(mesic).padStart(2, '0') + '-01';
       kalOpenEventModal(null, defaultDate, update);
     });
-    navBar.appendChild(addBtn);
+    rightBtns.appendChild(addBtn);
+
+    // Google Calendar sync tlačítko
+    var syncBtn = document.createElement('button');
+    syncBtn.className = 'btn btn-secondary';
+    syncBtn.style.cssText = 'font-size:0.85rem;display:none;';
+    syncBtn.title = 'Synchronizovat s Google Calendar';
+    syncBtn.textContent = '\uD83D\uDD04 Google';
+    rightBtns.appendChild(syncBtn);
+    navBar.appendChild(rightBtns);
+
+    // Zobrazit sync tlačítko jen pokud je Google Calendar propojený
+    Api.apiGet('api/google_calendar.php?action=status')
+      .then(function(d) {
+        if (d.connected) {
+          syncBtn.style.display = '';
+          syncBtn.addEventListener('click', function() {
+            openGcalSyncModal(rok, mesic, update);
+          });
+        }
+      })
+      .catch(function() {});
   }
 
   el.appendChild(navBar);

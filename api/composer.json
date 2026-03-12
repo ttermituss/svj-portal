@@ -1,0 +1,23 @@
+{
+    "name": "svj-portal/api",
+    "description": "SVJ Portal API backend",
+    "require": {
+        "php": ">=8.4",
+        "google/apiclient": "^2.16"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "scripts": {
+        "pre-autoload-dump": "Google\\Task\\Composer::cleanup"
+    },
+    "extra": {
+        "google/apiclient-services": [
+            "Calendar",
+            "Drive",
+            "Gmail",
+            "Oauth2"
+        ]
+    }
+}

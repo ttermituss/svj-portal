@@ -1,4 +1,4 @@
-# SVJ Portál v1.9.0
+# SVJ Portál v2.0.0
 
 Univerzální multi-tenant webový portál pro správu **Společenství vlastníků jednotek (SVJ)** v ČR.
 
@@ -6,7 +6,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 
 | Vrstva | Technologie |
 |---|---|
-| Backend | PHP 8.4 |
+| Backend | PHP 8.4 + Composer (google/apiclient) |
 | Databáze | MySQL 8.4 |
 | Frontend | Vanilla JS (žádný framework, žádný build step) |
 | Webserver | Apache + mod_rewrite |
@@ -55,12 +55,19 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 - **Náhled příloh** — HTML inline (sandboxed iframe), PDF inline, stažení libovolného souboru
 - **Průvodce** — 5 kroků jak stáhnout ZFO z mojedatovaschranka.cz + FAQ (fikce doručení, 90denní mazání...)
 
+### 📧 Google integrace — jen admin/výbor
+- **Gmail** — čtení inboxu, detail zprávy, odesílání emailů přes propojený Google účet
+- **Google Calendar** — obousměrná synchronizace událostí (push do Google, pull z Google)
+- **OAuth 2.0** — bezpečné propojení Google účtu, tokeny šifrované AES-256-CBC
+- **In-app průvodce** — 5 kroků jak nastavit Google Cloud projekt + FAQ
+- **Nastavení v UI** — Client ID + Secret zadává admin ve Správě portálu (ne na serveru)
+
 ### ⚙️ Pro správce (admin)
 - 👥 **Správa uživatelů** — role, pozvánky, smazání; přiřazení jednotky + telefon
 - 👤 **Neregistrovaní vlastníci** — evidence kontaktů a propojení s jednotkami (vlastnici_ext)
 - 🏛️ **OR / ARES** — statutární orgán z Obchodního rejstříku
 - 📬 **ID datové schránky** — uložení ISDS ID, odkaz na ověření (mojedatovaschranka.cz)
-- ⚙️ **Systémová nastavení** — ČÚZK API klíč (šifrovaný AES-256)
+- ⚙️ **Systémová nastavení** — ČÚZK API klíč, Google OAuth credentials (šifrováno AES-256-CBC)
 
 ---
 
@@ -77,6 +84,9 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 | cenovamapa.org | Cenové mapy bytů | Deep link (bez API) |
 | mojedatovaschranka.cz | Ověření datové schránky + archiv zpráv (ZFO) | Deep link (bez API) |
 | api.qrserver.com | QR kódy jednotek | Zdarma, bez klíče |
+| Google Gmail API | Čtení inboxu, odesílání emailů | OAuth 2.0 |
+| Google Calendar API | Synchronizace událostí | OAuth 2.0 |
+| Google Drive API | Správa dokumentů (připraveno) | OAuth 2.0 |
 
 ---
 
@@ -84,6 +94,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 
 ### Požadavky
 - PHP 8.4+ s rozšířeními: `pdo_mysql`, `curl`, `json`, `openssl`, `fileinfo`, `zlib`, `mbstring`
+- Composer (pro Google API client)
 - MySQL 8.4+
 - Apache s `mod_rewrite`
 
@@ -101,10 +112,15 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
    php -r "echo bin2hex(random_bytes(32));"
    ```
 
-3. **Spusť migrace**
+3. **Nainstaluj závislosti**
+   ```bash
+   cd api && composer install --no-dev --prefer-dist && cd ..
+   ```
+
+4. **Spusť migrace**
    ```bash
    for f in api/migrations/*.sql; do sudo mysql svj_portal < "$f"; done
-   # Aktuálně: 001–021 (init → vlastnici_ext)
+   # Aktuálně: 001–030
    ```
 
 4. **Nastav Apache virtualhost**
@@ -192,6 +208,8 @@ sudo mysql svj_portal < api/migrations/00X_nazev.sql
 | 026 | Kontakty — servisní firmy a řemeslníci |
 | 027 | Revize rozšíření — historie, kontakt, náklady, notifikace |
 | 028 | Měřidla a odečty (meridla + odecty) |
+| 029 | Google sync (google_tokens + google_calendar_sync) |
+| 030 | Google settings (client_id, secret, redirect_uri) |
 
 Nikdy neupravuj stávající migraci — vždy přidej novou.
 

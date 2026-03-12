@@ -27,8 +27,9 @@ var NAV_ITEMS_AUTH = [
 var NAV_ITEMS_ADMIN = [
   { page: 'revize',     icon: '\uD83D\uDD27', label: 'Revize' },
   { page: 'fond-oprav', icon: '\uD83D\uDCB0', label: 'Fond oprav' },
-  { page: 'datovka', icon: '\uD83D\uDCEC', label: 'Datová schránka' },
-  { page: 'admin',   icon: '\uD83D\uDEE1\uFE0F', label: 'Správa portálu' },
+  { page: 'datovka', icon: '\uD83D\uDCEC', label: 'Datov\u00e1 schr\u00e1nka' },
+  { page: 'gmail',   icon: '\uD83D\uDCE7', label: 'Gmail' },
+  { page: 'admin',   icon: '\uD83D\uDEE1\uFE0F', label: 'Spr\u00e1va port\u00e1lu' },
 ];
 
 function renderNavItems(nav, items) {

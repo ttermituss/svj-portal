@@ -166,8 +166,9 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 
 ## 💡 Nápady do budoucna
 
-- Měřidla a odečty — vodoměry, plynoměry, elektroměry, měřiče tepla; self-service odečty, hromadný odečet, grafy spotřeby
-- Revize — vylepšení: historie revizí (archiv), revizní firma (propojení s kontakty), závady z revize, náklady, notifikace
+- Google Drive — napojení na modul Dokumenty (upload/download do Google Drive, sdílení)
+- CLI skripty — `cli/google-gmail.php`, `cli/google-drive.php`, `cli/google-calendar.php`
+- Google Calendar webhooky — push notifikace ze strany Google (watch kanály, cron obnova)
 - Push notifikace (PWA) — rozšíření stávajících in-app notifikací o browser push
 - Mobilní app (PWA shell)
 - API pro správcovské firmy (multi-SVJ správa)
@@ -190,3 +191,4 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 - [x] **Kontakty** — servisní firmy a řemeslníci (12 kategorií), CRUD pro admin/výbor, read-only pro vlastníky, seskupení dle kategorie
 - [x] **Revize — rozšíření** — historie (archiv), revizní firma (z kontaktů), výsledek (ok/závady/nezpůsobilé), náklady, notifikace před vypršením
 - [x] **Měřidla a odečty** — vodoměry, plynoměry, elektroměry, měřiče tepla; self-service odečty, spotřeba, cejch upozornění
+- [x] **Google integrace** — OAuth 2.0, Gmail (inbox + odesílání), Google Calendar sync (push/pull), in-app průvodce nastavením, credentials v admin settings
