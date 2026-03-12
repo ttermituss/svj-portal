@@ -1,4 +1,4 @@
-# SVJ Portál v1.7.0
+# SVJ Portál v1.8.0
 
 Univerzální multi-tenant webový portál pro správu **Společenství vlastníků jednotek (SVJ)** v ČR.
 
@@ -25,6 +25,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 - 📊 **Cenová mapa** — přímé odkazy na cenovamapa.org, ČÚZK cenové mapy, Sreality
 
 ### 📋 Pro všechny členy SVJ
+- 📞 **Kontakty** — servisní firmy, řemeslníci, dodavatelé (12 kategorií); CRUD pro výbor/admin
 - 📢 **Nástěnka** — příspěvky a oznámení
 - 🗳️ **Hlasování** — ankety s výsledky, progress bary a quorem
 - 📁 **Dokumenty** — drag & drop upload, kategorie, datum platnosti, náhled (PDF/obrázky/Markdown/TXT)
@@ -187,6 +188,7 @@ sudo mysql svj_portal < api/migrations/00X_nazev.sql
 | 023 | Vlastní události v kalendáři (kalendar_udalosti) |
 | 024 | Notifikace + uživatelské preference (notifikace, users.notif_*) |
 | 025 | Bankovní účty SVJ (fond_ucty) |
+| 026 | Kontakty — servisní firmy a řemeslníci |
 
 Nikdy neupravuj stávající migraci — vždy přidej novou.
 

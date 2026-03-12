@@ -166,6 +166,8 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 
 ## 💡 Nápady do budoucna
 
+- Měřidla a odečty — vodoměry, plynoměry, elektroměry, měřiče tepla; self-service odečty, hromadný odečet, grafy spotřeby
+- Revize — vylepšení: historie revizí (archiv), revizní firma (propojení s kontakty), závady z revize, náklady, notifikace
 - Push notifikace (PWA) — rozšíření stávajících in-app notifikací o browser push
 - Mobilní app (PWA shell)
 - API pro správcovské firmy (multi-SVJ správa)
@@ -185,3 +187,4 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 - [x] **Vlastní události v kalendáři** — admin/výbor vytváří události (schůzka, údržba, kontrola…), editace, smazání
 - [x] **Notifikace** — zvonkový badge, dropdown panel, per-user preference (události, závady, hlasování, revize)
 - [x] **Fond oprav — dashboard** — separátní stránka, bankovní účty, roční přehled, trend graf, top výdaje, průměry
+- [x] **Kontakty** — servisní firmy a řemeslníci (12 kategorií), CRUD pro admin/výbor, read-only pro vlastníky, seskupení dle kategorie

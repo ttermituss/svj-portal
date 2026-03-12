@@ -5,6 +5,22 @@ Formát: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [1.8.0] — 2026-03-12
+
+### Přidáno
+
+#### Kontakty — servisní firmy a řemeslníci (`#kontakty`)
+- Nová stránka přístupná všem přihlášeným členům SVJ
+- Evidence důležitých kontaktů: název, telefon, email, web, adresa, poznámka
+- 12 kategorií: správce, výtah, elektro, plyn, voda, topení, klíčová služba, úklid, zahradník, pojišťovna, účetní, jiné
+- Karty seskupené dle kategorie s ikonami, klikatelné telefony/emaily/weby
+- CRUD modal pro admin/výbor (přidání, úprava, smazání s potvrzením)
+- Read-only přehled pro řadové vlastníky
+- API endpoint `api/kontakty.php` (list/save/delete, tenant isolation)
+- Migration: `026_kontakty.sql`
+
+---
+
 ## [1.7.0] — 2026-03-12
 
 ### Přidáno
