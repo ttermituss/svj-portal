@@ -168,7 +168,6 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 
 - Push notifikace (PWA) — plomby, hlasování, novinky na nástěnce
 - Mobilní app (PWA shell)
-- Export do PDF (jsPDF nebo wkhtmltopdf na serveru)
 - API pro správcovské firmy (multi-SVJ správa)
 
 ## ✅ Hotovo (doplňky po v1.0.0)
@@ -180,3 +179,4 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 - [x] **Propojení vlastníků s jednotkami** — `users.jednotka_id`, telefon, přiřazení v admin; sloupec Vlastník v Jednotkách
 - [x] **Pronájmy a nájemci** — příznak + kontakt na nájemce u každé jednotky, modal Upravit (výbor/admin), badge v přehledu
 - [x] **Neregistrovaní vlastníci (`vlastnici_ext`)** — evidence jméno/telefon/email/jednotka bez portálového účtu, CRUD v admin kartě
+- [x] **Export do PDF** — pure PHP PDF generátor s DejaVu Sans fontem, A4 landscape, stránkování, české znaky; vlastníci, jednotky, fond oprav, revize

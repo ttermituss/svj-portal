@@ -5,6 +5,23 @@ Formát: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [1.4.0] — 2026-03-12
+
+### Přidáno
+
+#### Export do PDF
+- Nový formát `pdf` v `api/export.php` vedle stávajících `xlsx` a `csv`
+- Pure PHP PDF generátor `api/pdf_helper.php` — žádné externí závislosti
+- Embeddovaný font **DejaVu Sans** (Regular + Bold) v `api/fonts/` — plná podpora českých znaků (č, ř, ě, š, ž, ů, ď, ť, ň)
+- TTF parser (cmap + hmtx) pro správné šířky glyfů a CIDFont Type2 embedding
+- A4 landscape, automatické stránkování, hlavička tabulky na každé stránce
+- Alternující řádky, titulek s názvem SVJ, patička s datem a číslem stránky
+- Automatický výpočet šířek sloupců, truncation s elipsou pro dlouhý text
+- Tlačítko „Export PDF" na stránkách: Jednotky, Vlastníci, Fond oprav, Revize
+- `.htaccess` v `api/fonts/` blokuje přímý přístup k fontům přes web
+
+---
+
 ## [1.3.0] — 2026-03-11
 
 ### Přidáno

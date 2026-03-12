@@ -85,11 +85,11 @@ function renderTable(body, jednotky, isPriv, reloadFn) {
   printBtn.addEventListener('click', function() { jednotkyPrintQr(jednotky, svj); });
   actions.appendChild(printBtn);
 
-  ['xlsx', 'csv'].forEach(function(fmt) {
+  ['pdf', 'xlsx', 'csv'].forEach(function(fmt) {
     var btn = document.createElement('button');
     btn.className = 'btn btn-secondary';
     btn.style.fontSize = '0.82rem';
-    btn.textContent = fmt === 'xlsx' ? '\uD83D\uDCCA Export XLSX' : '\uD83D\uDCC4 Export CSV';
+    btn.textContent = fmt === 'pdf' ? '\uD83D\uDCC3 Export PDF' : fmt === 'xlsx' ? '\uD83D\uDCCA Export XLSX' : '\uD83D\uDCC4 Export CSV';
     btn.addEventListener('click', function() {
       window.location.href = 'api/export.php?type=jednotky&format=' + fmt;
     });

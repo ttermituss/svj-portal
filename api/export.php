@@ -3,13 +3,14 @@ require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/middleware.php';
 require_once __DIR__ . '/xlsx_helper.php';
+require_once __DIR__ . '/pdf_helper.php';
 
 $user   = requireAuth();
 $svjId  = $user['svj_id'];
 $type   = $_GET['type']   ?? '';
 $format = $_GET['format'] ?? 'csv';
 
-if (!in_array($format, ['csv', 'xlsx'], true)) jsonError('Nepodporovaný formát', 400);
+if (!in_array($format, ['csv', 'xlsx', 'pdf'], true)) jsonError('Nepodporovaný formát', 400);
 
 $allowed = ['vlastnici', 'jednotky', 'fond_oprav', 'revize', 'parkovani'];
 if (!in_array($type, $allowed, true)) jsonError('Nepodporovaný typ exportu', 400);
@@ -139,14 +140,23 @@ switch ($type) {
 }
 
 $date = date('Y-m-d');
-if ($format === 'xlsx') {
+if ($format === 'pdf') {
+    $svjStmt = $db->prepare('SELECT nazev FROM svj WHERE id = ?');
+    $svjStmt->execute([$svjId]);
+    $svjName = $svjStmt->fetchColumn() ?: '';
+    $pdfTitle = $sheet . ($svjName ? ' — ' . $svjName : '');
+    $bytes = buildPdf($headers, $data, $pdfTitle, 'Export ' . date('d.m.Y H:i'));
+    header('Content-Type: application/pdf');
+    header('Content-Disposition: attachment; filename="' . $filename . '_' . $date . '.pdf"');
+    header('Content-Length: ' . strlen($bytes));
+    echo $bytes;
+} elseif ($format === 'xlsx') {
     $bytes = buildXlsx($headers, $data, $sheet);
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     header('Content-Disposition: attachment; filename="' . $filename . '_' . $date . '.xlsx"');
     header('Content-Length: ' . strlen($bytes));
     echo $bytes;
 } else {
-    // CSV s UTF-8 BOM pro správné otevření v Excel
     header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="' . $filename . '_' . $date . '.csv"');
     $out = fopen('php://output', 'w');

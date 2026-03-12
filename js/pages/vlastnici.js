@@ -101,11 +101,11 @@ function renderTableReg(body, vlastnici, isPriv) {
   if (isPriv) {
     var actions = document.createElement('div');
     actions.style.cssText = 'display:flex;gap:8px;justify-content:flex-end;margin-bottom:12px;';
-    ['xlsx', 'csv'].forEach(function(fmt) {
+    ['pdf', 'xlsx', 'csv'].forEach(function(fmt) {
       var btn = document.createElement('button');
       btn.className = 'btn btn-secondary';
       btn.style.fontSize = '0.82rem';
-      btn.textContent = fmt === 'xlsx' ? '\uD83D\uDCCA Export XLSX' : '\uD83D\uDCC4 Export CSV';
+      btn.textContent = fmt === 'pdf' ? '\uD83D\uDCC3 Export PDF' : fmt === 'xlsx' ? '\uD83D\uDCCA Export XLSX' : '\uD83D\uDCC4 Export CSV';
       btn.addEventListener('click', function() { exportVlastnici(fmt); });
       actions.appendChild(btn);
     });

@@ -1,4 +1,4 @@
-# SVJ Portál v1.3.0
+# SVJ Portál v1.4.0
 
 Univerzální multi-tenant webový portál pro správu **Společenství vlastníků jednotek (SVJ)** v ČR.
 
@@ -32,14 +32,14 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 - 👤 **Profil** — nastavení účtu, avatar
 
 ### 👥 Pro výbor a správce
-- 🏘️ **Jednotky** — přehled z KN (Vlastník, Využití, Podíl, LV, K.ú., plomba badge), QR kódy + tisk, export XLSX/CSV
+- 🏘️ **Jednotky** — přehled z KN (Vlastník, Využití, Podíl, LV, K.ú., plomba badge), QR kódy + tisk, export PDF/XLSX/CSV
 - 🔑 **Pronájmy** — označení pronajímané jednotky + evidence kontaktu na nájemce
-- 👥 **Vlastníci** — registrovaní členové + neregistrovaní vlastníci; telefon, přiřazená jednotka, ISIR deep link, export XLSX/CSV
+- 👥 **Vlastníci** — registrovaní členové + neregistrovaní vlastníci; telefon, přiřazená jednotka, ISIR deep link, export PDF/XLSX/CSV
 - 🗳️ **Hlasování** — vytvoření, ukončení, doplnění externích hlasů (papír/email/schůze)
 - 🏗️ **ČÚZK KN** — import jednotek, parcel a stavby z Katastru nemovitostí
 - 🗺️ **Mapa budovy** — OpenStreetMap iframe + odkaz na Mapy.cz
 - 💰 **Dotace SFPI** — Panel 2020+, NZÚ, IROP, MMR s doporučením dle budovy
-- 📤 **Export výkazů** — XLSX/CSV pro revize, fond oprav, parkovací místa
+- 📤 **Export výkazů** — PDF/XLSX/CSV pro revize, fond oprav, parkovací místa
 
 ### 📬 Datová schránka (ISDS) — jen admin/výbor
 - **Archiv zpráv** — upload `.zfo` souborů (drag & drop), kartotéka s odesílatelem, předmětem, datem
@@ -75,7 +75,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 ## Instalace
 
 ### Požadavky
-- PHP 8.4+ s rozšířeními: `pdo_mysql`, `curl`, `json`, `openssl`, `fileinfo`
+- PHP 8.4+ s rozšířeními: `pdo_mysql`, `curl`, `json`, `openssl`, `fileinfo`, `zlib`, `mbstring`
 - MySQL 8.4+
 - Apache s `mod_rewrite`
 

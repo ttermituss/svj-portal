@@ -78,8 +78,13 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
     ├── fond_oprav.php      # fond oprav: list, stats (měsíce), add, delete
     ├── okoli.php           # okolí budovy: proxy Overpass API (OSM), POI v 600 m
     ├── parkovani.php       # parkovací místa: list, save (upsert), delete
-    ├── export.php          # export výkazů: CSV/XLSX (vlastnici/jednotky/fond_oprav/revize/parkovani)
+    ├── export.php          # export výkazů: PDF/CSV/XLSX (vlastnici/jednotky/fond_oprav/revize/parkovani)
     ├── xlsx_helper.php     # minimální XLSX writer (ZipArchive, žádné závislosti)
+    ├── pdf_helper.php      # minimální PDF writer (TTF embedding, CIDFont, žádné závislosti)
+    ├── fonts/
+    │   ├── DejaVuSans.ttf      # font pro PDF export (české znaky)
+    │   ├── DejaVuSans-Bold.ttf # tučný font pro PDF export
+    │   └── .htaccess           # blokuje přímý přístup
     ├── dokumenty.php       # dokumenty: list, upload, download, preview (inline), delete
     ├── avatar.php          # upload + delete avataru
     ├── user.php            # updateProfile

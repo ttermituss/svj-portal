@@ -47,11 +47,11 @@ function renderFondOpravCard(el, user) {
 
     var exportWrap = document.createElement('div');
     exportWrap.style.cssText = 'display:inline-flex;gap:6px;margin-left:8px;';
-    ['xlsx', 'csv'].forEach(function(fmt) {
+    ['pdf', 'xlsx', 'csv'].forEach(function(fmt) {
       var btn = document.createElement('button');
       btn.className = 'btn btn-secondary btn-sm';
       btn.style.marginTop = '12px';
-      btn.textContent = fmt === 'xlsx' ? '\uD83D\uDCCA XLSX' : '\uD83D\uDCC4 CSV';
+      btn.textContent = fmt === 'pdf' ? '\uD83D\uDCC3 PDF' : fmt === 'xlsx' ? '\uD83D\uDCCA XLSX' : '\uD83D\uDCC4 CSV';
       btn.addEventListener('click', function() {
         window.location.href = 'api/export.php?type=fond_oprav&format=' + fmt;
       });
