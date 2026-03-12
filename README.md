@@ -18,7 +18,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 ### 🏢 O domě — pro všechny vlastníky
 - 🏗️ **Info o budově** — adresa, GPS, rok dokončení, konstrukce, podlaží, výtah, vytápění (z RÚIAN/KN)
 - ⚡ **PENB** — průkaz energetické náročnosti (třída A–G, platnost, upload PDF, upozornění na vypršení)
-- 🔧 **Evidence revizí** — výtah, elektro, plyn, hromosvod, hasicí přístroje; automatický výpočet termínů
+- 🔧 **Evidence revizí** — výtah, elektro, plyn, hromosvod, hasicí přístroje; historie (archiv), revizní firma, náklady, notifikace
 - 💰 **Fond oprav** — příjmy/výdaje, zůstatek, měsíční sloupcový graf (read-only přehled)
 - 🗺️ **Okolí budovy** — MHD, obchody, lékárny, banky, pošta v okruhu 600 m (OpenStreetMap)
 - 🅿️ **Parkovací místa** — evidence garáží a stání, přiřazení k jednotce nebo nájemci
@@ -189,6 +189,7 @@ sudo mysql svj_portal < api/migrations/00X_nazev.sql
 | 024 | Notifikace + uživatelské preference (notifikace, users.notif_*) |
 | 025 | Bankovní účty SVJ (fond_ucty) |
 | 026 | Kontakty — servisní firmy a řemeslníci |
+| 027 | Revize rozšíření — historie, kontakt, náklady, notifikace |
 
 Nikdy neupravuj stávající migraci — vždy přidej novou.
 

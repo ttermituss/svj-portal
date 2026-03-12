@@ -188,3 +188,4 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 - [x] **Notifikace** — zvonkový badge, dropdown panel, per-user preference (události, závady, hlasování, revize)
 - [x] **Fond oprav — dashboard** — separátní stránka, bankovní účty, roční přehled, trend graf, top výdaje, průměry
 - [x] **Kontakty** — servisní firmy a řemeslníci (12 kategorií), CRUD pro admin/výbor, read-only pro vlastníky, seskupení dle kategorie
+- [x] **Revize — rozšíření** — historie (archiv), revizní firma (z kontaktů), výsledek (ok/závady/nezpůsobilé), náklady, notifikace před vypršením

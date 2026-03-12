@@ -9,6 +9,17 @@ Formát: [Semantic Versioning](https://semver.org/)
 
 ### Přidáno
 
+#### Revize — rozšíření (historie, kontakty, notifikace)
+- **Historie revizí** — archiv všech provedených revizí v modalu s timeline (datum, výsledek, náklady, PDF)
+- **Výsledek revize** — ok / se závadami / nezpůsobilé — barevné badge
+- **Revizní firma** — propojení s katalogem kontaktů (FK, select v formuláři)
+- **Náklady** — evidence ceny na hlavní revizi i na každém záznamu historie
+- **Notifikace** — konfigurovatelné připomenutí X dní před vypršením termínu (per revize)
+- CRUD na historii: přidání, úprava, smazání, upload PDF protokolu per záznam
+- API rozšířeno: `historieList`, `historieSave`, `historieDelete`, `historieDownload`
+- Frontend rozdělen na 3 soubory: `admin-revize.js` (seznam), `admin-revize-form.js` (formulář), `admin-revize-historie.js` (modal)
+- Migration: `027_revize_ext.sql` (sloupce `kontakt_id`, `naklady`, `pripomenout_dni` + tabulka `revize_historie`)
+
 #### Kontakty — servisní firmy a řemeslníci (`#kontakty`)
 - Nová stránka přístupná všem přihlášeným členům SVJ
 - Evidence důležitých kontaktů: název, telefon, email, web, adresa, poznámka

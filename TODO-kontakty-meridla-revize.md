@@ -11,11 +11,12 @@
 
 ## Fáze 2 — Revize vylepšení
 
-- [ ] **Historie revizí** — archiv všech revizí (ne jen poslední), timeline
-- [ ] **Revizní firma/technik** — propojení s kontakty (FK nebo volný text)
-- [ ] **Závady z revize** — seznam závad s termínem odstranění
-- [ ] **Náklady revize** — kolik stála (volitelné propojení s fondem oprav)
-- [ ] **Notifikace** — upozornění X dní před vypršením revize (infrastruktura již existuje)
+- [x] **Historie revizí** — archiv všech revizí (ne jen poslední), modal s timeline, CRUD, PDF protokol per záznam
+- [x] **Revizní firma/technik** — propojení s kontakty (FK `kontakt_id`), select z katalogu kontaktů
+- [x] **Výsledek revize** — ok / se závadami / nezpůsobilé (badge s barvou)
+- [x] **Náklady revize** — kolik stála (na hlavní revizi i na každém záznamu historie)
+- [x] **Notifikace** — upozornění X dní před vypršením revize (konfigurovatelné per revize)
+- [ ] **Závady z revize** — seznam závad z revizní zprávy s termínem odstranění (budoucí rozšíření)
 
 ## Fáze 3 — Měřidla a odečty
 

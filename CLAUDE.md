@@ -42,7 +42,9 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
 │       ├── admin-kn.js     # karta: ČÚZK KN import jednotek
 │       ├── admin-sfpi.js   # karta: dotace pro SVJ (Panel 2020+, NZÚ, IROP…)
 │       ├── admin-penb.js   # karta: PENB — průkaz energetické náročnosti (třída, platnost, PDF)
-│       ├── admin-revize.js # karta: evidence revizí (výtah, elektro, plyn…) + PDF protokol
+│       ├── admin-revize.js # karta: evidence revizí — seznam, status badge, historie tlačítko
+│       ├── admin-revize-form.js  # formulář přidání/úpravy revize (kontakt, náklady, připomenutí)
+│       ├── admin-revize-historie.js # modal historie: archiv revizí (výsledek, PDF, kontakt, CRUD)
 │       ├── admin-fond-oprav.js # karta: fond oprav — READ-ONLY mini (zůstatek + graf) pro O domě
 │       ├── fond-oprav.js      # stránka: fond oprav dashboard (admin/výbor) — grafy, trend, účty
 │       ├── fond-oprav-detail.js # fond oprav: roční tabulka, statistiky, účty render, záznamy
@@ -127,7 +129,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
         ├── 023_kalendar_udalosti.sql # tabulka kalendar_udalosti (vlastní události)
         ├── 024_notifikace.sql        # tabulka notifikace + users.notif_* preference
         ├── 025_fond_ucty.sql         # tabulka fond_ucty (bankovní účty SVJ)
-        └── 026_kontakty.sql          # tabulka kontakty (servisní firmy, řemeslníci)
+        ├── 026_kontakty.sql          # tabulka kontakty (servisní firmy, řemeslníci)
+        └── 027_revize_ext.sql        # revize: kontakt_id, naklady, pripomenout_dni + tabulka revize_historie
 ```
 
 ## Coding Standards — POVINNÉ

@@ -22,6 +22,16 @@ function revizeDefaultInterval(typ) {
   return t ? t.interval : null;
 }
 
+/* Sdílený cache kontaktů pro selecty */
+var _revKontaktyCache = null;
+function revizeLoadKontakty() {
+  if (_revKontaktyCache) return Promise.resolve(_revKontaktyCache);
+  return Api.apiGet('api/kontakty.php?action=list').then(function(d) {
+    _revKontaktyCache = d.kontakty || [];
+    return _revKontaktyCache;
+  }).catch(function() { return []; });
+}
+
 function renderRevizeCard(el, user) {
   if (!user.svj_id) return;
 
@@ -30,7 +40,7 @@ function renderRevizeCard(el, user) {
 
   var hint = document.createElement('p');
   hint.style.cssText = 'margin:0 0 14px;font-size:0.88rem;color:var(--text-light);';
-  hint.textContent = 'Sledování termín\u016f povinných revizí (v\xfdtah, elektro, plyn, hromosvod, hasi\u010d\xed p\u0159\xedstroje\u2026). Upozorn\u011bn\xed p\u0159i bl\xed\u017e\xedc\xedm se nebo prohl\xe9\u0161en\xe9m termínu.';
+  hint.textContent = 'Sledov\xe1n\xed term\xedn\u016f povinn\xfdch reviz\xed. Upozorn\u011bn\xed p\u0159i bl\xed\u017e\xedc\xedm se nebo prohl\xe9\u0161en\xe9m term\xednu.';
   body.appendChild(hint);
 
   var isPriv = user.role === 'admin' || user.role === 'vybor';
@@ -84,7 +94,7 @@ function revizeLoad(listWrap, formWrap, user) {
       listWrap.replaceChildren();
       var err = document.createElement('p');
       err.style.cssText = 'color:var(--danger);font-size:0.9rem;';
-      err.textContent = 'Chyba p\u0159i na\u010d\xedt\xe1n\xed revizí.';
+      err.textContent = 'Chyba p\u0159i na\u010d\xedt\xe1n\xed reviz\xed.';
       listWrap.appendChild(err);
     });
 }
@@ -96,7 +106,7 @@ function revizeRenderList(listWrap, formWrap, items, user) {
   if (!items.length) {
     var empty = document.createElement('p');
     empty.style.cssText = 'color:var(--text-light);font-size:0.9rem;margin:0 0 4px;';
-    empty.textContent = 'Zatím nejsou evidovány \u017e\xe1dn\xe9 revize.';
+    empty.textContent = 'Zat\xedm nejsou evidov\xe1ny \u017e\xe1dn\xe9 revize.';
     listWrap.appendChild(empty);
     return;
   }
@@ -110,13 +120,10 @@ function revizeMakeRow(rev, isPriv, listWrap, formWrap, user) {
   var status = revizeStatus(rev.datum_pristi);
 
   var row = document.createElement('div');
-  row.style.cssText = [
-    'display:flex', 'align-items:flex-start', 'gap:12px',
-    'padding:12px 0', 'border-bottom:1px solid var(--border)',
-    'flex-wrap:wrap',
-  ].join(';');
+  row.style.cssText = 'display:flex;align-items:flex-start;gap:12px;padding:12px 0;' +
+    'border-bottom:1px solid var(--border);flex-wrap:wrap;';
 
-  // Ikona + typ
+  // Ikona
   var iconWrap = document.createElement('div');
   iconWrap.style.cssText = 'font-size:1.4rem;flex-shrink:0;width:36px;text-align:center;padding-top:2px;';
   iconWrap.textContent = revizeTypIcon(rev.typ);
@@ -144,6 +151,22 @@ function revizeMakeRow(rev, isPriv, listWrap, formWrap, user) {
   }
   info.appendChild(datesEl);
 
+  // Kontakt
+  if (rev.kontakt_nazev) {
+    var kontEl = document.createElement('div');
+    kontEl.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:2px;';
+    kontEl.textContent = '\uD83D\uDCDE ' + rev.kontakt_nazev;
+    info.appendChild(kontEl);
+  }
+
+  // Náklady
+  if (rev.naklady && parseFloat(rev.naklady) > 0) {
+    var nakEl = document.createElement('div');
+    nakEl.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:2px;';
+    nakEl.textContent = '\uD83D\uDCB0 ' + parseFloat(rev.naklady).toLocaleString('cs-CZ') + ' K\u010d';
+    info.appendChild(nakEl);
+  }
+
   if (rev.poznamka) {
     var pozEl = document.createElement('div');
     pozEl.style.cssText = 'font-size:0.8rem;color:var(--text-light);margin-top:3px;';
@@ -153,27 +176,22 @@ function revizeMakeRow(rev, isPriv, listWrap, formWrap, user) {
 
   row.appendChild(info);
 
-  // Status badge + datum příští
+  // Status badge + akce
   var rightCol = document.createElement('div');
   rightCol.style.cssText = 'display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;';
 
   if (rev.datum_pristi) {
     var badge = document.createElement('span');
-    badge.style.cssText = [
-      'display:inline-block', 'padding:3px 10px', 'border-radius:20px',
-      'font-size:0.78rem', 'font-weight:600', 'white-space:nowrap',
-    ].join(';');
+    badge.style.cssText = 'display:inline-block;padding:3px 10px;border-radius:20px;' +
+      'font-size:0.78rem;font-weight:600;white-space:nowrap;';
     if (status === 'expired') {
-      badge.style.background = 'var(--danger)';
-      badge.style.color = '#fff';
-      badge.textContent = '\u26A0 Prohl\xe1sl\xe1!';
+      badge.style.background = 'var(--danger)'; badge.style.color = '#fff';
+      badge.textContent = '\u26A0 Prohl\xe1\u0161l\xe1!';
     } else if (status === 'warning') {
-      badge.style.background = '#f08600';
-      badge.style.color = '#fff';
+      badge.style.background = '#f08600'; badge.style.color = '#fff';
       badge.textContent = '\u26A0 Brzy vypr\u0161\xed';
     } else {
-      badge.style.background = 'var(--accent)';
-      badge.style.color = '#fff';
+      badge.style.background = 'var(--accent)'; badge.style.color = '#fff';
       badge.textContent = '\u2713 OK';
     }
     rightCol.appendChild(badge);
@@ -197,6 +215,16 @@ function revizeMakeRow(rev, isPriv, listWrap, formWrap, user) {
     akceRow.appendChild(dlBtn);
   }
 
+  // Historie tlačítko
+  var histCount = parseInt(rev.historie_pocet) || 0;
+  var histBtn = document.createElement('button');
+  histBtn.className = 'btn btn-secondary btn-sm';
+  histBtn.textContent = '\uD83D\uDCC5 Historie' + (histCount > 0 ? ' (' + histCount + ')' : '');
+  histBtn.addEventListener('click', function() {
+    revHistShowModal(rev, user, function() { revizeLoad(listWrap, formWrap, user); });
+  });
+  akceRow.appendChild(histBtn);
+
   if (isPriv) {
     var editBtn = document.createElement('button');
     editBtn.className = 'btn btn-secondary btn-sm';
@@ -212,14 +240,14 @@ function revizeMakeRow(rev, isPriv, listWrap, formWrap, user) {
     delBtn.addEventListener('click', function() {
       showConfirmModal(
         'Smazat revizi?',
-        'Odstraní z\xe1znam "' + rev.nazev + '" i nahr\xe1t\xfd soubor PDF.',
+        'Odstra\u010d\xed z\xe1znam \u201e' + rev.nazev + '\u201c v\u010detn\u011b historie a PDF.',
         function() {
           Api.apiPost('api/revize.php?action=delete&id=' + rev.id, {})
             .then(function() {
               showToast('Revize smaz\xe1na');
               revizeLoad(listWrap, formWrap, user);
             })
-            .catch(function(e) { showToast(e.message || 'Chyba p\u0159i maz\xe1n\xed.', 'error'); });
+            .catch(function(e) { showToast(e.message || 'Chyba.', 'error'); });
         }
       );
     });
@@ -228,181 +256,7 @@ function revizeMakeRow(rev, isPriv, listWrap, formWrap, user) {
 
   rightCol.appendChild(akceRow);
   row.appendChild(rightCol);
-
   return row;
-}
-
-function revizeShowForm(formWrap, rev, listWrap, user, addBtn) {
-  formWrap.replaceChildren();
-  formWrap.style.display = '';
-  if (addBtn) addBtn.style.display = 'none';
-
-  var sep = document.createElement('hr');
-  sep.style.cssText = 'border:none;border-top:1px solid var(--border);margin:16px 0;';
-  formWrap.appendChild(sep);
-
-  var heading = document.createElement('h3');
-  heading.style.cssText = 'margin:0 0 16px;font-size:0.95rem;';
-  heading.textContent = rev ? 'Upravit revizi' : 'P\u0159idat revizi';
-  formWrap.appendChild(heading);
-
-  // Typ
-  var typWrap = document.createElement('div');
-  typWrap.style.marginBottom = '14px';
-  var typLabel = document.createElement('label');
-  typLabel.textContent = 'Typ revize';
-  typLabel.style.cssText = 'display:block;margin-bottom:4px;font-weight:500;font-size:0.9rem;';
-  var typSelect = document.createElement('select');
-  typSelect.className = 'form-input';
-  typSelect.style.maxWidth = '220px';
-  REVIZE_TYPY.forEach(function(t) {
-    var opt = document.createElement('option');
-    opt.value = t.value;
-    opt.textContent = t.icon + ' ' + t.label;
-    if (rev && rev.typ === t.value) opt.selected = true;
-    typSelect.appendChild(opt);
-  });
-  typWrap.appendChild(typLabel);
-  typWrap.appendChild(typSelect);
-  formWrap.appendChild(typWrap);
-
-  // Název
-  var nazevField = makeAdminField('N\xe1zev / popis', 'text', 'rev_nazev', rev ? rev.nazev : '');
-  nazevField.input.placeholder = 'nap\u0159. Elektrorevize spole\u010dn\xfdch prostor';
-  formWrap.appendChild(nazevField.el);
-
-  // Datum poslední
-  var posledniField = makeAdminField('Datum posledn\xed revize', 'date', 'rev_posledni',
-    rev ? rev.datum_posledni : '');
-  formWrap.appendChild(posledniField.el);
-
-  // Interval
-  var intervalWrap = document.createElement('div');
-  intervalWrap.style.marginBottom = '14px';
-  var intervalLabel = document.createElement('label');
-  intervalLabel.htmlFor = 'rev_interval';
-  intervalLabel.textContent = 'Interval opakov\xe1n\xed (m\u011bs\xedce)';
-  intervalLabel.style.cssText = 'display:block;margin-bottom:4px;font-weight:500;font-size:0.9rem;';
-  var intervalInput = document.createElement('input');
-  intervalInput.type = 'number';
-  intervalInput.id = 'rev_interval';
-  intervalInput.className = 'form-input';
-  intervalInput.style.maxWidth = '120px';
-  intervalInput.min = '1';
-  intervalInput.placeholder = 'nap\u0159. 36';
-  intervalInput.value = rev && rev.interval_mesice ? rev.interval_mesice : '';
-  var intervalHint = document.createElement('div');
-  intervalHint.style.cssText = 'font-size:0.78rem;color:var(--text-light);margin-top:4px;';
-  intervalHint.textContent = 'P\u0159i vyplněn\xed se datum p\u0159\xed\u0161t\xed revize vypo\u010d\xedt\xe1 automaticky.';
-  intervalWrap.appendChild(intervalLabel);
-  intervalWrap.appendChild(intervalInput);
-  intervalWrap.appendChild(intervalHint);
-  formWrap.appendChild(intervalWrap);
-
-  // Datum příští (volitelné)
-  var pristiField = makeAdminField('Datum p\u0159\xed\u0161t\xed revize (nepovinné — vypo\u010d\xedt\xe1 se z intervalu)', 'date', 'rev_pristi',
-    rev && rev.datum_pristi ? rev.datum_pristi : '');
-  formWrap.appendChild(pristiField.el);
-
-  // Soubor PDF
-  var souborWrap = document.createElement('div');
-  souborWrap.style.marginBottom = '14px';
-  var souborLabel = document.createElement('label');
-  souborLabel.textContent = rev && rev.soubor_nazev
-    ? 'Nahradit protokol PDF (nepovinné — aktu\xe1ln\xed: ' + rev.soubor_nazev + ')'
-    : 'Protokol PDF (nepovinné)';
-  souborLabel.style.cssText = 'display:block;margin-bottom:4px;font-weight:500;font-size:0.9rem;';
-  var souborInput = document.createElement('input');
-  souborInput.type = 'file';
-  souborInput.accept = 'application/pdf';
-  souborInput.className = 'form-input';
-  souborWrap.appendChild(souborLabel);
-  souborWrap.appendChild(souborInput);
-  formWrap.appendChild(souborWrap);
-
-  // Poznámka
-  var pozWrap = document.createElement('div');
-  pozWrap.style.marginBottom = '16px';
-  var pozLabel = document.createElement('label');
-  pozLabel.textContent = 'Pozn\xe1mka';
-  pozLabel.style.cssText = 'display:block;margin-bottom:4px;font-weight:500;font-size:0.9rem;';
-  var pozInput = document.createElement('textarea');
-  pozInput.className = 'form-input';
-  pozInput.rows = 2;
-  pozInput.value = rev ? (rev.poznamka || '') : '';
-  pozWrap.appendChild(pozLabel);
-  pozWrap.appendChild(pozInput);
-  formWrap.appendChild(pozWrap);
-
-  // Auto-fill intervalu při změně typu
-  typSelect.addEventListener('change', function() {
-    if (!intervalInput.value) {
-      var def = revizeDefaultInterval(typSelect.value);
-      if (def) intervalInput.value = def;
-    }
-  });
-
-  // Tlačítka
-  var btnRow = document.createElement('div');
-  btnRow.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;';
-
-  var saveBtn = document.createElement('button');
-  saveBtn.className = 'btn btn-primary';
-  saveBtn.textContent = 'Ulo\u017eit revizi';
-  btnRow.appendChild(saveBtn);
-
-  var cancelBtn = document.createElement('button');
-  cancelBtn.className = 'btn btn-secondary';
-  cancelBtn.textContent = 'Zru\u0161it';
-  cancelBtn.addEventListener('click', function() {
-    formWrap.style.display = 'none';
-    formWrap.replaceChildren();
-    if (addBtn) addBtn.style.display = '';
-  });
-  btnRow.appendChild(cancelBtn);
-  formWrap.appendChild(btnRow);
-
-  // Výchozí interval při přidání nové
-  if (!rev) {
-    var defInterval = revizeDefaultInterval(typSelect.value);
-    if (defInterval) intervalInput.value = defInterval;
-  }
-
-  saveBtn.addEventListener('click', function() {
-    var nazev     = nazevField.input.value.trim();
-    var posledni  = posledniField.input.value;
-    if (!nazev) { showToast('Vyplňte n\xe1zev revize.', 'error'); return; }
-    if (!posledni) { showToast('Vyplňte datum posledn\xed revize.', 'error'); return; }
-
-    saveBtn.disabled = true;
-    saveBtn.textContent = 'Ukl\xe1d\xe1m\u2026';
-
-    var fd = new FormData();
-    if (rev) fd.append('id', rev.id);
-    fd.append('typ', typSelect.value);
-    fd.append('nazev', nazev);
-    fd.append('datum_posledni', posledni);
-    fd.append('interval_mesice', intervalInput.value || '');
-    fd.append('datum_pristi', pristiField.input.value || '');
-    fd.append('poznamka', pozInput.value.trim());
-    if (souborInput.files[0]) fd.append('soubor', souborInput.files[0]);
-
-    fetch('api/revize.php?action=save', { method: 'POST', body: fd, credentials: 'same-origin' })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (data.error) throw new Error(data.error.message);
-        showToast('Revize ulo\u017eena');
-        formWrap.style.display = 'none';
-        formWrap.replaceChildren();
-        if (addBtn) addBtn.style.display = '';
-        revizeLoad(listWrap, formWrap, user);
-      })
-      .catch(function(e) { showToast(e.message || 'Chyba p\u0159i ukl\xe1d\xe1n\xed.', 'error'); })
-      .finally(function() {
-        saveBtn.disabled = false;
-        saveBtn.textContent = 'Ulo\u017eit revizi';
-      });
-  });
 }
 
 // status: 'ok' | 'warning' (< 60 dní) | 'expired'
@@ -416,4 +270,3 @@ function revizeStatus(datumPristi) {
   if (dni <= 60) return 'warning';
   return 'ok';
 }
-
