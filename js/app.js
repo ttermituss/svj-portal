@@ -18,13 +18,13 @@ var NAV_ITEMS_AUTH = [
   { page: 'kalendar',  icon: '\uD83D\uDCC5', label: 'Kalend\u00e1\u0159' },
   { page: 'odom', icon: '\uD83C\uDFE2', label: 'O dom\u011b' },
   { page: 'kontakty', icon: '\uD83D\uDCDE', label: 'Kontakty' },
-  { page: 'revize',   icon: '\uD83D\uDD27', label: 'Revize' },
   { sep: true },
   { page: 'nastaveni', icon: '\u2699\uFE0F', label: 'Nastavení' },
 ];
 
 // Extra položky pouze pro správce (vybor + admin)
 var NAV_ITEMS_ADMIN = [
+  { page: 'revize',     icon: '\uD83D\uDD27', label: 'Revize' },
   { page: 'fond-oprav', icon: '\uD83D\uDCB0', label: 'Fond oprav' },
   { page: 'datovka', icon: '\uD83D\uDCEC', label: 'Datová schránka' },
   { page: 'admin',   icon: '\uD83D\uDEE1\uFE0F', label: 'Správa portálu' },

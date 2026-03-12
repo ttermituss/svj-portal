@@ -3,6 +3,9 @@
 Router.register('revize', function(el) {
   var user = Auth.getUser();
   if (!user) { Router.navigate('login'); return; }
+  if (user.role !== 'admin' && user.role !== 'vybor') {
+    Router.navigate('home'); return;
+  }
   if (!user.svj_id) {
     el.textContent = 'Nen\xed p\u0159i\u0159azeno SVJ.';
     return;
