@@ -82,11 +82,11 @@ Opravy: commit `6bc7a2f` (security), `0843ea3` (P1 UX)
 | Encryption | 100 | 100 | Perfektní |
 | File uploads | 90 | 90 | Velmi dobré |
 | API konzistence | 95 | **97** | Výborné |
-| Code quality (DRY) | 75 | 75 | Dobré, ale duplikace |
+| Code quality (DRY) | 75 | **88** | ✅ requireSvj, konstanty, file split |
 | UX pro seniory | 55 | **78** | ✅ Výrazně zlepšeno |
 | Architecture | 85 | **87** | Dobré |
 
-**Celkové skóre: 84 → 91/100**
+**Celkové skóre: 84 → 93/100**
 
 ---
 
@@ -103,11 +103,14 @@ Opravy: commit `6bc7a2f` (security), `0843ea3` (P1 UX)
 8. ~~P1: Senior theme overrides pro malé prvky~~ ✅
 9. ~~P1: HTTP security headers (CSP, X-Frame-Options, Referrer-Policy, Permissions-Policy)~~ ✅
 
-### Zbývá
-10. **P2:** Rozdělit soubory > 500 řádků (fond_oprav.php, dokumenty.js, fond-oprav.js...)
-11. **P2:** Extrahovat DRY helpers (requireSvj, file size konstanty)
-12. **P2:** Hardcoded barvy → CSS vars (admin-penb.js, dokumenty.js)
-13. **P2:** innerHTML v markdown → sanitizace
-14. **P3:** ARIA atributy (celý projekt)
-15. **P3:** Formuláře: label for, aria-required
-16. **P3:** Promise chains: přidat .catch()
+10. ~~P2: fond_oprav.php split (592→379) → fond_prilohy.php + fond_ucty.php~~ ✅
+11. ~~P2: requireSvj() helper (70+ duplikátů nahrazeno)~~ ✅
+12. ~~P2: UPLOAD_MAX_* konstanty (7 souborů)~~ ✅
+13. ~~P2: PENB/toast/warning barvy → CSS vars~~ ✅
+14. ~~P2: Markdown XSS — javascript: URL blokování~~ ✅
+
+### Zbývá (nízká priorita)
+15. **P2:** Rozdělit zbylé JS soubory > 500 ř. (dokumenty.js 570, fond-oprav.js 558, fond-oprav-detail.js 528, jednotky.js 524)
+16. **P3:** ARIA atributy (celý projekt)
+17. **P3:** Formuláře: label for, aria-required
+18. **P3:** Promise chains: přidat .catch()
