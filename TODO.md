@@ -166,7 +166,6 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 
 ## 💡 Nápady do budoucna
 
-- Google Drive — napojení na modul Dokumenty (upload/download do Google Drive, sdílení)
 - CLI skripty — `cli/google-gmail.php`, `cli/google-drive.php`, `cli/google-calendar.php`
 - Google Calendar webhooky — push notifikace ze strany Google (watch kanály, cron obnova)
 - Push notifikace (PWA) — rozšíření stávajících in-app notifikací o browser push
@@ -193,3 +192,5 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 - [x] **Měřidla a odečty** — vodoměry, plynoměry, elektroměry, měřiče tepla; self-service odečty, spotřeba, cejch upozornění
 - [x] **Google integrace** — OAuth 2.0, Gmail (inbox + odesílání), Google Calendar sync (push/pull), in-app průvodce nastavením, credentials v admin settings
 - [x] **Fond oprav — Fáze 2** — editace záznamů, přílohy (PDF/JPEG/PNG, 10 MB), filtrování (rok/typ/kategorie/fulltext), stránkování
+- [x] **Fond oprav — Fáze 3** — rozpočet (plán vs. skutečnost), zálohy vlastníků (předpisy, platby), notifikace (nízký zůstatek, vysoký výdaj, neuhrazené zálohy)
+- [x] **Google Drive úložiště** — hybridní storage (local + GDrive záloha), 7 modulů, sync panel, folder hierarchie, fallback download

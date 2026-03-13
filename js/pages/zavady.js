@@ -344,7 +344,7 @@ function zavadyRenderForm(wrap, onCreated) {
       body: fd,
     })
       .then(function(r) { return r.json().then(function(d) { if (!r.ok) throw new Error(d.error || 'Chyba'); return d; }); })
-      .then(function() { showToast('Z\u00e1vada nahl\u00e1\u0161ena.'); onCreated(); })
+      .then(function(data) { showToast('Z\u00e1vada nahl\u00e1\u0161ena.'); handleGdriveFeedback(data); onCreated(); })
       .catch(function(e) { errBox.textContent = e.message; errBox.style.display = ''; })
       .finally(function() { submitBtn.disabled = false; submitBtn.textContent = 'Odeslat hl\u00e1\u0161en\u00ed'; });
   });

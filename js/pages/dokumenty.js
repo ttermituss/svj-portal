@@ -291,7 +291,7 @@ function dokRenderUploadCard(el, onSuccess) {
         if (data.error) throw new Error(data.error.message);
         clearInterval(pTimer);
         progressFill.style.width = '100%';
-        setTimeout(function() { dokClearFile(); showToast('Dokument nahr\xe1n'); onSuccess(); }, 300);
+        setTimeout(function() { dokClearFile(); showToast('Dokument nahr\xe1n'); handleGdriveFeedback(data); onSuccess(); }, 300);
       })
       .catch(function(e) {
         clearInterval(pTimer);

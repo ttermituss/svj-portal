@@ -25,6 +25,8 @@ Router.register('admin', function(el) {
   renderKnCard(el, user);
   renderSfpiCard(el, user);
 
+  renderGdriveStorageCard(el, user);
+
   if (user.role === 'admin') {
     renderIsdsCard(el, user);
     renderSystemCard(el);

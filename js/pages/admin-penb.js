@@ -293,6 +293,7 @@ function penbShowForm(formWrap, penb, statusWrap, user) {
       .then(function(data) {
         if (data.error) throw new Error(data.error.message);
         showToast('PENB uložen');
+        handleGdriveFeedback(data);
         formWrap.style.display = 'none';
         formWrap.replaceChildren();
         Api.apiGet('api/penb.php?action=get')

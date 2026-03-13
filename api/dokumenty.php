@@ -2,6 +2,7 @@
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/middleware.php';
+require_once __DIR__ . '/storage_helper.php';
 
 $action = getParam('action', '');
 
@@ -97,16 +98,8 @@ function handleUpload(): void
         jsonError('Nepodporovaný formát. Povoleny: PDF, Word, Excel, JPEG, PNG, Markdown, TXT', 415, 'INVALID_MIME');
     }
 
-    $uploadDir = __DIR__ . '/../uploads/dokumenty/';
-    if (!is_dir($uploadDir)) {
-        mkdir($uploadDir, 0750, true);
-    }
-
     $filename = $user['svj_id'] . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
-
-    if (!move_uploaded_file($file['tmp_name'], $uploadDir . $filename)) {
-        jsonError('Nepodařilo se uložit soubor', 500, 'SAVE_ERROR');
-    }
+    $storage = storageUpload((int) $user['svj_id'], 'dokumenty', $file, $filename, $file['name']);
 
     getDb()->prepare(
         'INSERT INTO dokumenty (svj_id, nazev, popis, kategorie, soubor_nazev, soubor_cesta,
@@ -125,7 +118,10 @@ function handleUpload(): void
         ':uploaded_by'     => $user['id'],
     ]);
 
-    jsonOk(['message' => 'Dokument nahrán']);
+    $resp = ['message' => 'Dokument nahrán'];
+    if ($storage['gdrive_file_id']) $resp['gdrive'] = true;
+    if ($storage['gdrive_error'])   $resp['gdrive_warning'] = $storage['gdrive_error'];
+    jsonOk($resp);
 }
 
 function handleDownload(): void
@@ -150,7 +146,8 @@ function handleDownload(): void
         jsonError('Přístup odepřen', 403, 'FORBIDDEN');
     }
 
-    $path = __DIR__ . '/../uploads/dokumenty/' . basename($row['soubor_cesta']);
+    $relPath = 'uploads/dokumenty/' . basename($row['soubor_cesta']);
+    $path = storageDownload((int) $user['svj_id'], $relPath);
     if (!file_exists($path)) jsonError('Soubor nenalezen na disku', 404, 'FILE_MISSING');
 
     $ext  = strtolower(pathinfo($path, PATHINFO_EXTENSION));
@@ -195,7 +192,8 @@ function handlePreview(): void
         jsonError('Přístup odepřen', 403, 'FORBIDDEN');
     }
 
-    $path = __DIR__ . '/../uploads/dokumenty/' . basename($row['soubor_cesta']);
+    $relPath = 'uploads/dokumenty/' . basename($row['soubor_cesta']);
+    $path = storageDownload((int) $user['svj_id'], $relPath);
     if (!file_exists($path)) jsonError('Soubor nenalezen na disku', 404, 'FILE_MISSING');
 
     $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
@@ -237,8 +235,7 @@ function handleDelete(): void
 
     if (!$row) jsonError('Dokument nenalezen', 404, 'NOT_FOUND');
 
-    $path = __DIR__ . '/../uploads/dokumenty/' . basename($row['soubor_cesta']);
-    if (file_exists($path)) unlink($path);
+    storageDelete((int) $user['svj_id'], 'uploads/dokumenty/' . basename($row['soubor_cesta']));
 
     $db->prepare('DELETE FROM dokumenty WHERE id = :id')->execute([':id' => $row['id']]);
     jsonOk();

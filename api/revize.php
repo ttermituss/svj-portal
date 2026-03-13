@@ -6,6 +6,7 @@
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/middleware.php';
+require_once __DIR__ . '/storage_helper.php';
 
 $action = getParam('action', '');
 
@@ -92,10 +93,12 @@ function handleSave(): void
     $souborCesta = $id ? ($existing['soubor_cesta'] ?? null) : null;
 
     // Upload PDF protokolu
+    $gdriveWarning = null;
     if (!empty($_FILES['soubor']) && $_FILES['soubor']['error'] !== UPLOAD_ERR_NO_FILE) {
         $result = revizeUploadPdf($_FILES['soubor'], $user['svj_id'], $souborCesta);
         $souborNazev = $result['nazev'];
         $souborCesta = $result['cesta'];
+        $gdriveWarning = $result['gdrive_warning'] ?? null;
     }
 
     if ($id) {
@@ -126,7 +129,9 @@ function handleSave(): void
         revizeScheduleNotif($db, $user['svj_id'], $nazev, $datumPristi, $pripomenoutDni);
     }
 
-    jsonOk(['message' => 'Revize uložena']);
+    $resp = ['message' => 'Revize uložena'];
+    if ($gdriveWarning) $resp['gdrive_warning'] = $gdriveWarning;
+    jsonOk($resp);
 }
 
 /* ── Delete ───────────────────────────────────────── */
@@ -146,19 +151,17 @@ function handleDelete(): void
     if (!$row) jsonError('Revize nenalezena', 404, 'NOT_FOUND');
 
     // Smazat soubory historie
+    $svjId = (int) $user['svj_id'];
     $hist = $db->prepare('SELECT soubor_cesta FROM revize_historie WHERE revize_id = ?');
     $hist->execute([$id]);
-    $uploadDir = __DIR__ . '/../uploads/revize/';
     while ($h = $hist->fetch(PDO::FETCH_ASSOC)) {
         if ($h['soubor_cesta']) {
-            $p = $uploadDir . basename($h['soubor_cesta']);
-            if (file_exists($p)) unlink($p);
+            storageDelete($svjId, 'uploads/revize/' . basename($h['soubor_cesta']));
         }
     }
 
     if ($row['soubor_cesta']) {
-        $path = $uploadDir . basename($row['soubor_cesta']);
-        if (file_exists($path)) unlink($path);
+        storageDelete($svjId, 'uploads/revize/' . basename($row['soubor_cesta']));
     }
 
     $db->prepare('DELETE FROM revize WHERE id = ?')->execute([$id]);
@@ -180,7 +183,7 @@ function handleDownload(): void
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$row || !$row['soubor_cesta']) jsonError('Soubor nenalezen', 404, 'NOT_FOUND');
-    servePdf($row['soubor_cesta'], $row['soubor_nazev']);
+    servePdf($row['soubor_cesta'], $row['soubor_nazev'], (int) $user['svj_id']);
 }
 
 /* ── Historie: List ───────────────────────────────── */
@@ -246,10 +249,12 @@ function handleHistorieSave(): void
         $souborCesta = $existing['soubor_cesta'];
     }
 
+    $histGdriveWarning = null;
     if (!empty($_FILES['soubor']) && $_FILES['soubor']['error'] !== UPLOAD_ERR_NO_FILE) {
         $result = revizeUploadPdf($_FILES['soubor'], $user['svj_id'], $souborCesta);
         $souborNazev = $result['nazev'];
         $souborCesta = $result['cesta'];
+        $histGdriveWarning = $result['gdrive_warning'] ?? null;
     }
 
     if ($id > 0) {
@@ -273,7 +278,9 @@ function handleHistorieSave(): void
         ]);
     }
 
-    jsonOk(['message' => 'Záznam uložen']);
+    $resp = ['message' => 'Záznam uložen'];
+    if ($histGdriveWarning) $resp['gdrive_warning'] = $histGdriveWarning;
+    jsonOk($resp);
 }
 
 /* ── Historie: Delete ─────────────────────────────── */
@@ -293,8 +300,7 @@ function handleHistorieDelete(): void
     if (!$row) jsonError('Záznam nenalezen', 404);
 
     if ($row['soubor_cesta']) {
-        $p = __DIR__ . '/../uploads/revize/' . basename($row['soubor_cesta']);
-        if (file_exists($p)) unlink($p);
+        storageDelete((int) $user['svj_id'], 'uploads/revize/' . basename($row['soubor_cesta']));
     }
 
     $db->prepare('DELETE FROM revize_historie WHERE id = ?')->execute([$id]);
@@ -316,7 +322,7 @@ function handleHistorieDownload(): void
     $row = $st->fetch(PDO::FETCH_ASSOC);
 
     if (!$row || !$row['soubor_cesta']) jsonError('Soubor nenalezen', 404);
-    servePdf($row['soubor_cesta'], $row['soubor_nazev']);
+    servePdf($row['soubor_cesta'], $row['soubor_nazev'], (int) $user['svj_id']);
 }
 
 /* ── Helpers ──────────────────────────────────────── */
@@ -329,25 +335,24 @@ function revizeUploadPdf(array $file, int $svjId, ?string $oldCesta): array
     $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
     if ($mime !== 'application/pdf') jsonError('Povoleny jsou pouze soubory PDF', 415);
 
-    $uploadDir = __DIR__ . '/../uploads/revize/';
-    if (!is_dir($uploadDir)) mkdir($uploadDir, 0750, true);
-
     if ($oldCesta) {
-        $old = $uploadDir . basename($oldCesta);
-        if (file_exists($old)) unlink($old);
+        storageDelete($svjId, 'uploads/revize/' . basename($oldCesta));
     }
 
     $filename = $svjId . '_' . bin2hex(random_bytes(8)) . '.pdf';
-    if (!move_uploaded_file($file['tmp_name'], $uploadDir . $filename)) {
-        jsonError('Nepodařilo se uložit soubor', 500);
-    }
+    $storage = storageUpload($svjId, 'revize', $file, $filename, $file['name']);
 
-    return ['nazev' => basename($file['name']), 'cesta' => $filename];
+    return [
+        'nazev'          => basename($file['name']),
+        'cesta'          => $filename,
+        'gdrive_warning' => $storage['gdrive_error'] ?? null,
+    ];
 }
 
-function servePdf(string $cesta, ?string $nazev): never
+function servePdf(string $cesta, ?string $nazev, int $svjId = 0): never
 {
-    $path = __DIR__ . '/../uploads/revize/' . basename($cesta);
+    $relPath = 'uploads/revize/' . basename($cesta);
+    $path = $svjId > 0 ? storageDownload($svjId, $relPath) : (__DIR__ . '/../' . $relPath);
     if (!file_exists($path)) jsonError('Soubor nenalezen na disku', 404);
 
     $nazev = $nazev ?: 'revize.pdf';

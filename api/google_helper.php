@@ -179,6 +179,16 @@ function getAuthenticatedGoogleClient(int $userId, int $svjId): ?Google\Client
 }
 
 /**
+ * Get Google Drive service instance for a user.
+ */
+function getGdriveService(int $userId, int $svjId): ?Google\Service\Drive
+{
+    $client = getAuthenticatedGoogleClient($userId, $svjId);
+    if (!$client) return null;
+    return new Google\Service\Drive($client);
+}
+
+/**
  * Rychlá kontrola stavu připojení Google účtu.
  */
 function isGoogleConnected(int $userId): ?array

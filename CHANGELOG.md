@@ -5,6 +5,51 @@ Formát: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [2.3.0] — 2026-03-13
+
+### Přidáno
+
+#### Google Drive — hybridní úložiště (local + GDrive záloha)
+- **Storage abstraction layer** — `storage_helper.php` jako jednotný vstupní bod pro upload/download/delete
+  - `storageUpload()` — uloží lokálně + automaticky synchronizuje na GDrive (pokud aktivní)
+  - `storageDownload()` — čte z lokálu, fallback na GDrive (pokud lokální soubor chybí)
+  - `storageDelete()` — smaže lokálně + na GDrive + tracking záznam
+  - `storageSync()` — batch synchronizace nesyncovaných souborů (per modul nebo vše)
+- **7 modulů přepojeno** na storageHelper: dokumenty, revize, fond oprav, závady, PENB, datovka, avatar
+- **Google Drive API endpoint** (`google_drive.php`) — status, enable, disable, syncStart, syncStatus, folderUrl
+  - Hierarchie složek: `SVJ Portal / {Název SVJ} / {Modul}` (on-demand vytváření)
+  - Jen admin může aktivovat/deaktivovat; admin/výbor vidí stav a synchronizaci
+- **UI karta „Google Drive úložiště"** ve Správě portálu (`nastaveni-gdrive.js`)
+  - Status badges (Google připojen, GDrive aktivní, složka vytvořena)
+  - Přehled souborů celkem / synchronizováno / nesynchronizováno
+  - Sync panel: tabulka per-modul s progress bary + tlačítka synchronizace
+  - Odkaz „Otevřít na Google Drive" (přímý link na SVJ složku)
+- **GDrive feedback** — `handleGdriveFeedback(data)` helper v `ui.js` zobrazí toast po uploadu (success/warning)
+- **DB migrace 033** — tabulky `gdrive_folders` (folder cache), `gdrive_files` (file tracking), sloupce `svj.gdrive_folder_id` + `svj.gdrive_enabled`
+
+---
+
+## [2.2.0] — 2026-03-13
+
+### Přidáno
+
+#### Fond oprav — Fáze 3: rozpočet, zálohy vlastníků, notifikace
+- **Rozpočet** — roční plán vs. skutečnost s progress bary, CRUD modal pro rozpočtové položky
+  - API `fond_rozpocet.php`: list, save (upsert), delete, compare (plán × skutečnost)
+- **Zálohy vlastníků** — měsíční předpisy z podílů jednotek, evidence plateb
+  - Generování předpisů z celkové částky × podíl každé jednotky
+  - Stavy: zaplaceno / částečně / nezaplaceno
+  - Roční přehled se summary
+  - API `fond_zalohy.php`: predpisList/Save/Generate/Delete, zalohyList/Generate/Save, zalohyStats
+- **Notifikace** — chytré upozornění na nízký zůstatek, vysoký výdaj, neuhrazené zálohy
+  - Helper `fond_notif_helper.php` (lowBalance, highExpense, unpaidZalohy)
+  - Notifikace typ `fond` + users.notif_fond preference
+- **Tab navigace** v hlavní stránce fondu oprav (Přehled / Rozpočet / Zálohy)
+- Frontend: `fond-rozpocet.js`, `fond-zalohy.js`, `fond-zalohy-modal.js`
+- Migration: `032_fond_rozpocet_zalohy.sql`
+
+---
+
 ## [2.1.0] — 2026-03-13
 
 ### Přidáno

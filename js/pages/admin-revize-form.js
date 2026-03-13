@@ -205,6 +205,7 @@ function revizeShowForm(formWrap, rev, listWrap, user, addBtn) {
       .then(function(data) {
         if (data.error) throw new Error(data.error.message);
         showToast('Revize ulo\u017eena');
+        handleGdriveFeedback(data);
         formWrap.style.display = 'none';
         formWrap.replaceChildren();
         if (addBtn) addBtn.style.display = '';

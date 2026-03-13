@@ -7,6 +7,7 @@ require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/middleware.php';
 require_once __DIR__ . '/fond_notif_helper.php';
+require_once __DIR__ . '/storage_helper.php';
 
 $action = getParam('action', '');
 
@@ -372,10 +373,8 @@ function fondDeleteAttachmentFiles(PDO $db, int $fondId, int $svjId): void
         'SELECT soubor_cesta FROM fond_prilohy WHERE fond_oprav_id = :fid AND svj_id = :sid'
     );
     $stmt->execute([':fid' => $fondId, ':sid' => $svjId]);
-    $dir = __DIR__ . '/../uploads/fond/';
     foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $path) {
-        $file = $dir . basename($path);
-        if (file_exists($file)) unlink($file);
+        storageDelete($svjId, 'uploads/fond/' . basename($path));
     }
 }
 
@@ -418,13 +417,8 @@ function handleUpload(): void
     }
     $ext = $allowed[$mime];
 
-    $uploadDir = __DIR__ . '/../uploads/fond/';
-    if (!is_dir($uploadDir)) mkdir($uploadDir, 0750, true);
-
     $filename = $user['svj_id'] . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
-    if (!move_uploaded_file($file['tmp_name'], $uploadDir . $filename)) {
-        jsonError('Nepodařilo se uložit soubor', 500, 'SAVE_ERROR');
-    }
+    $storage = storageUpload((int) $user['svj_id'], 'fond', $file, $filename, $file['name']);
 
     $db->prepare(
         'INSERT INTO fond_prilohy (fond_oprav_id, svj_id, soubor_nazev, soubor_cesta)
@@ -436,7 +430,10 @@ function handleUpload(): void
         ':cesta' => $filename,
     ]);
 
-    jsonOk(['message' => 'Příloha nahrána', 'id' => (int) $db->lastInsertId()]);
+    $resp = ['message' => 'Příloha nahrána', 'id' => (int) $db->lastInsertId()];
+    if ($storage['gdrive_file_id']) $resp['gdrive'] = true;
+    if ($storage['gdrive_error'])   $resp['gdrive_warning'] = $storage['gdrive_error'];
+    jsonOk($resp);
 }
 
 function handlePrilohy(): void
@@ -473,7 +470,8 @@ function handlePrilohaDownload(): void
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$row) jsonError('Příloha nenalezena', 404, 'NOT_FOUND');
 
-    $path = __DIR__ . '/../uploads/fond/' . basename($row['soubor_cesta']);
+    $relPath = 'uploads/fond/' . basename($row['soubor_cesta']);
+    $path = storageDownload((int) $user['svj_id'], $relPath);
     if (!file_exists($path)) jsonError('Soubor nenalezen na disku', 404, 'FILE_MISSING');
 
     $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
@@ -504,8 +502,7 @@ function handlePrilohaDelete(): void
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$row) jsonError('Příloha nenalezena', 404, 'NOT_FOUND');
 
-    $file = __DIR__ . '/../uploads/fond/' . basename($row['soubor_cesta']);
-    if (file_exists($file)) unlink($file);
+    storageDelete((int) $user['svj_id'], 'uploads/fond/' . basename($row['soubor_cesta']));
 
     $db->prepare('DELETE FROM fond_prilohy WHERE id = :id')->execute([':id' => $id]);
     jsonOk(['deleted' => true]);

@@ -1,4 +1,4 @@
-# SVJ Portál v2.1.0
+# SVJ Portál v2.3.0
 
 Univerzální multi-tenant webový portál pro správu **Společenství vlastníků jednotek (SVJ)** v ČR.
 
@@ -45,7 +45,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 - 🗺️ **Mapa budovy** — OpenStreetMap iframe + odkaz na Mapy.cz
 - 💰 **Dotace SFPI** — Panel 2020+, NZÚ, IROP, MMR s doporučením dle budovy
 - ⚠️ **Správa závad** — změna stavu (Nová/V řešení/Vyřešeno/Zamítnuto), priority, přiřazení zodpovědné osoby; smazání (admin)
-- 💰 **Fond oprav — dashboard** — bankovní účty SVJ, roční přehled, trend zůstatku (SVG), top výdaje, průměry, editace záznamů, přílohy (PDF/JPEG/PNG), filtrování a fulltext, stránkování
+- 💰 **Fond oprav — dashboard** — bankovní účty SVJ, roční přehled, trend zůstatku (SVG), top výdaje, průměry, editace záznamů, přílohy (PDF/JPEG/PNG), filtrování a fulltext, stránkování, rozpočet (plán vs. skutečnost), zálohy vlastníků (předpisy, platby), notifikace
 - 📅 **Vlastní události** — vytvoření, editace a smazání událostí v kalendáři (kategorie, opakování, připomenutí)
 - 📤 **Export výkazů** — PDF/XLSX/CSV pro revize, fond oprav, parkovací místa, závady
 
@@ -61,6 +61,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 - **OAuth 2.0** — bezpečné propojení Google účtu, tokeny šifrované AES-256-CBC
 - **In-app průvodce** — 5 kroků jak nastavit Google Cloud projekt + FAQ
 - **Nastavení v UI** — Client ID + Secret zadává admin ve Správě portálu (ne na serveru)
+- **Google Drive** — hybridní úložiště (local + GDrive záloha), 7 modulů, sync panel s progress bary, fallback download
 
 ### ⚙️ Pro správce (admin)
 - 👥 **Správa uživatelů** — role, pozvánky, smazání; přiřazení jednotky + telefon
@@ -86,7 +87,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 | api.qrserver.com | QR kódy jednotek | Zdarma, bez klíče |
 | Google Gmail API | Čtení inboxu, odesílání emailů | OAuth 2.0 |
 | Google Calendar API | Synchronizace událostí | OAuth 2.0 |
-| Google Drive API | Správa dokumentů (připraveno) | OAuth 2.0 |
+| Google Drive API | Hybridní úložiště — záloha + sync souborů | OAuth 2.0 |
 
 ---
 

@@ -2,6 +2,7 @@
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/middleware.php';
+require_once __DIR__ . '/storage_helper.php';
 
 $action = getParam('action', '');
 
@@ -46,11 +47,6 @@ function handleUpload(): void
 
     $ext       = $allowed[$mime];
     $filename  = $user['id'] . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
-    $uploadDir = __DIR__ . '/../uploads/avatars/';
-
-    if (!is_dir($uploadDir)) {
-        mkdir($uploadDir, 0750, true);
-    }
 
     // Smazat starý avatar
     $db   = getDb();
@@ -58,21 +54,20 @@ function handleUpload(): void
     $stmt->execute([':id' => $user['id']]);
     $row = $stmt->fetch();
 
+    $svjId = (int) ($user['svj_id'] ?? 0);
     if ($row && $row['avatar']) {
-        $old = $uploadDir . basename($row['avatar']);
-        if (file_exists($old)) {
-            unlink($old);
-        }
+        storageDelete($svjId, 'uploads/avatars/' . basename($row['avatar']));
     }
 
-    if (!move_uploaded_file($file['tmp_name'], $uploadDir . $filename)) {
-        jsonError('Nepodařilo se uložit soubor', 500, 'SAVE_ERROR');
-    }
+    $storage = storageUpload($svjId, 'avatar', $file, $filename, $file['name']);
 
     $db->prepare('UPDATE users SET avatar = :avatar WHERE id = :id')
        ->execute([':avatar' => $filename, ':id' => $user['id']]);
 
-    jsonResponse(['ok' => true, 'avatar' => $filename]);
+    $resp = ['ok' => true, 'avatar' => $filename];
+    if ($storage['gdrive_file_id']) $resp['gdrive'] = true;
+    if ($storage['gdrive_error'])   $resp['gdrive_warning'] = $storage['gdrive_error'];
+    jsonResponse($resp);
 }
 
 function handleDelete(): void
@@ -86,11 +81,8 @@ function handleDelete(): void
     $row = $stmt->fetch();
 
     if ($row && $row['avatar']) {
-        $uploadDir = __DIR__ . '/../uploads/avatars/';
-        $old       = $uploadDir . basename($row['avatar']);
-        if (file_exists($old)) {
-            unlink($old);
-        }
+        $svjId = (int) ($user['svj_id'] ?? 0);
+        storageDelete($svjId, 'uploads/avatars/' . basename($row['avatar']));
     }
 
     $db->prepare('UPDATE users SET avatar = NULL WHERE id = :id')

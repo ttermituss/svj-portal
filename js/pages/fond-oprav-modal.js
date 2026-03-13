@@ -156,6 +156,7 @@ function fondBuildPrilohySection(modal, existing) {
     }).then(function(r) { return r.json(); }).then(function(res) {
       if (res.status === 'ok') {
         showToast('P\u0159\xedloha nahr\xe1na.', 'success');
+        handleGdriveFeedback(res);
         fileInp.value = '';
         loadPrilohy();
       } else {

@@ -37,6 +37,7 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
 │       ├── dokumenty.js    # nahrávání dokumentů
 │       ├── nastaveni.js    # profil + avatar uživatele
 │       ├── nastaveni-google.js # karta: Google integrace (připojit/odpojit Google účet)
+│       ├── nastaveni-gdrive.js # karta: Google Drive úložiště (aktivace, sync panel, progress)
 │       ├── gmail.js           # stránka: Gmail inbox, detail zprávy, compose modal
 │       ├── kalendar-gcal.js   # modal: Google Calendar sync (push/pull)
 │       ├── admin.js        # správa portálu: router + SVJ banner + OR karta + helpery
@@ -98,6 +99,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
     ├── fond_rozpocet.php   # fond rozpočet: list, save (upsert), delete, compare (plán vs. skutečnost)
     ├── fond_zalohy.php     # fond zálohy: predpisList/Save/Generate/Delete, zalohyList/Generate/Save, zalohyStats
     ├── fond_notif_helper.php # fond notifikace: helper — lowBalance, highExpense, unpaidZalohy
+    ├── storage_helper.php  # abstrakční vrstva: hybrid local + GDrive storage (upload/download/delete/sync)
+    ├── google_drive.php    # GDrive API: status, enable, disable, syncStart, syncStatus, folderUrl
     ├── okoli.php           # okolí budovy: proxy Overpass API (OSM), POI v 600 m
     ├── parkovani.php       # parkovací místa: list, save (upsert), delete
     ├── kontakty.php        # kontakty: list, save (upsert), delete — servisní firmy, řemeslníci
@@ -154,7 +157,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
         ├── 029_google_sync.sql       # tabulky google_tokens + google_calendar_sync
         ├── 030_google_settings.sql   # Google OAuth credentials v settings tabulce
         ├── 031_fond_oprav_ext.sql    # tabulka fond_prilohy (přílohy k záznamům fondu oprav)
-        └── 032_fond_rozpocet_zalohy.sql # fond_rozpocet + fond_predpis + fond_zalohy + notifikace typ 'fond'
+        ├── 032_fond_rozpocet_zalohy.sql # fond_rozpocet + fond_predpis + fond_zalohy + notifikace typ 'fond'
+        └── 033_gdrive_storage.sql    # gdrive_folders + gdrive_files + svj.gdrive_folder_id + svj.gdrive_enabled
 ```
 
 ## Coding Standards — POVINNÉ

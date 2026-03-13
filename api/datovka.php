@@ -3,6 +3,7 @@ require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/middleware.php';
 require_once __DIR__ . '/zfo_parser.php';
+require_once __DIR__ . '/storage_helper.php';
 
 $action = getParam('action', '');
 
@@ -136,6 +137,8 @@ function handleUpload(): void
             $f['name'], $f['mime'], $f['meta_type'],
             $relPath, strlen($f['data']),
         ]);
+
+        storageTrackFile($svjId, 'datovka', $relPath, $f['name'], $f['mime'], strlen($f['data']));
     }
 
     jsonResponse([
@@ -189,7 +192,7 @@ function handleDownload(): void
     $p = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$p) jsonError('Příloha nenalezena', 404);
 
-    $absPath = __DIR__ . '/../' . $p['file_path'];
+    $absPath = storageDownload($svjId, $p['file_path']);
     if (!is_file($absPath)) jsonError('Soubor nenalezen na disku', 404);
 
     $inline  = getParam('inline', '0') === '1';
@@ -222,10 +225,15 @@ function handleDelete(): void
     $stmt->execute([$zpravaId, $svjId]);
     if (!$stmt->fetch()) jsonError('Zpráva nenalezena', 404);
 
-    // Smazat soubory z disku
+    // Smazat soubory z disku + GDrive
+    $prilohy = $db->prepare('SELECT file_path FROM datovka_prilohy WHERE zprava_id = ? AND svj_id = ?');
+    $prilohy->execute([$zpravaId, $svjId]);
+    foreach ($prilohy->fetchAll(PDO::FETCH_COLUMN) as $fp) {
+        storageDelete($svjId, $fp);
+    }
     $dir = __DIR__ . '/../uploads/datovka/' . $svjId . '/' . $zpravaId;
     if (is_dir($dir)) {
-        foreach (glob($dir . '/*') as $f) { @unlink($f); }
+        @unlink($dir . '/.htaccess');
         @rmdir($dir);
     }
 

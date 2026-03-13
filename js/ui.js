@@ -163,6 +163,21 @@ function fallbackCopy(text, onSuccess) {
   document.body.removeChild(ta);
 }
 
+/* ---- GDrive upload feedback ---- */
+
+/**
+ * Zobrazit toast o GDrive stavu po uploadu.
+ * Volat po úspěšném API response: handleGdriveFeedback(data)
+ */
+function handleGdriveFeedback(data) {
+  if (!data) return;
+  if (data.gdrive_warning) {
+    showToast(data.gdrive_warning, 'error');
+  } else if (data.gdrive) {
+    showToast('Soubor ulo\u017een i na Google Drive');
+  }
+}
+
 /* ---- Avatar helpers ---- */
 
 var AVATAR_PALETTE = ['#4f86c6','#5cb85c','#9b59b6','#e67e22','#e74c3c','#1abc9c','#3f51b5','#e91e63'];

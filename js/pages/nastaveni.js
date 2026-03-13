@@ -411,6 +411,7 @@ function renderAvatarWidget(body, user) {
         syncRemoveBtn();
         buildNavWithUser();
         showToast('Profilový obrázek byl uložen.', 'success');
+        handleGdriveFeedback(data);
       })
       .catch(function(e) { showToast(e.message || 'Chyba při nahrávání.', 'error'); })
       .finally(function() {

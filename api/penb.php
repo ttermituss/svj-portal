@@ -2,6 +2,7 @@
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/middleware.php';
+require_once __DIR__ . '/storage_helper.php';
 
 $action = getParam('action', '');
 
@@ -73,20 +74,13 @@ function handleSave(): void
             jsonError('Povoleny jsou pouze soubory PDF', 415, 'INVALID_MIME');
         }
 
-        $uploadDir = __DIR__ . '/../uploads/penb/';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0750, true);
-        }
-
+        $svjId = (int) $user['svj_id'];
         if ($souborCesta) {
-            $old = $uploadDir . basename($souborCesta);
-            if (file_exists($old)) unlink($old);
+            storageDelete($svjId, 'uploads/penb/' . basename($souborCesta));
         }
 
-        $filename = $user['svj_id'] . '_' . bin2hex(random_bytes(8)) . '.pdf';
-        if (!move_uploaded_file($file['tmp_name'], $uploadDir . $filename)) {
-            jsonError('Nepodařilo se uložit soubor', 500, 'SAVE_ERROR');
-        }
+        $filename = $svjId . '_' . bin2hex(random_bytes(8)) . '.pdf';
+        $penbStorage = storageUpload($svjId, 'penb', $file, $filename, $file['name']);
 
         $souborNazev = basename($file['name']);
         $souborCesta = $filename;
@@ -122,7 +116,10 @@ function handleSave(): void
         ]);
     }
 
-    jsonOk(['message' => 'PENB uložen']);
+    $resp = ['message' => 'PENB uložen'];
+    if (isset($penbStorage['gdrive_file_id']) && $penbStorage['gdrive_file_id']) $resp['gdrive'] = true;
+    if (isset($penbStorage['gdrive_error']))  $resp['gdrive_warning'] = $penbStorage['gdrive_error'];
+    jsonOk($resp);
 }
 
 function handleDelete(): void
@@ -139,8 +136,7 @@ function handleDelete(): void
     if (!$row) jsonError('PENB nenalezen', 404, 'NOT_FOUND');
 
     if ($row['soubor_cesta']) {
-        $path = __DIR__ . '/../uploads/penb/' . basename($row['soubor_cesta']);
-        if (file_exists($path)) unlink($path);
+        storageDelete((int) $user['svj_id'], 'uploads/penb/' . basename($row['soubor_cesta']));
     }
 
     $db->prepare('DELETE FROM penb WHERE id = :id')->execute([':id' => $row['id']]);
@@ -161,7 +157,7 @@ function handleDownload(): void
 
     if (!$row || !$row['soubor_cesta']) jsonError('Soubor nenalezen', 404, 'NOT_FOUND');
 
-    $path = __DIR__ . '/../uploads/penb/' . basename($row['soubor_cesta']);
+    $path = storageDownload((int) $user['svj_id'], 'uploads/penb/' . basename($row['soubor_cesta']));
     if (!file_exists($path)) jsonError('Soubor nenalezen na disku', 404, 'FILE_MISSING');
 
     $nazev = $row['soubor_nazev'] ?: 'penb.pdf';

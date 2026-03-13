@@ -2,6 +2,7 @@
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/middleware.php';
+require_once __DIR__ . '/storage_helper.php';
 
 $action = getParam('action', '');
 
@@ -130,14 +131,9 @@ function handleAdd(): void
         $allowedMime = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
         if (!isset($allowedMime[$mime])) jsonError('Povoleny jsou pouze obrázky (JPEG, PNG, WebP)', 415, 'INVALID_MIME');
 
-        $uploadDir = __DIR__ . '/../uploads/zavady/';
-        if (!is_dir($uploadDir)) mkdir($uploadDir, 0750, true);
-
         $ext = $allowedMime[$mime];
         $filename = $user['svj_id'] . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
-        if (!move_uploaded_file($file['tmp_name'], $uploadDir . $filename)) {
-            jsonError('Nepodařilo se uložit fotku', 500, 'SAVE_ERROR');
-        }
+        $fotoStorage = storageUpload((int) $user['svj_id'], 'zavady', $file, $filename, $file['name']);
         $fotoNazev = basename($file['name']);
         $fotoCesta = $filename;
     }
@@ -169,7 +165,10 @@ function handleAdd(): void
         ':stav' => 'nova',
     ]);
 
-    jsonOk(['message' => 'Závada nahlášena', 'id' => $zavadaId]);
+    $resp = ['message' => 'Závada nahlášena', 'id' => $zavadaId];
+    if (isset($fotoStorage['gdrive_file_id']) && $fotoStorage['gdrive_file_id']) $resp['gdrive'] = true;
+    if (isset($fotoStorage['gdrive_error']))  $resp['gdrive_warning'] = $fotoStorage['gdrive_error'];
+    jsonOk($resp);
 }
 
 function handleUpdate(): void
@@ -294,8 +293,7 @@ function handleDelete(): void
     if (!$row) jsonError('Závada nenalezena', 404, 'NOT_FOUND');
 
     if ($row['foto_cesta']) {
-        $path = __DIR__ . '/../uploads/zavady/' . basename($row['foto_cesta']);
-        if (file_exists($path)) unlink($path);
+        storageDelete((int) $user['svj_id'], 'uploads/zavady/' . basename($row['foto_cesta']));
     }
 
     $db->prepare('DELETE FROM zavady WHERE id = :id')->execute([':id' => $row['id']]);
@@ -318,7 +316,7 @@ function handlePhoto(): void
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$row || !$row['foto_cesta']) jsonError('Fotka nenalezena', 404, 'NOT_FOUND');
 
-    $path = __DIR__ . '/../uploads/zavady/' . basename($row['foto_cesta']);
+    $path = storageDownload((int) $user['svj_id'], 'uploads/zavady/' . basename($row['foto_cesta']));
     if (!file_exists($path)) jsonError('Soubor nenalezen na disku', 404, 'FILE_MISSING');
 
     $mime = (new finfo(FILEINFO_MIME_TYPE))->file($path);

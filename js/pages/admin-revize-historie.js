@@ -321,6 +321,7 @@ function revHistShowForm(parent, rev, existing, user, onSaved) {
       .then(function(data) {
         if (data.error) throw new Error(data.error.message);
         showToast('Z\xe1znam ulo\u017een');
+        handleGdriveFeedback(data);
         overlay.remove();
         if (onSaved) onSaved();
       })

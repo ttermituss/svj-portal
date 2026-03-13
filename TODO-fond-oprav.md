@@ -16,8 +16,8 @@
 - [x] **Stránkování** — Předchozí/Další navigace v seznamu záznamů
 - [x] **Indikátor příloh** — ikona 📎 s počtem u každého záznamu
 
-## Fáze 3 — Později
+## Fáze 3 — Rozpočet + Zálohy + Notifikace ✅
 
-- [ ] **Rozpočet / plán** — plánovaný roční rozpočet vs. skutečnost (plán příjmů × skutečné příjmy, plán výdajů × skutečné výdaje), progress bar "jak čerpáme"
-- [ ] **Měsíční zálohy vlastníků** — pravidelné měsíční zálohy (předpis × skutečnost), přehled kdo zaplatil / kdo nezaplatil
-- [ ] **Notifikace** — upozornění na vysoké výdaje, nízký zůstatek, neuhrazené zálohy
+- [x] **Rozpočet / plán** — plánovaný roční rozpočet vs. skutečnost (plán příjmů × skutečné příjmy, plán výdajů × skutečné výdaje), progress bar "jak čerpáme"
+- [x] **Měsíční zálohy vlastníků** — pravidelné měsíční zálohy (předpis × skutečnost), přehled kdo zaplatil / kdo nezaplatil
+- [x] **Notifikace** — upozornění na vysoké výdaje, nízký zůstatek, neuhrazené zálohy
