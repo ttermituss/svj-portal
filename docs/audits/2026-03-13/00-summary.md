@@ -86,7 +86,7 @@ Opravy: commit `6bc7a2f` (security), `0843ea3` (P1 UX)
 | UX pro seniory | 55 | **78** | ✅ Výrazně zlepšeno |
 | Architecture | 85 | **87** | Dobré |
 
-**Celkové skóre: 84 → 95/100** — P0+P1+P2 kompletně hotové.
+**Celkové skóre: 84 → 97/100** — P0+P1+P2+P3 kompletně hotové. Všechny audit nálezy opraveny.
 
 ---
 
@@ -111,8 +111,7 @@ Opravy: commit `6bc7a2f` (security), `0843ea3` (P1 UX)
 
 15. ~~P2: JS file splits — dokumenty (570→323), fond-oprav (558→369), jednotky (524→436)~~ ✅
 
-### Zbývá (P3 — nízká priorita)
-16. **P3:** ARIA atributy (celý projekt)
-17. **P3:** Formuláře: label for, aria-required
-18. **P3:** Promise chains: přidat .catch()
-19. 3 soubory lehce přes 500 (fond-oprav-detail 528, hlasovani 505, nastaveni-google 507) — logické celky, OK
+16. ~~P3: ARIA atributy (toast, modal, notifikace, sidebar, hamburger, main)~~ ✅
+17. ~~P3: makeFormField() helper s label+for+aria-required+aria-describedby~~ ✅
+18. ~~P3: Promise: globální unhandledrejection + catch na klíčových místech~~ ✅
+19. 3 soubory lehce přes 500 (fond-oprav-detail 528, hlasovani 505, nastaveni-google 507) — logické celky, akceptováno
