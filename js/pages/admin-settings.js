@@ -77,6 +77,16 @@ function renderSettingsForm(wrap, settings, errBox, okBox) {
       grp.el.appendChild(uriHint);
     }
 
+    // Webhook URL — hint with example
+    if (s.key === 'google_calendar_webhook_url') {
+      var whHint = document.createElement('div');
+      whHint.style.cssText = 'font-size:0.78rem;color:var(--text-light);margin-top:3px;line-height:1.5;';
+      whHint.textContent = 'HTTPS URL pro automatick\u00e9 notifikace z Google Calendar. '
+        + 'P\u0159\u00edklad: https://svj.example.com/api/google_calendar_webhook.php \u2014 '
+        + 'mus\u00ed b\u00fdt ve\u0159ejn\u011b dostupn\u00e1 s platn\u00fdm SSL certifik\u00e1tem.';
+      grp.el.appendChild(whHint);
+    }
+
     form.appendChild(grp.el);
   });
 

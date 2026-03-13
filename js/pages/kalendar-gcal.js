@@ -174,6 +174,136 @@ function renderGcalSyncContent(body, rok, mesic, overlay, onDone) {
   });
 
   body.appendChild(pullSection);
+
+  // Webhook sekce
+  var webhookSep = document.createElement('div');
+  webhookSep.style.cssText = 'border-top:1px solid var(--border-light);margin:4px 0 20px;';
+  body.appendChild(webhookSep);
+
+  renderGcalWebhookSection(body);
+}
+
+/* ===== WEBHOOK SECTION ===== */
+
+function renderGcalWebhookSection(body) {
+  var section = document.createElement('div');
+
+  var title = document.createElement('div');
+  title.style.cssText = 'font-weight:600;font-size:0.92rem;margin-bottom:8px;';
+  title.textContent = '\uD83D\uDD14 Automatick\u00e1 synchronizace (webhooky)';
+  section.appendChild(title);
+
+  var desc = document.createElement('p');
+  desc.style.cssText = 'font-size:0.85rem;color:var(--text-light);margin:0 0 12px;line-height:1.5;';
+  desc.textContent = 'Kdy\u017e zapnete webhooky, zm\u011bny v Google Calendar se automaticky projev\u00ed '
+    + 'v port\u00e1lu \u2014 bez nutnosti ru\u010dn\u011b synchronizovat. Google po\u0161le notifikaci '
+    + 'p\u0159i ka\u017ed\u00e9m p\u0159id\u00e1n\u00ed, \u00faprav\u011b nebo smaz\u00e1n\u00ed ud\u00e1losti.';
+  section.appendChild(desc);
+
+  var statusWrap = document.createElement('div');
+  statusWrap.style.cssText = 'margin-bottom:12px;font-size:0.85rem;color:var(--text-light);';
+  statusWrap.textContent = 'Na\u010d\u00edt\u00e1m stav\u2026';
+  section.appendChild(statusWrap);
+
+  var btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;';
+  section.appendChild(btnRow);
+
+  Api.apiGet('api/google_calendar.php?action=watchStatus')
+    .then(function(data) {
+      statusWrap.textContent = '';
+
+      if (data.active) {
+        var badge = document.createElement('span');
+        badge.className = 'badge badge-success';
+        badge.style.fontSize = '0.82rem';
+        badge.textContent = '\u2705 Webhook aktivn\u00ed';
+        statusWrap.appendChild(badge);
+
+        var exp = document.createElement('span');
+        exp.style.cssText = 'margin-left:8px;font-size:0.82rem;color:var(--text-light);';
+        exp.textContent = '(do ' + data.expiration + ')';
+        statusWrap.appendChild(exp);
+
+        var stopBtn = document.createElement('button');
+        stopBtn.className = 'btn btn-secondary btn-sm';
+        stopBtn.textContent = 'Vypnout webhook';
+        stopBtn.addEventListener('click', function() {
+          showConfirmModal(
+            'Vypnout webhook?',
+            'Zm\u011bny v Google Calendar se p\u0159estanou automaticky synchronizovat.',
+            function() {
+              Api.apiPost('api/google_calendar.php?action=watchStop')
+                .then(function() {
+                  showToast('Webhook vypnut');
+                  statusWrap.textContent = '';
+                  btnRow.textContent = '';
+                  var offBadge = document.createElement('span');
+                  offBadge.className = 'badge badge-warning';
+                  offBadge.style.fontSize = '0.82rem';
+                  offBadge.textContent = '\u26a0\ufe0f Webhook neaktivn\u00ed';
+                  statusWrap.appendChild(offBadge);
+                })
+                .catch(function(e) { showToast(e.message || 'Chyba', 'error'); });
+            }
+          );
+        });
+        btnRow.appendChild(stopBtn);
+      } else {
+        var offBadge = document.createElement('span');
+        offBadge.className = 'badge badge-warning';
+        offBadge.style.fontSize = '0.82rem';
+        offBadge.textContent = '\u26a0\ufe0f Webhook neaktivn\u00ed';
+        statusWrap.appendChild(offBadge);
+
+        var startBtn = document.createElement('button');
+        startBtn.className = 'btn btn-primary btn-sm';
+        startBtn.textContent = 'Zapnout webhook';
+        startBtn.addEventListener('click', function() {
+          startBtn.disabled = true;
+          startBtn.textContent = 'Zapín\u00e1m\u2026';
+          Api.apiPost('api/google_calendar.php?action=watchStart')
+            .then(function(data) {
+              showToast('Webhook zapnut (do ' + data.expiration + ')');
+              statusWrap.textContent = '';
+              btnRow.textContent = '';
+              var onBadge = document.createElement('span');
+              onBadge.className = 'badge badge-success';
+              onBadge.style.fontSize = '0.82rem';
+              onBadge.textContent = '\u2705 Webhook aktivn\u00ed';
+              statusWrap.appendChild(onBadge);
+              var expEl = document.createElement('span');
+              expEl.style.cssText = 'margin-left:8px;font-size:0.82rem;color:var(--text-light);';
+              expEl.textContent = '(do ' + data.expiration + ')';
+              statusWrap.appendChild(expEl);
+            })
+            .catch(function(e) {
+              showToast(e.message || 'Chyba', 'error');
+              startBtn.disabled = false;
+              startBtn.textContent = 'Zapnout webhook';
+            });
+        });
+        btnRow.appendChild(startBtn);
+      }
+    })
+    .catch(function() {
+      statusWrap.textContent = '';
+      var errBadge = document.createElement('span');
+      errBadge.style.cssText = 'font-size:0.82rem;color:var(--text-light);';
+      errBadge.textContent = 'Stav webhooky nedostupn\u00fd (vy\u017eaduje p\u0159ipojen\u00fd Google \u00fa\u010det)';
+      statusWrap.appendChild(errBadge);
+    });
+
+  // Info box
+  var infoBox = document.createElement('div');
+  infoBox.className = 'info-box info-box-info';
+  infoBox.style.cssText = 'font-size:0.82rem;line-height:1.5;margin-top:8px;';
+  infoBox.textContent = '\uD83D\uDCA1 Webhooky vy\u017eaduj\u00ed HTTPS a nastavenou webhook URL v syst\u00e9mov\u00fdch nastaven\u00edch. '
+    + 'Kan\u00e1l vypr\u0161\u00ed po 7 dnech \u2014 nastavte cron pro automatickou obnovu: '
+    + 'php cli/google-calendar.php watch-renew';
+  section.appendChild(infoBox);
+
+  body.appendChild(section);
 }
 
 function formatGcalDate(dateStr, allDay) {

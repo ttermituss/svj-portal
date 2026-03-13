@@ -123,7 +123,7 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
     ├── google_helper.php   # Google API klient, token store/load (AES šifrování), auto-refresh, OAuth state
     ├── google_oauth.php    # Google OAuth: authUrl, callback, status, disconnect
     ├── google_gmail.php    # Gmail API: inbox, message detail, send (admin/výbor)
-    ├── google_calendar.php # Google Calendar sync: push/pull/delete events
+    ├── google_calendar.php # Google Calendar sync: push/pull/delete + watchStart/Stop/Status (webhooky)
     ├── composer.json       # Composer (google/apiclient — Calendar, Drive, Gmail, Oauth2)
     ├── vendor/             # Composer dependencies (v .gitignore)
     └── migrations/

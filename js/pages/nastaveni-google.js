@@ -467,6 +467,21 @@ function renderGuideFaq(container) {
         + '\u2192 \u201eP\u0159ej\u00edt na SVJ Port\u00e1l (nebezpe\u010dn\u00e9)\u201c. '
         + 'Toto je norm\u00e1ln\u00ed pro testovac\u00ed re\u017eim.',
     },
+    {
+      q: 'Co jsou webhooky pro kalend\u00e1\u0159?',
+      a: 'Kdy\u017e zapnete webhooky, zm\u011bny v Google Calendar se automaticky projev\u00ed '
+        + 'v port\u00e1lu b\u011bhem n\u011bkolika sekund \u2014 nemus\u00edte ru\u010dn\u011b klikat '
+        + '\u201eNa\u010d\u00edst z Google\u201c. Vy\u017eaduj\u00ed HTTPS a nastavenou webhook URL '
+        + 'v syst\u00e9mov\u00fdch nastaven\u00edch. Zapnete je v Kalend\u00e1\u0159i \u2192 Google sync.',
+    },
+    {
+      q: 'Jak spr\u00e1vn\u011b nastavit CLI skripty?',
+      a: 'CLI skripty v adres\u00e1\u0159i cli/ umo\u017e\u0148uj\u00ed spr\u00e1vu Gmail, Drive a Calendar '
+        + 'z p\u0159\u00edkazov\u00e9 \u0159\u00e1dky. Sta\u010d\u00ed m\u00edt propojen\u00fd Google '
+        + '\u00fa\u010det p\u0159es webov\u00e9 rozhran\u00ed \u2014 CLI pou\u017e\u00edv\u00e1 '
+        + 'stejn\u00e9 ulo\u017een\u00e9 tokeny. Spus\u0165te php cli/google-gmail.php bez argument\u016f '
+        + 'pro n\u00e1pov\u011bdu.',
+    },
   ];
 
   faqs.forEach(function(faq) {

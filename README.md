@@ -58,12 +58,16 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 ### 📧 Google integrace — jen admin/výbor
 - **Gmail** — čtení inboxu, detail zprávy, odesílání emailů přes propojený Google účet
 - **Google Calendar** — obousměrná synchronizace událostí (push do Google, pull z Google)
+- **Google Calendar webhooky** — Google automaticky posílá změny do portálu (push notifikace), bez nutnosti ručně synchronizovat
 - **OAuth 2.0** — bezpečné propojení Google účtu, tokeny šifrované AES-256-CBC
 - **In-app průvodce** — 5 kroků jak nastavit Google Cloud projekt + FAQ
 - **Nastavení v UI** — Client ID + Secret zadává admin ve Správě portálu (ne na serveru)
 - **Google Drive** — hybridní úložiště (local + GDrive záloha), 7 modulů, sync panel s progress bary, fallback download
-- **Google Calendar webhooky** — push notifikace, inkrementální sync, automatická obnova kanálů
-- **CLI skripty** — `google-gmail.php`, `google-drive.php`, `google-calendar.php` (inbox, send, sync, watch…)
+
+### 🖥️ CLI skripty — správa Google služeb z příkazové řádky
+- **`google-gmail.php`** — čtení inboxu, zobrazení zpráv, odesílání emailů
+- **`google-drive.php`** — stav synchronizace, seznam souborů, batch sync, upload souborů
+- **`google-calendar.php`** — výpis událostí, push/pull synchronizace, správa webhook kanálů, automatická obnova (cron)
 
 ### ⚙️ Pro správce (admin)
 - 👥 **Správa uživatelů** — role, pozvánky, smazání; přiřazení jednotky + telefon
@@ -214,6 +218,9 @@ sudo mysql svj_portal < api/migrations/00X_nazev.sql
 | 029 | Google sync (google_tokens + google_calendar_sync) |
 | 030 | Google settings (client_id, secret, redirect_uri) |
 | 031 | Fond oprav přílohy (fond_prilohy) |
+| 032 | Fond rozpočet + zálohy + notifikace (fond_rozpocet, fond_predpis, fond_zalohy) |
+| 033 | Google Drive storage (gdrive_folders, gdrive_files, svj.gdrive_*) |
+| 034 | Calendar webhooky (google_calendar_watch, webhook URL setting) |
 
 Nikdy neupravuj stávající migraci — vždy přidej novou.
 
@@ -224,3 +231,90 @@ Nikdy neupravuj stávající migraci — vždy přidej novou.
 Viz [`CLAUDE.md`](CLAUDE.md) pro coding standards, pravidla a architekturu.
 Viz [`TODO.md`](TODO.md) pro roadmap a plánované funkce.
 Viz [`CHANGELOG.md`](CHANGELOG.md) pro historii verzí.
+
+---
+
+## CLI skripty
+
+Adresář `cli/` obsahuje PHP skripty pro správu Google služeb z příkazové řádky. Všechny sdílejí stejnou konfiguraci, databázi a šifrování jako webová aplikace.
+
+### Použití
+
+```bash
+# Gmail — čtení pošty, odesílání
+php cli/google-gmail.php inbox                    # zobrazit doručenou poštu
+php cli/google-gmail.php inbox --limit=5 --query="from:urad@mesto.cz"
+php cli/google-gmail.php read <message-id>        # přečíst konkrétní zprávu
+php cli/google-gmail.php send komu@email.cz "Předmět" "Text zprávy"
+php cli/google-gmail.php status                   # stav připojení
+
+# Google Drive — synchronizace souborů
+php cli/google-drive.php status                   # přehled sync per modul
+php cli/google-drive.php list                     # seznam všech trackovaných souborů
+php cli/google-drive.php list --module=dokumenty  # jen dokumenty
+php cli/google-drive.php sync                     # batch upload nesyncovaných na GDrive
+php cli/google-drive.php sync --module=fond --limit=50
+php cli/google-drive.php upload dokumenty /cesta/k/souboru.pdf
+
+# Google Calendar — události a webhooky
+php cli/google-calendar.php list                  # události z Google Calendar (aktuální měsíc)
+php cli/google-calendar.php list --month=6 --year=2026
+php cli/google-calendar.php push --all            # push všech portálových událostí do Google
+php cli/google-calendar.php push --id=42          # push jedné události
+php cli/google-calendar.php pull                  # zobrazit události z Google
+php cli/google-calendar.php status                # stav sync + watch kanálu
+php cli/google-calendar.php watch                 # zapnout webhook (push notifikace)
+php cli/google-calendar.php unwatch               # vypnout webhook
+php cli/google-calendar.php watch-renew           # obnovit expirující kanály (pro cron)
+```
+
+Všechny skripty podporují `--svj=ID` pro multi-tenant prostředí (výchozí: první SVJ s propojeným Google účtem).
+
+### Požadavky
+
+CLI skripty potřebují:
+- Existující propojený Google účet (admin/výbor musí nejdřív připojit Google ve webovém rozhraní)
+- Přístup k DB a `api/config.php` (stejný server jako webová aplikace)
+
+---
+
+## Google Calendar webhooky
+
+Webhooky umožňují **automatickou synchronizaci** — když někdo přidá/upraví/smaže událost v Google Calendar, portál se o tom dozví okamžitě (bez nutnosti ručně klikat "Načíst z Google").
+
+### Jak to funguje
+
+1. Admin zapne webhook (ve webovém rozhraní nebo přes CLI: `php cli/google-calendar.php watch`)
+2. Google vytvoří **watch kanál** — spojení mezi vaším kalendářem a portálem
+3. Při každé změně v kalendáři Google pošle POST na webhook URL portálu
+4. Portál zpracuje změny: vytvoří/upraví/smaže lokální události
+5. Kanál expiruje po max **7 dnech** — cron ho automaticky obnovuje
+
+### Nastavení (produkce)
+
+**1. Nastavte webhook URL** ve Správě portálu → Systémová nastavení → `google_calendar_webhook_url`:
+```
+https://svj.example.com/api/google_calendar_webhook.php
+```
+URL musí být **HTTPS** s platným SSL certifikátem (požadavek Google).
+
+**2. Nastavte cron** pro automatickou obnovu kanálů:
+```bash
+# Kontrola každých 30 minut — obnoví kanály expirující do 1 hodiny
+*/30 * * * * php /cesta/k/svj-portal/cli/google-calendar.php watch-renew
+```
+
+**3. Zapněte webhook** — ve webovém rozhraní (Kalendář → Google sync → Zapnout webhooky) nebo:
+```bash
+php cli/google-calendar.php watch
+```
+
+### Inkrementální sync
+
+Webhook používá **syncToken** — při každé notifikaci stáhne pouze změněné události (ne celý kalendář). Pokud token expiruje, provede se automaticky plný sync za posledních 30 + příštích 90 dní.
+
+### Omezení
+
+- **HTTPS povinné** — v lokálním dev prostředí (`http://svj-portal.local`) webhooky nefungují
+- **Max 7 dní** platnost kanálu — proto je potřeba cron na `watch-renew`
+- Webhooky fungují pouze s „primary" kalendářem připojeného Google účtu
