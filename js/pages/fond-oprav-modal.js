@@ -178,7 +178,7 @@ function fondBuildPrilohySection(modal, existing) {
   function loadPrilohy() {
     Api.apiGet('api/fond_prilohy.php?action=list&fond_oprav_id=' + existing.id).then(function(res) {
       fondRenderPrilohyList(prilohyList, res.prilohy || [], loadPrilohy);
-    });
+    }).catch(function() {});
   }
   loadPrilohy();
 }

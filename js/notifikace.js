@@ -209,7 +209,7 @@ var NotifBadge = (function() {
     row.addEventListener('click', function() {
       // Mark as read
       if (n.precteno == 0) {
-        Api.apiPost('api/notifikace.php?action=read', { id: n.id }).then(refreshCount);
+        Api.apiPost('api/notifikace.php?action=read', { id: n.id }).then(refreshCount).catch(function() {});
         n.precteno = 1;
         row.style.background = '';
         titleEl.style.fontWeight = '400';
