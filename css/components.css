@@ -103,7 +103,7 @@
   background: #c62828;
 }
 
-.btn-sm { padding: 5px 10px; font-size: 0.8rem; }
+.btn-sm { padding: 7px 12px; font-size: 0.85rem; min-height: 36px; }
 .btn-lg { padding: 10px 24px; font-size: 1rem; }
 
 /* ===== INPUTS ===== */
@@ -114,7 +114,7 @@
 
 .form-group label {
   display: block;
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   font-weight: 500;
   color: var(--text-light);
   margin-bottom: 4px;
@@ -162,7 +162,7 @@
 }
 
 .form-hint {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
   margin-top: 4px;
 }
@@ -173,11 +173,12 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 2px 8px;
+  padding: 4px 10px;
   border-radius: 99px;
-  font-size: 0.75rem;
+  font-size: 0.82rem;
   font-weight: 600;
-  line-height: 1.6;
+  line-height: 1.5;
+  min-height: 28px;
 }
 
 .badge-success {
@@ -227,7 +228,7 @@
 
 .data-item label {
   display: block;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
   margin-bottom: 2px;
 }
@@ -256,7 +257,7 @@ table {
 thead th {
   text-align: left;
   padding: 10px 12px;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-light);
   text-transform: uppercase;
@@ -288,7 +289,7 @@ tbody tr:hover {
 
 .info-box-success { background: var(--accent-light); color: var(--accent-text); }
 .info-box-danger  { background: var(--danger-light); color: var(--danger); }
-.info-box-warning { background: var(--warning-light); color: #7a6400; }
+.info-box-warning { background: var(--warning-light); color: var(--warning, #7a6400); }
 .info-box-info    { background: var(--info-light); color: var(--info); }
 .info-box-muted   { background: var(--bg); color: var(--text-light); border: 1px solid var(--border); }
 
@@ -411,7 +412,7 @@ tbody tr:hover {
 }
 
 .stat-card .stat-label {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.03em;

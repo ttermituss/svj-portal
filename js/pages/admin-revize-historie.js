@@ -122,8 +122,8 @@ function revHistMakeRow(h, rev, user, listWrap) {
   top.appendChild(datumEl);
 
   var badge = document.createElement('span');
-  badge.style.cssText = 'display:inline-block;padding:2px 8px;border-radius:12px;' +
-    'font-size:0.75rem;font-weight:600;color:#fff;background:' + vysl.color + ';';
+  badge.style.cssText = 'display:inline-block;padding:4px 10px;border-radius:12px;' +
+    'font-size:0.82rem;font-weight:600;color:#fff;background:' + vysl.color + ';';
   badge.textContent = vysl.icon + ' ' + vysl.label;
   top.appendChild(badge);
 

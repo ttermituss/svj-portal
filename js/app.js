@@ -108,7 +108,7 @@ function buildNavWithUser() {
   var svj = Auth.getSvj();
   if (svj) {
     var svjName = document.createElement('div');
-    svjName.style.cssText = 'font-size:0.75rem;color:var(--text-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;';
+    svjName.style.cssText = 'font-size:0.82rem;color:var(--text-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;';
     svjName.textContent = svj.nazev;
     textBlock.appendChild(svjName);
   }

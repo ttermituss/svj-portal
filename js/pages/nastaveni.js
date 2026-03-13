@@ -337,7 +337,7 @@ function renderAvatarWidget(body, user) {
     'background:rgba(0,0,0,0.38)',
     'display:flex', 'align-items:center', 'justify-content:center',
     'opacity:0', 'transition:opacity .15s',
-    'color:#fff', 'font-size:0.72rem', 'font-weight:600', 'pointer-events:none',
+    'color:#fff', 'font-size:0.82rem', 'font-weight:600', 'pointer-events:none',
   ].join(';');
   overlay.textContent = 'Změnit';
   circleWrap.appendChild(overlay);

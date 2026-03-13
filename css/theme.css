@@ -123,7 +123,22 @@ h3 { font-size: 1.1rem; font-weight: 600; }
 :root[data-senior] h1 { font-size: 1.6rem; }
 :root[data-senior] h2 { font-size: 1.35rem; }
 :root[data-senior] h3 { font-size: 1.2rem; }
-:root[data-senior] .sidebar nav a { font-size: 1.05rem; padding: 12px 16px; }
+:root[data-senior] .sidebar nav a { font-size: 1.05rem; padding: 14px 18px; min-height: 52px; }
 :root[data-senior] button,
 :root[data-senior] input,
 :root[data-senior] select { font-size: 1rem; }
+
+/* Senior: zvětšení malých prvků (badges, labels, hints, tabulky) */
+:root[data-senior] .badge { font-size: 0.9rem; padding: 5px 12px; min-height: 32px; }
+:root[data-senior] .btn-sm { font-size: 0.92rem; padding: 9px 14px; min-height: 44px; }
+:root[data-senior] .form-group label { font-size: 0.95rem; }
+:root[data-senior] .form-hint { font-size: 0.9rem; }
+:root[data-senior] thead th { font-size: 0.92rem; }
+:root[data-senior] tbody td { font-size: 0.95rem; padding: 12px 14px; }
+:root[data-senior] table { font-size: 0.95rem; }
+:root[data-senior] .stat-card .stat-label { font-size: 0.9rem; }
+:root[data-senior] .data-item label { font-size: 0.9rem; }
+:root[data-senior] .info-box { font-size: 0.95rem; }
+:root[data-senior] .link-btn { font-size: 0.92rem; padding: 8px 16px; }
+:root[data-senior] .theme-sw button { font-size: 0.88rem; padding: 6px 12px; }
+:root[data-senior] .hamburger { width: 52px; height: 52px; }

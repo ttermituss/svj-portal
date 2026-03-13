@@ -103,7 +103,7 @@ function fondMiniChart(wrap, mesice) {
     col.appendChild(bars);
 
     var lbl = document.createElement('div');
-    lbl.style.cssText = 'font-size:0.65rem;color:var(--text-light);white-space:nowrap;position:absolute;bottom:-18px;';
+    lbl.style.cssText = 'font-size:0.82rem;color:var(--text-light);white-space:nowrap;position:absolute;bottom:-18px;';
     var parts = k.split('-');
     lbl.textContent = parts[1] + '/' + parts[0].slice(2);
     col.appendChild(lbl);
@@ -113,7 +113,7 @@ function fondMiniChart(wrap, mesice) {
   wrap.appendChild(chart);
 
   var legenda = document.createElement('div');
-  legenda.style.cssText = 'display:flex;gap:14px;margin-top:4px;font-size:0.75rem;color:var(--text-light);';
+  legenda.style.cssText = 'display:flex;gap:14px;margin-top:4px;font-size:0.82rem;color:var(--text-light);';
   [['var(--accent)', 'P\u0159\xedjmy'], ['var(--danger)', 'V\xfddaje']].forEach(function(l) {
     var leg = document.createElement('div');
     leg.style.cssText = 'display:flex;align-items:center;gap:4px;';

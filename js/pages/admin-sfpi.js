@@ -104,13 +104,13 @@ function renderSfpiPrograms(body, knData) {
 
     var zdrojEl = document.createElement('span');
     zdrojEl.textContent = p.zdroj;
-    zdrojEl.style.cssText = 'font-size:0.75rem;color:var(--text-light);border:1px solid var(--border);'
+    zdrojEl.style.cssText = 'font-size:0.82rem;color:var(--text-light);border:1px solid var(--border);'
       + 'border-radius:4px;padding:1px 6px;';
 
     if (isHighlighted) {
       var tipEl = document.createElement('span');
       tipEl.textContent = '\u2605 Doporu\u010deno pro v\u00e1\u0161 typ budovy';
-      tipEl.style.cssText = 'font-size:0.75rem;color:var(--accent);font-weight:600;';
+      tipEl.style.cssText = 'font-size:0.82rem;color:var(--accent);font-weight:600;';
       headerRow.appendChild(nazevEl);
       headerRow.appendChild(zdrojEl);
       headerRow.appendChild(tipEl);
@@ -128,7 +128,7 @@ function renderSfpiPrograms(body, knData) {
     p.stitky.forEach(function(s) {
       var tag = document.createElement('span');
       tag.textContent = s;
-      tag.style.cssText = 'font-size:0.72rem;background:var(--bg-hover);border:1px solid var(--border);'
+      tag.style.cssText = 'font-size:0.82rem;background:var(--bg-hover);border:1px solid var(--border);'
         + 'border-radius:10px;padding:1px 8px;color:var(--text-light);';
       stitkyWrap.appendChild(tag);
     });
@@ -145,7 +145,7 @@ function renderSfpiPrograms(body, knData) {
   body.appendChild(grid);
 
   var note = document.createElement('div');
-  note.style.cssText = 'margin-top:12px;font-size:0.75rem;color:var(--text-light);';
+  note.style.cssText = 'margin-top:12px;font-size:0.82rem;color:var(--text-light);';
   note.textContent = 'Informace jsou orientační. Vždy ověřte aktuální podmínky na webu poskytovatele dotace. '
     + (knData && knData.konstrukce_nazev ? 'Typ konstrukce va\u0161\u00ed budovy: ' + knData.konstrukce_nazev + '.' : '');
   body.appendChild(note);

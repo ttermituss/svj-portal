@@ -373,7 +373,7 @@ function merRenderOdectyTable(wrap, items, meridlo, user) {
         var del = document.createElement('button');
         del.className = 'btn btn-danger btn-sm';
         del.textContent = '\u00d7';
-        del.style.cssText = 'padding:2px 8px;min-width:0;';
+        del.style.cssText = 'padding:4px 10px;min-width:0;';
         del.addEventListener('click', function() {
           showConfirmModal('Smazat ode\u010det?', formatDatum(odecet.datum) + ' \u2014 ' +
             parseFloat(odecet.hodnota).toLocaleString('cs-CZ'), function() {

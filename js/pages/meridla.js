@@ -189,7 +189,7 @@ function merRenderCard(m, isPriv, user, listWrap) {
   // Cejch badge
   if (m.datum_pristi_cejch) {
     var badge = document.createElement('span');
-    badge.style.cssText = 'padding:2px 8px;border-radius:12px;font-size:0.72rem;font-weight:600;color:#fff;flex-shrink:0;';
+    badge.style.cssText = 'padding:4px 10px;border-radius:12px;font-size:0.82rem;font-weight:600;color:#fff;flex-shrink:0;';
     if (cejch === 'expired') { badge.style.background = 'var(--danger)'; badge.textContent = 'Cejch!'; }
     else if (cejch === 'warning') { badge.style.background = '#f08600'; badge.textContent = 'Brzy'; }
     else { badge.style.background = 'var(--accent)'; badge.textContent = 'OK'; }
@@ -198,7 +198,7 @@ function merRenderCard(m, isPriv, user, listWrap) {
 
   if (!m.aktivni || m.aktivni === '0') {
     var inact = document.createElement('span');
-    inact.style.cssText = 'padding:2px 8px;border-radius:12px;font-size:0.72rem;font-weight:600;' +
+    inact.style.cssText = 'padding:4px 10px;border-radius:12px;font-size:0.82rem;font-weight:600;' +
       'color:var(--text-light);background:var(--bg-card);border:1px solid var(--border);flex-shrink:0;';
     inact.textContent = 'Neaktivn\xed';
     top.appendChild(inact);

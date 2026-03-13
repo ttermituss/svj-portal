@@ -157,7 +157,7 @@ function renderGoogleGuide(container) {
   var qIcon = document.createElement('span');
   qIcon.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;'
     + 'width:20px;height:20px;border-radius:50%;background:var(--info-light);'
-    + 'color:var(--info);font-size:0.75rem;font-weight:700;flex-shrink:0;';
+    + 'color:var(--info);font-size:0.82rem;font-weight:700;flex-shrink:0;';
   qIcon.textContent = '?';
   trigger.appendChild(qIcon);
 
@@ -166,7 +166,7 @@ function renderGoogleGuide(container) {
   trigger.appendChild(triggerText);
 
   var arrow = document.createElement('span');
-  arrow.style.cssText = 'font-size:0.7rem;transition:transform 0.2s;';
+  arrow.style.cssText = 'font-size:0.82rem;transition:transform 0.2s;';
   arrow.textContent = '\u25BC';
   trigger.appendChild(arrow);
 
@@ -314,7 +314,7 @@ function renderGuideStep(container, num, step, openByDefault) {
   header.appendChild(titleEl);
 
   var chevron = document.createElement('span');
-  chevron.style.cssText = 'font-size:0.65rem;color:var(--text-light);transition:transform 0.2s;';
+  chevron.style.cssText = 'font-size:0.82rem;color:var(--text-light);transition:transform 0.2s;';
   chevron.textContent = '\u25BC';
   header.appendChild(chevron);
 
@@ -397,7 +397,7 @@ function renderGuideBlock(container, block) {
     copyBtn.title = 'Zkop\u00edrovat';
     copyBtn.style.cssText = 'position:absolute;top:6px;right:6px;background:var(--bg-card);'
       + 'border:1px solid var(--border);border-radius:4px;padding:4px 6px;cursor:pointer;'
-      + 'font-size:0.72rem;color:var(--text-light);line-height:1;';
+      + 'font-size:0.82rem;color:var(--text-light);line-height:1;';
     copyBtn.textContent = '\uD83D\uDCCB';
     copyBtn.addEventListener('click', function() {
       if (typeof copyToClipboard === 'function') {

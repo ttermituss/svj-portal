@@ -88,7 +88,7 @@ function merGrafRender(body, spotreba, typInfo, odecty) {
     card.style.cssText = 'flex:1;min-width:120px;background:var(--bg);border-radius:var(--radius);'
       + 'padding:10px 14px;border:1px solid var(--border-light);';
     var lbl = document.createElement('div');
-    lbl.style.cssText = 'font-size:0.75rem;color:var(--text-light);margin-bottom:4px;';
+    lbl.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-bottom:4px;';
     lbl.textContent = s.label;
     card.appendChild(lbl);
     var val = document.createElement('div');

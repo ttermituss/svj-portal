@@ -232,7 +232,7 @@ function datovkaRenderList(wrap, zpravy, user) {
 
     if (z.sender_isds) {
       var isdsEl = document.createElement('span');
-      isdsEl.style.cssText = 'font-size:0.75rem;color:var(--text-light);font-family:monospace;';
+      isdsEl.style.cssText = 'font-size:0.82rem;color:var(--text-light);font-family:monospace;';
       isdsEl.textContent = 'ID: ' + z.sender_isds;
       row3.appendChild(isdsEl);
     }
@@ -386,7 +386,7 @@ function datovkaOpenModal(z, prilohy) {
     fname.style.cssText = 'font-size:0.88rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
     fname.textContent = p.filename;
     var fmeta = document.createElement('div');
-    fmeta.style.cssText = 'font-size:0.75rem;color:var(--text-light);';
+    fmeta.style.cssText = 'font-size:0.82rem;color:var(--text-light);';
     fmeta.textContent = datovkaFmtSize(p.file_size) + ' · ' + p.mimetype;
     info.appendChild(fname);
     info.appendChild(fmeta);

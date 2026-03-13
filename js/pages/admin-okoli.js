@@ -154,7 +154,7 @@ function okoliRender(wrap, data) {
     boxHead.appendChild(boxTitle);
 
     var boxCount = document.createElement('span');
-    boxCount.style.cssText = 'margin-left:auto;font-size:0.75rem;color:var(--text-light);';
+    boxCount.style.cssText = 'margin-left:auto;font-size:0.82rem;color:var(--text-light);';
     boxCount.textContent = items.length + '\xa0pol.';
     boxHead.appendChild(boxCount);
 
@@ -183,7 +183,7 @@ function okoliRender(wrap, data) {
 
     if (items.length > 5) {
       var more = document.createElement('div');
-      more.style.cssText = 'font-size:0.75rem;color:var(--text-light);margin-top:5px;';
+      more.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:5px;';
       more.textContent = '+ dal\u0161\xedch ' + (items.length - 5);
       box.appendChild(more);
     }
@@ -194,7 +194,7 @@ function okoliRender(wrap, data) {
   wrap.appendChild(grid);
 
   var source = document.createElement('div');
-  source.style.cssText = 'font-size:0.75rem;color:var(--text-light);';
+  source.style.cssText = 'font-size:0.82rem;color:var(--text-light);';
   source.textContent = 'Zdroj: OpenStreetMap / Overpass API \u00b7 Okruh 600\xa0m \u00b7 Data mohou b\xfdt neúpln\xe1.';
   wrap.appendChild(source);
 }

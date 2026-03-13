@@ -97,7 +97,7 @@ function rzRenderRow(parent, zavada, historieId, isPriv) {
   var sevInfo = rzZavaznostInfo(zavada.zavaznost);
   var sevBadge = document.createElement('span');
   sevBadge.className = 'badge';
-  sevBadge.style.cssText = 'font-size:0.72rem;color:#fff;background:' + sevInfo.color + ';flex-shrink:0;';
+  sevBadge.style.cssText = 'font-size:0.82rem;color:#fff;background:' + sevInfo.color + ';flex-shrink:0;';
   sevBadge.textContent = sevInfo.label;
   line1.appendChild(sevBadge);
 
@@ -109,7 +109,7 @@ function rzRenderRow(parent, zavada, historieId, isPriv) {
   var stavInfo = rzStavInfo(zavada.stav);
   var stavBadge = document.createElement('span');
   stavBadge.className = 'badge';
-  stavBadge.style.cssText = 'font-size:0.72rem;flex-shrink:0;';
+  stavBadge.style.cssText = 'font-size:0.82rem;flex-shrink:0;';
   stavBadge.textContent = stavInfo.icon + ' ' + stavInfo.label;
   line1.appendChild(stavBadge);
 
@@ -167,7 +167,7 @@ function rzRenderRow(parent, zavada, historieId, isPriv) {
 
     var delBtn = document.createElement('button');
     delBtn.className = 'btn btn-secondary btn-sm';
-    delBtn.style.cssText = 'font-size:0.72rem;color:var(--danger);';
+    delBtn.style.cssText = 'font-size:0.82rem;color:var(--danger);';
     delBtn.textContent = '\uD83D\uDDD1';
     delBtn.title = 'Smazat';
     delBtn.addEventListener('click', function() {

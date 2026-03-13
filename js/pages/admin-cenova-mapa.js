@@ -89,7 +89,7 @@ function cenovaMapaRender(wrap, adresa) {
     nameRow.appendChild(nameEl);
 
     var badge = document.createElement('span');
-    badge.style.cssText = 'font-size:0.72rem;padding:1px 7px;border-radius:20px;' +
+    badge.style.cssText = 'font-size:0.82rem;padding:4px 10px;border-radius:20px;' +
       'background:var(--accent-light);color:var(--accent-text);font-weight:600;';
     badge.textContent = link.badge;
     nameRow.appendChild(badge);

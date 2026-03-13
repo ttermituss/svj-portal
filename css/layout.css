@@ -48,7 +48,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 9px 12px;
+  padding: 10px 14px;
+  min-height: 44px;
   border-radius: var(--radius);
   color: var(--text);
   font-size: 0.9rem;
@@ -115,8 +116,8 @@
   background: none;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   align-items: center;
   justify-content: center;
   cursor: pointer;

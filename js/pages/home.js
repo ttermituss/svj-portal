@@ -197,7 +197,7 @@ function buildWeatherCard(d) {
         + 'border-radius:8px;border:1px solid var(--border);background:' + (isToday ? 'var(--bg-hover)' : 'transparent') + ';';
 
       var dayName = document.createElement('div');
-      dayName.style.cssText = 'font-size:0.75rem;color:var(--text-light);font-weight:' + (isToday ? '700' : '400') + ';';
+      dayName.style.cssText = 'font-size:0.82rem;color:var(--text-light);font-weight:' + (isToday ? '700' : '400') + ';';
       dayName.textContent = isToday ? 'Dnes' : dnames[date.getDay()];
 
       var dayIcon = document.createElement('div');
@@ -223,7 +223,7 @@ function buildWeatherCard(d) {
   }
 
   var note = document.createElement('div');
-  note.style.cssText = 'margin-top:8px;font-size:0.72rem;color:var(--text-light);';
+  note.style.cssText = 'margin-top:8px;font-size:0.82rem;color:var(--text-light);';
   note.textContent = 'Zdroj: Open-Meteo.com \u00b7 aktualizováno při načtení stránky';
   body.appendChild(note);
 

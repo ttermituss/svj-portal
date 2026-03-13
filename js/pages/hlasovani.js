@@ -252,7 +252,7 @@ function renderResults(wrap, h) {
       var extTag = document.createElement('span');
       extTag.textContent = '+' + ext + '\u00a0ext.';
       extTag.title = ext + ' externích hlasů (papír/email/schůze)';
-      extTag.style.cssText = 'font-size:0.72rem;background:var(--bg-hover);border:1px solid var(--border);'
+      extTag.style.cssText = 'font-size:0.82rem;background:var(--bg-hover);border:1px solid var(--border);'
         + 'border-radius:10px;padding:1px 6px;font-weight:400;cursor:help;';
       lCount.appendChild(extTag);
     }

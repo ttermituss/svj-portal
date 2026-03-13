@@ -194,7 +194,7 @@ function renderInvitesTable(wrap, invitations, reloadFn) {
     if (!inv.used_at && !inv.expired) {
       var revokeBtn = document.createElement('button');
       revokeBtn.className = 'btn btn-danger';
-      revokeBtn.style.cssText = 'padding:3px 8px;font-size:0.78rem;';
+      revokeBtn.style.cssText = 'padding:5px 10px;font-size:0.78rem;';
       revokeBtn.textContent = 'Zru\u0161it';
       revokeBtn.addEventListener('click', function() {
         showConfirmModal('Zru\u0161it pozv\u00e1nku?', 'Pozv\u00e1nka bude nen\u00e1vratn\u011b zru\u0161ena.', function() {

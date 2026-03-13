@@ -109,7 +109,7 @@ function renderUsersTable(wrap, users, me, reloadFn, loadJednotky) {
     if (isPriv) {
       var assignBtn = document.createElement('button');
       assignBtn.className = 'btn btn-secondary';
-      assignBtn.style.cssText = 'font-size:0.72rem;padding:2px 7px;margin-left:8px;min-height:26px;';
+      assignBtn.style.cssText = 'font-size:0.82rem;padding:5px 10px;margin-left:8px;min-height:26px;';
       assignBtn.textContent = u.cislo_jednotky ? 'Změnit' : 'Přiřadit';
       assignBtn.addEventListener('click', function() {
         loadJednotky(function(j) { showAssignUnitModal(u, j, reloadFn); });

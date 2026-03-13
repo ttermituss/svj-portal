@@ -26,7 +26,7 @@ var NotifBadge = (function() {
     // Badge count
     badgeEl = document.createElement('span');
     badgeEl.style.cssText = 'position:absolute;top:-4px;right:-4px;background:var(--danger,#e53e3e);color:#fff;'
-      + 'font-size:0.65rem;font-weight:700;min-width:18px;height:18px;border-radius:9px;'
+      + 'font-size:0.82rem;font-weight:700;min-width:18px;height:18px;border-radius:9px;'
       + 'display:none;align-items:center;justify-content:center;padding:0 4px;';
     btn.appendChild(badgeEl);
 
@@ -97,7 +97,7 @@ var NotifBadge = (function() {
     var readAllBtn = document.createElement('button');
     readAllBtn.type = 'button';
     readAllBtn.className = 'btn btn-sm';
-    readAllBtn.style.cssText = 'font-size:0.75rem;padding:3px 8px;';
+    readAllBtn.style.cssText = 'font-size:0.82rem;padding:5px 10px;';
     readAllBtn.textContent = 'Ozna\u010dit v\u0161e';
     readAllBtn.addEventListener('click', function() {
       Api.apiPost('api/notifikace.php?action=readAll', {}).then(function() {
@@ -190,7 +190,7 @@ var NotifBadge = (function() {
     }
 
     var timeEl = document.createElement('div');
-    timeEl.style.cssText = 'font-size:0.72rem;color:var(--text-light);margin-top:3px;';
+    timeEl.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:3px;';
     timeEl.textContent = formatNotifTime(n.created_at);
     content.appendChild(timeEl);
 

@@ -116,7 +116,7 @@ function fondRenderKategorie(wrap, data) {
   avgPVal.style.cssText = 'font-size:1rem;font-weight:700;color:var(--accent);';
   avgPVal.textContent = fondFmt(data.prumer_mesicni_prijem || 0) + ' K\u010d';
   var avgPLbl = document.createElement('div');
-  avgPLbl.style.cssText = 'font-size:0.75rem;color:var(--text-light);margin-top:2px;';
+  avgPLbl.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:2px;';
   avgPLbl.textContent = '\u00d8 m\u011bs. p\u0159\xedjem';
   avgP.appendChild(avgPVal); avgP.appendChild(avgPLbl);
 
@@ -126,7 +126,7 @@ function fondRenderKategorie(wrap, data) {
   avgVVal.style.cssText = 'font-size:1rem;font-weight:700;color:var(--danger);';
   avgVVal.textContent = fondFmt(data.prumer_mesicni_vydaj || 0) + ' K\u010d';
   var avgVLbl = document.createElement('div');
-  avgVLbl.style.cssText = 'font-size:0.75rem;color:var(--text-light);margin-top:2px;';
+  avgVLbl.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:2px;';
   avgVLbl.textContent = '\u00d8 m\u011bs. v\xfddaj';
   avgV.appendChild(avgVVal); avgV.appendChild(avgVLbl);
 
@@ -214,7 +214,7 @@ function fondRenderUcty(wrap, ucty, onReload) {
 
       var typBadge = document.createElement('span');
       typBadge.className = 'badge';
-      typBadge.style.cssText = 'position:absolute;top:10px;right:10px;font-size:0.7rem;';
+      typBadge.style.cssText = 'position:absolute;top:10px;right:10px;font-size:0.82rem;';
       typBadge.textContent = FOND_UCTY_TYP[u.typ] || u.typ;
       tile.appendChild(typBadge);
 
@@ -252,7 +252,7 @@ function fondRenderUcty(wrap, ucty, onReload) {
       editBtn.addEventListener('click', function() { fondShowUcetModal(u, onReload); });
       var delBtn = document.createElement('button');
       delBtn.className = 'btn btn-sm';
-      delBtn.style.cssText = 'font-size:0.75rem;color:var(--danger);';
+      delBtn.style.cssText = 'font-size:0.82rem;color:var(--danger);';
       delBtn.textContent = 'Smazat';
       delBtn.addEventListener('click', function() {
         showConfirmModal('Smazat \xfa\u010det?', u.nazev, function() {

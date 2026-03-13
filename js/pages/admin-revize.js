@@ -69,7 +69,7 @@ function renderRevizeMiniCard(el, user) {
 
         var status = revizeStatus(rev.datum_pristi);
         var badge = document.createElement('span');
-        badge.style.cssText = 'padding:2px 8px;border-radius:12px;font-size:0.75rem;font-weight:600;color:#fff;flex-shrink:0;';
+        badge.style.cssText = 'padding:4px 10px;border-radius:12px;font-size:0.82rem;font-weight:600;color:#fff;flex-shrink:0;';
         if (status === 'expired') { badge.style.background = 'var(--danger)'; badge.textContent = 'Prohl\xe1\u0161l\xe1'; }
         else if (status === 'warning') { badge.style.background = '#f08600'; badge.textContent = 'Brzy'; }
         else { badge.style.background = 'var(--accent)'; badge.textContent = 'OK'; }

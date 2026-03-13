@@ -263,7 +263,7 @@ function kalRenderGrid(gridWrap, detailWrap, rok, mesic, eventsByDay) {
       });
       if (dayEvents.length > maxDots) {
         var more = document.createElement('span');
-        more.style.cssText = 'font-size:0.65rem;color:var(--text-light);line-height:8px;';
+        more.style.cssText = 'font-size:0.82rem;color:var(--text-light);line-height:8px;';
         more.textContent = '+' + (dayEvents.length - maxDots);
         dotsWrap.appendChild(more);
       }
@@ -347,7 +347,7 @@ function kalShowDayDetail(wrap, rok, mesic, day, events, onRefresh) {
 
       var typBadge = document.createElement('span');
       typBadge.className = 'badge';
-      typBadge.style.cssText = 'font-size:0.72rem;flex-shrink:0;';
+      typBadge.style.cssText = 'font-size:0.82rem;flex-shrink:0;';
       typBadge.textContent = iconInfo.label;
       row.appendChild(typBadge);
 
@@ -361,7 +361,7 @@ function kalShowDayDetail(wrap, rok, mesic, day, events, onRefresh) {
         var editBtn = document.createElement('button');
         editBtn.type = 'button';
         editBtn.className = 'btn btn-secondary btn-sm';
-        editBtn.style.cssText = 'padding:2px 8px;font-size:0.75rem;';
+        editBtn.style.cssText = 'padding:4px 10px;font-size:0.82rem;';
         editBtn.textContent = 'Upravit';
         editBtn.addEventListener('click', function(e2) {
           e2.stopPropagation();
@@ -376,7 +376,7 @@ function kalShowDayDetail(wrap, rok, mesic, day, events, onRefresh) {
         var delBtn = document.createElement('button');
         delBtn.type = 'button';
         delBtn.className = 'btn btn-sm';
-        delBtn.style.cssText = 'padding:2px 8px;font-size:0.75rem;color:var(--danger);';
+        delBtn.style.cssText = 'padding:4px 10px;font-size:0.82rem;color:var(--danger);';
         delBtn.textContent = 'Smazat';
         delBtn.addEventListener('click', function(e2) {
           e2.stopPropagation();

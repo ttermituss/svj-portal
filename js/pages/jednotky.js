@@ -169,7 +169,7 @@ function renderTable(body, jednotky, isPriv, reloadFn) {
       var badge = document.createElement('span');
       badge.className = 'badge';
       badge.textContent = 'Pronájem';
-      badge.style.cssText = 'margin-left:6px;font-size:0.72rem;background:var(--warning,#f59e0b);color:#fff;';
+      badge.style.cssText = 'margin-left:6px;font-size:0.82rem;background:var(--warning,#f59e0b);color:#fff;';
       tdVyuziti.appendChild(badge);
     }
     tr.insertBefore(tdVyuziti, tr.children[2]);
@@ -179,7 +179,7 @@ function renderTable(body, jednotky, isPriv, reloadFn) {
     tdQr.style.cssText = 'padding:6px 12px;border-bottom:1px solid var(--border);';
     var qrBtn = document.createElement('button');
     qrBtn.className = 'btn btn-secondary';
-    qrBtn.style.cssText = 'font-size:0.75rem;padding:4px 8px;min-height:32px;';
+    qrBtn.style.cssText = 'font-size:0.82rem;padding:4px 8px;min-height:32px;';
     qrBtn.textContent = 'QR';
     qrBtn.title = 'Zobrazit QR kód jednotky';
     qrBtn.addEventListener('click', function() { jednotkyShowQrModal(j, svj); });
@@ -203,7 +203,7 @@ function renderTable(body, jednotky, isPriv, reloadFn) {
       tdEdit.style.cssText = 'padding:6px 12px;border-bottom:1px solid var(--border);';
       var editBtn = document.createElement('button');
       editBtn.className = 'btn btn-secondary';
-      editBtn.style.cssText = 'font-size:0.75rem;padding:4px 8px;min-height:32px;';
+      editBtn.style.cssText = 'font-size:0.82rem;padding:4px 8px;min-height:32px;';
       editBtn.textContent = 'Upravit';
       editBtn.addEventListener('click', function() { showJednotkaModal(j, reloadFn); });
       tdEdit.appendChild(editBtn);
@@ -409,7 +409,7 @@ function showJednotkaModal(j, reloadFn) {
     ownerBody.appendChild(extSel);
 
     var note = document.createElement('div');
-    note.style.cssText = 'font-size:0.76rem;color:var(--text-muted);margin-top:4px;';
+    note.style.cssText = 'font-size:0.82rem;color:var(--text-muted);margin-top:4px;';
     note.textContent = 'Neregistrované vlastníky přidáte v Admin \u2192 Neregistrovaní vlastníci.';
     ownerBody.appendChild(note);
 
@@ -473,7 +473,7 @@ function jednotkyShowQrModal(j, svj) {
   modal.appendChild(img);
 
   var info = document.createElement('pre');
-  info.style.cssText = 'text-align:left;font-size:0.75rem;color:var(--text-light);margin:12px 0 0;' +
+  info.style.cssText = 'text-align:left;font-size:0.82rem;color:var(--text-light);margin:12px 0 0;' +
     'background:var(--bg-hover);border-radius:6px;padding:8px 12px;white-space:pre-wrap;word-break:break-word;';
   info.textContent = text;
   modal.appendChild(info);

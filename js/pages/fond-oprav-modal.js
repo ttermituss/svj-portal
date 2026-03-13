@@ -169,7 +169,7 @@ function fondBuildPrilohySection(modal, existing) {
   sec.appendChild(uploadRow);
 
   var hint = document.createElement('div');
-  hint.style.cssText = 'font-size:0.75rem;color:var(--text-light);margin-top:4px;';
+  hint.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:4px;';
   hint.textContent = 'PDF, JPEG, PNG \u2014 max 10 MB';
   sec.appendChild(hint);
 
@@ -204,7 +204,7 @@ function fondRenderPrilohyList(wrap, prilohy, onReload) {
 
     var delBtn = document.createElement('button');
     delBtn.className = 'btn btn-sm';
-    delBtn.style.cssText = 'font-size:0.72rem;color:var(--danger);padding:2px 6px;';
+    delBtn.style.cssText = 'font-size:0.82rem;color:var(--danger);padding:5px 10px;';
     delBtn.textContent = '\u00d7';
     delBtn.title = 'Smazat p\u0159\xedlohu';
     delBtn.addEventListener('click', function() {

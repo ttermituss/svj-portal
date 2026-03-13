@@ -112,7 +112,7 @@ function fondRozpocetRenderSummary(wrap, data) {
     box.appendChild(barBg);
 
     var pctLabel = document.createElement('div');
-    pctLabel.style.cssText = 'font-size:0.75rem;color:var(--text-light);margin-top:2px;text-align:right;';
+    pctLabel.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:2px;text-align:right;';
     pctLabel.textContent = pct + ' %';
     box.appendChild(pctLabel);
 
@@ -213,8 +213,8 @@ function fondRozpocetRenderTable(wrap, polozky, compareData, rok, onReload) {
     tdTyp.style.cssText = 'padding:8px 10px;';
     var typBadge = document.createElement('span');
     typBadge.className = 'badge';
-    typBadge.style.cssText = 'font-size:0.72rem;background:' + (item.typ === 'prijem' ? 'var(--accent)' : 'var(--danger)')
-      + ';color:#fff;padding:2px 8px;border-radius:4px;';
+    typBadge.style.cssText = 'font-size:0.82rem;background:' + (item.typ === 'prijem' ? 'var(--accent)' : 'var(--danger)')
+      + ';color:#fff;padding:4px 10px;border-radius:4px;';
     typBadge.textContent = item.typ === 'prijem' ? 'P\u0159\xedjem' : 'V\xfddaj';
     tdTyp.appendChild(typBadge);
     tr.appendChild(tdTyp);
@@ -247,7 +247,7 @@ function fondRozpocetRenderTable(wrap, polozky, compareData, rok, onReload) {
     barBg.appendChild(barFill);
     tdPct.appendChild(barBg);
     var pctText = document.createElement('div');
-    pctText.style.cssText = 'font-size:0.72rem;color:var(--text-light);margin-top:2px;';
+    pctText.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:2px;';
     pctText.textContent = (pct > 900 ? 'bez pl\xe1nu' : pct + ' %');
     tdPct.appendChild(pctText);
     tr.appendChild(tdPct);
@@ -273,7 +273,7 @@ function fondRozpocetRenderTable(wrap, polozky, compareData, rok, onReload) {
 
       var delBtn = document.createElement('button');
       delBtn.className = 'btn btn-sm';
-      delBtn.style.cssText = 'font-size:0.75rem;color:var(--danger);margin-left:4px;';
+      delBtn.style.cssText = 'font-size:0.82rem;color:var(--danger);margin-left:4px;';
       delBtn.textContent = 'Smazat';
       delBtn.addEventListener('click', (function(it, kat) {
         return function() {

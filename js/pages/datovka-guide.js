@@ -129,7 +129,7 @@ function renderDatovkaPruvodce(el) {
       'display:flex;align-items:center;gap:8px;user-select:none;background:var(--bg-hover);';
     var arrow = document.createElement('span');
     arrow.textContent = '\u25b6';
-    arrow.style.cssText = 'font-size:0.7rem;transition:transform .2s;flex-shrink:0;';
+    arrow.style.cssText = 'font-size:0.82rem;transition:transform .2s;flex-shrink:0;';
     var qt = document.createElement('span');
     qt.textContent = f.q;
     qEl.appendChild(arrow);

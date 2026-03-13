@@ -169,7 +169,7 @@ function renderTableReg(body, vlastnici, isPriv) {
         link.textContent = '\u2696\uFE0F ISIR';
         link.title  = 'Ověřit v Insolvenčním rejstříku (justice.cz)';
         link.style.cssText = 'font-size:0.8rem;color:var(--text-light);text-decoration:none;' +
-          'border:1px solid var(--border);border-radius:4px;padding:2px 7px;white-space:nowrap;';
+          'border:1px solid var(--border);border-radius:4px;padding:5px 10px;white-space:nowrap;';
         tdIsir.appendChild(link);
       }
       tr.appendChild(tdIsir);

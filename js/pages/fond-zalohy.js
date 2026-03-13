@@ -209,7 +209,7 @@ function fondZalohyRenderPredpisy(wrap, predpisy, rok, onReload) {
 
       var delBtn = document.createElement('button');
       delBtn.className = 'btn btn-sm';
-      delBtn.style.cssText = 'font-size:0.75rem;color:var(--danger);margin-left:4px;';
+      delBtn.style.cssText = 'font-size:0.82rem;color:var(--danger);margin-left:4px;';
       delBtn.textContent = '\u00d7';
       delBtn.addEventListener('click', (function(pred) {
         return function() {
@@ -350,7 +350,7 @@ function fondZalohyRenderZalohy(wrap, zalohy, rok, mesic, onReload) {
     var tdStav = document.createElement('td');
     tdStav.style.cssText = 'padding:8px 10px;';
     var badge = document.createElement('span');
-    badge.style.cssText = 'font-size:0.78rem;padding:3px 8px;border-radius:6px;background:' + stavBg + ';color:' + stavColor + ';font-weight:600;';
+    badge.style.cssText = 'font-size:0.78rem;padding:5px 10px;border-radius:6px;background:' + stavBg + ';color:' + stavColor + ';font-weight:600;';
     badge.textContent = stav;
     tdStav.appendChild(badge);
     tr.appendChild(tdStav);
