@@ -60,6 +60,49 @@ function getParam(string $name, ?string $default = null): ?string
  *   $qb->bind($stmt);
  *   $stmt->execute();
  */
+/**
+ * Validuje uploadovaný soubor: MIME type + extension double check.
+ * Vrací extension string nebo volá jsonError.
+ *
+ * @param array $file $_FILES entry
+ * @param array $allowedMime ['mime/type' => 'ext', ...]
+ * @param int $maxSize Max velikost v bytes (UPLOAD_MAX_* konstanta)
+ * @param string $errorMsg Chybová hláška pro neplatný formát
+ */
+function validateUpload(array $file, array $allowedMime, int $maxSize, string $errorMsg): string
+{
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        jsonError('Chyba při nahrávání souboru', 400, 'UPLOAD_ERROR');
+    }
+    if ($file['size'] > $maxSize) {
+        $mb = round($maxSize / 1024 / 1024);
+        jsonError("Soubor je příliš velký (max {$mb} MB)", 413, 'FILE_TOO_LARGE');
+    }
+
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
+    $origExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
+    if (!isset($allowedMime[$mime])) {
+        jsonError($errorMsg, 415, 'INVALID_MIME');
+    }
+
+    $expectedExt = $allowedMime[$mime];
+
+    // Defense-in-depth: extension musí odpovídat MIME typu
+    // Blokuje např. shell.php.jpg (MIME ok, ale přípona .php skrytá)
+    $extParts = explode('.', $file['name']);
+    if (count($extParts) > 2) {
+        // Více než jedna tečka → podezřelé (double extension attack)
+        $innerExt = strtolower($extParts[count($extParts) - 2]);
+        $dangerous = ['php', 'phtml', 'phar', 'php3', 'php4', 'php5', 'php7', 'phps'];
+        if (in_array($innerExt, $dangerous, true)) {
+            jsonError('Soubor s podezřelou příponou odmítnut', 415, 'SUSPICIOUS_EXT');
+        }
+    }
+
+    return is_array($expectedExt) ? ($expectedExt[$origExt] ?? reset($expectedExt)) : $expectedExt;
+}
+
 class WhereBuilder
 {
     private array $conditions = [];

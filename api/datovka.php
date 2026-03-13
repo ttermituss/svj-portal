@@ -1,4 +1,13 @@
 <?php
+/**
+ * Datová schránka — archiv zpráv a příloh (ZFO upload, parsování, kartotéka).
+ *
+ * GET  ?action=list                         → seznam zpráv
+ * POST ?action=upload (multipart, 'zfo')    → upload .zfo souboru + parsování příloh
+ * GET  ?action=download&id=X[&inline=1]     → stažení přílohy
+ * POST ?action=delete {id}                  → smazání zprávy + příloh
+ */
+
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/middleware.php';

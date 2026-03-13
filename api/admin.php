@@ -1,4 +1,15 @@
 <?php
+/**
+ * Správa portálu — uživatelé, role, systémová nastavení.
+ *
+ * GET  ?action=listUsers                    → seznam uživatelů SVJ
+ * POST ?action=updateRole {user_id, role}   → změna role (admin)
+ * POST ?action=updateUserUnit {user_id, jednotka_id} → přiřazení jednotky
+ * POST ?action=deleteUser {user_id}         → smazání uživatele (admin)
+ * GET  ?action=getSettings                  → systémová nastavení (admin)
+ * POST ?action=updateSetting {key, value}   → uložení nastavení (admin)
+ */
+
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/middleware.php';

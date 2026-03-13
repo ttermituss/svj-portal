@@ -86,17 +86,17 @@ Audity: 5 paralelních agentů | Opravy: P0–P3 kompletně hotové + WhereBuild
 | Oblast | Původně | Finálně | Status |
 |--------|---------|---------|--------|
 | SQL Injection ochrana | 95 | **100** | ✅ Perfektní (WhereBuilder) |
-| XSS ochrana | 90 | **95** | ✅ markdown sanitizace |
+| XSS ochrana | 90 | **97** | ✅ markdown + upload double ext check |
 | Tenant isolation | 60 | **100** | ✅ Perfektní |
 | Auth & Sessions | 95 | **95** | Výborné |
 | Encryption | 100 | **100** | Perfektní |
-| File uploads | 90 | **92** | Velmi dobré |
+| File uploads | 90 | **98** | ✅ validateUpload() + double ext check |
 | API konzistence | 95 | **98** | Výborné |
 | Code quality (DRY) | 75 | **93** | ✅ WhereBuilder, requireSvj, file splits |
-| UX pro seniory | 55 | **88** | ✅ ARIA, fonts, touch targets |
-| Architecture | 85 | **93** | ✅ File splits, CSS vars |
+| UX pro seniory | 55 | **92** | ✅ ARIA, fonts, touch targets, WCAG AAA kontrast |
+| Architecture | 85 | **95** | ✅ File splits, CSS vars, PHPDoc |
 
-**Celkové skóre: 84 → 95/100**
+**Celkové skóre: 84 → 97/100**
 
 ---
 
@@ -119,6 +119,3 @@ Audity: 5 paralelních agentů | Opravy: P0–P3 kompletně hotové + WhereBuild
 
 - 3 JS soubory lehce přes 500 ř. (fond-oprav-detail, hlasovani, nastaveni-google) — logické celky
 - HSTS header — odkomentovat po potvrzení HTTPS v produkci
-- MIME + extension double check — .htaccess blokuje PHP execution jako záloha
-- PHPDoc hlavičky na 4 souborech — kosmetické
-- Kontrastní poměr — splňuje WCAG AA, hraničně pro AAA

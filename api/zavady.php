@@ -123,14 +123,8 @@ function handleAdd(): void
 
     if (!empty($_FILES['foto']) && $_FILES['foto']['error'] !== UPLOAD_ERR_NO_FILE) {
         $file = $_FILES['foto'];
-        if ($file['error'] !== UPLOAD_ERR_OK) jsonError('Chyba při nahrávání fotky', 400, 'UPLOAD_ERROR');
-        if ($file['size'] > UPLOAD_MAX_PHOTO) jsonError('Fotka je příliš velká (max 5 MB)', 413, 'FILE_TOO_LARGE');
-
-        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
         $allowedMime = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
-        if (!isset($allowedMime[$mime])) jsonError('Povoleny jsou pouze obrázky (JPEG, PNG, WebP)', 415, 'INVALID_MIME');
-
-        $ext = $allowedMime[$mime];
+        $ext = validateUpload($file, $allowedMime, UPLOAD_MAX_PHOTO, 'Povoleny jsou pouze obrázky (JPEG, PNG, WebP)');
         $filename = $user['svj_id'] . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
         $fotoStorage = storageUpload((int) $user['svj_id'], 'zavady', $file, $filename, $file['name']);
         $fotoNazev = basename($file['name']);

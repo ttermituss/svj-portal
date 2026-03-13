@@ -330,11 +330,7 @@ function handleHistorieDownload(): void
 
 function revizeUploadPdf(array $file, int $svjId, ?string $oldCesta): array
 {
-    if ($file['error'] !== UPLOAD_ERR_OK) jsonError('Chyba při nahrávání souboru', 400);
-    if ($file['size'] > UPLOAD_MAX_STANDARD) jsonError('Soubor je příliš velký (max 10 MB)', 413);
-
-    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
-    if ($mime !== 'application/pdf') jsonError('Povoleny jsou pouze soubory PDF', 415);
+    validateUpload($file, ['application/pdf' => 'pdf'], UPLOAD_MAX_STANDARD, 'Povoleny jsou pouze soubory PDF');
 
     if ($oldCesta) {
         storageDelete($svjId, 'uploads/revize/' . basename($oldCesta));

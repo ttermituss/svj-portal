@@ -1,4 +1,11 @@
 <?php
+/**
+ * Avatar uživatele — upload a smazání profilového obrázku.
+ *
+ * POST ?action=upload   (multipart, soubor 'avatar') → nahrání avataru (JPEG/PNG/GIF/WebP, max 2 MB)
+ * POST ?action=delete                                → smazání avataru
+ */
+
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/middleware.php';
@@ -27,25 +34,8 @@ function handleUpload(): void
         jsonError('Chyba při nahrávání souboru', 400, 'UPLOAD_ERROR');
     }
 
-    if ($file['size'] > UPLOAD_MAX_AVATAR) {
-        jsonError('Soubor je příliš velký (max 2 MB)', 413, 'FILE_TOO_LARGE');
-    }
-
-    $finfo = new finfo(FILEINFO_MIME_TYPE);
-    $mime  = $finfo->file($file['tmp_name']);
-
-    $allowed = [
-        'image/jpeg' => 'jpg',
-        'image/png'  => 'png',
-        'image/gif'  => 'gif',
-        'image/webp' => 'webp',
-    ];
-
-    if (!isset($allowed[$mime])) {
-        jsonError('Nepodporovaný formát. Použijte JPEG, PNG, GIF nebo WebP', 415, 'INVALID_MIME');
-    }
-
-    $ext       = $allowed[$mime];
+    $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif', 'image/webp' => 'webp'];
+    $ext = validateUpload($file, $allowed, UPLOAD_MAX_AVATAR, 'Nepodporovaný formát. Použijte JPEG, PNG, GIF nebo WebP');
     $filename  = $user['id'] . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
 
     // Smazat starý avatar

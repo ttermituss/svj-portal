@@ -98,6 +98,16 @@ function handleUpload(): void
         jsonError('Nepodporovaný formát. Povoleny: PDF, Word, Excel, JPEG, PNG, Markdown, TXT', 415, 'INVALID_MIME');
     }
 
+    // Double extension attack prevence (shell.php.pdf)
+    $extParts = explode('.', $file['name']);
+    if (count($extParts) > 2) {
+        $innerExt = strtolower($extParts[count($extParts) - 2]);
+        $dangerous = ['php', 'phtml', 'phar', 'php3', 'php4', 'php5', 'php7', 'phps'];
+        if (in_array($innerExt, $dangerous, true)) {
+            jsonError('Soubor s podezřelou příponou odmítnut', 415, 'SUSPICIOUS_EXT');
+        }
+    }
+
     $filename = $user['svj_id'] . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
     $storage = storageUpload((int) $user['svj_id'], 'dokumenty', $file, $filename, $file['name']);
 

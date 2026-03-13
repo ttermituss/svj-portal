@@ -37,14 +37,10 @@ function handleUpload(): void
         jsonError('Soubor nebyl nahrán', 400, 'NO_FILE');
     }
     $file = $_FILES['soubor'];
-    if ($file['error'] !== UPLOAD_ERR_OK) jsonError('Chyba při nahrávání', 400, 'UPLOAD_ERROR');
-    if ($file['size'] > UPLOAD_MAX_STANDARD) jsonError('Soubor je příliš velký (max 10 MB)', 413, 'FILE_TOO_LARGE');
-
-    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
     $allowed = ['application/pdf' => 'pdf', 'image/jpeg' => 'jpg', 'image/png' => 'png'];
-    if (!isset($allowed[$mime])) jsonError('Nepodporovaný formát. Povoleny: PDF, JPEG, PNG', 415, 'INVALID_MIME');
+    $ext = validateUpload($file, $allowed, UPLOAD_MAX_STANDARD, 'Nepodporovaný formát. Povoleny: PDF, JPEG, PNG');
 
-    $filename = $svjId . '_' . bin2hex(random_bytes(8)) . '.' . $allowed[$mime];
+    $filename = $svjId . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
     $storage = storageUpload($svjId, 'fond', $file, $filename, $file['name']);
 
     $db->prepare(

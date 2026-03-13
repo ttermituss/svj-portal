@@ -62,17 +62,7 @@ function handleSave(): void
     if (!empty($_FILES['soubor']) && $_FILES['soubor']['error'] !== UPLOAD_ERR_NO_FILE) {
         $file = $_FILES['soubor'];
 
-        if ($file['error'] !== UPLOAD_ERR_OK) {
-            jsonError('Chyba při nahrávání souboru', 400, 'UPLOAD_ERROR');
-        }
-        if ($file['size'] > UPLOAD_MAX_STANDARD) {
-            jsonError('Soubor je příliš velký (max 10 MB)', 413, 'FILE_TOO_LARGE');
-        }
-
-        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
-        if ($mime !== 'application/pdf') {
-            jsonError('Povoleny jsou pouze soubory PDF', 415, 'INVALID_MIME');
-        }
+        validateUpload($file, ['application/pdf' => 'pdf'], UPLOAD_MAX_STANDARD, 'Povoleny jsou pouze soubory PDF');
 
         if ($souborCesta) {
             storageDelete($svjId, 'uploads/penb/' . basename($souborCesta));

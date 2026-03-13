@@ -1,4 +1,14 @@
 <?php
+/**
+ * Autentizace — přihlášení, registrace, odhlášení, session info.
+ *
+ * POST ?action=login {email, password}      → přihlášení (vrací session cookie)
+ * POST ?action=register {ico, email, ...}   → registrace admina přes IČO (ARES)
+ * POST ?action=registerInvite {token, ...}  → registrace přes invite token
+ * POST ?action=logout                       → odhlášení (smaže session)
+ * GET  ?action=me                           → aktuální uživatel + SVJ data
+ */
+
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/session.php';
