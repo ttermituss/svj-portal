@@ -18,7 +18,7 @@ function handleGet(): void
 {
     requireMethod('GET');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $stmt = getDb()->prepare(
         'SELECT id, energeticka_trida, datum_vystaveni, datum_platnosti,
@@ -33,7 +33,7 @@ function handleSave(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $trida          = strtoupper(sanitize($_POST['energeticka_trida'] ?? ''));
     $datumVystaveni = sanitize($_POST['datum_vystaveni'] ?? '');
@@ -65,7 +65,7 @@ function handleSave(): void
         if ($file['error'] !== UPLOAD_ERR_OK) {
             jsonError('Chyba při nahrávání souboru', 400, 'UPLOAD_ERROR');
         }
-        if ($file['size'] > 10 * 1024 * 1024) {
+        if ($file['size'] > UPLOAD_MAX_STANDARD) {
             jsonError('Soubor je příliš velký (max 10 MB)', 413, 'FILE_TOO_LARGE');
         }
 
@@ -74,7 +74,6 @@ function handleSave(): void
             jsonError('Povoleny jsou pouze soubory PDF', 415, 'INVALID_MIME');
         }
 
-        $svjId = (int) $user['svj_id'];
         if ($souborCesta) {
             storageDelete($svjId, 'uploads/penb/' . basename($souborCesta));
         }
@@ -126,7 +125,7 @@ function handleDelete(): void
 {
     requireMethod('POST');
     $user = requireRole('admin');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $db   = getDb();
     $stmt = $db->prepare('SELECT id, soubor_cesta FROM penb WHERE svj_id = :svj_id ORDER BY created_at DESC LIMIT 1');
@@ -147,7 +146,7 @@ function handleDownload(): void
 {
     requireMethod('GET');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $stmt = getDb()->prepare(
         'SELECT soubor_cesta, soubor_nazev FROM penb WHERE svj_id = :svj_id ORDER BY created_at DESC LIMIT 1'

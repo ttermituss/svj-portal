@@ -20,7 +20,7 @@ function handleEvents(): void
 {
     requireMethod('GET');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $svjId = $user['svj_id'];
     $isPriv = in_array($user['role'], ['admin', 'vybor'], true);

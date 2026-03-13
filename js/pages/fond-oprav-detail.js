@@ -256,7 +256,7 @@ function fondRenderUcty(wrap, ucty, onReload) {
       delBtn.textContent = 'Smazat';
       delBtn.addEventListener('click', function() {
         showConfirmModal('Smazat \xfa\u010det?', u.nazev, function() {
-          Api.apiPost('api/fond_oprav.php?action=uctyDelete', { id: u.id })
+          Api.apiPost('api/fond_ucty.php?action=delete', { id: u.id })
             .then(function() { showToast('\xda\u010det smaz\xe1n.', 'success'); onReload(); })
             .catch(function(e) { showToast(e.message || 'Chyba.', 'error'); });
         });
@@ -376,7 +376,7 @@ function fondShowUcetModal(existing, onSaved) {
     };
     if (existing) payload.id = existing.id;
     saveBtn.disabled = true;
-    Api.apiPost('api/fond_oprav.php?action=uctySave', payload)
+    Api.apiPost('api/fond_ucty.php?action=save', payload)
       .then(function() {
         document.body.removeChild(overlay);
         showToast(existing ? '\xda\u010det upraven.' : '\xda\u010det p\u0159id\xe1n.', 'success');

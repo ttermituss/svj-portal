@@ -25,9 +25,7 @@ function handleStatus(): void
 {
     requireMethod('GET');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
-
-    $svjId = (int) $user['svj_id'];
+    $svjId = requireSvj($user);
     $db = getDb();
 
     // GDrive storage enabled?
@@ -72,9 +70,7 @@ function handleEnable(): void
 {
     requireMethod('POST');
     $user = requireRole('admin');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
-
-    $svjId = (int) $user['svj_id'];
+    $svjId = requireSvj($user);
 
     // Verify Google is connected
     require_once __DIR__ . '/google_helper.php';
@@ -104,9 +100,7 @@ function handleDisable(): void
 {
     requireMethod('POST');
     $user = requireRole('admin');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
-
-    $svjId = (int) $user['svj_id'];
+    $svjId = requireSvj($user);
     $db = getDb();
 
     $db->prepare('UPDATE svj SET gdrive_enabled = 0 WHERE id = ?')->execute([$svjId]);
@@ -118,9 +112,7 @@ function handleSyncStart(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
-
-    $svjId = (int) $user['svj_id'];
+    $svjId = requireSvj($user);
     $body = getJsonBody();
     $module = sanitize($body['module'] ?? 'all');
     $limit = min((int) ($body['limit'] ?? 10), 50);
@@ -137,7 +129,7 @@ function handleSyncStatus(): void
 {
     requireMethod('GET');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $modules = storageSyncStatus((int) $user['svj_id']);
     jsonOk(['modules' => $modules]);
@@ -147,9 +139,7 @@ function handleFolderUrl(): void
 {
     requireMethod('GET');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
-
-    $svjId = (int) $user['svj_id'];
+    $svjId = requireSvj($user);
     $module = sanitize(getParam('module', ''));
 
     $db = getDb();

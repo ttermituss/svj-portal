@@ -21,7 +21,7 @@ function handleList(): void
 {
     requireMethod('GET');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $stav   = sanitize(getParam('stav', ''));
     $limit  = min((int) getParam('limit', 50), 200);
@@ -71,7 +71,7 @@ function handleGet(): void
 {
     requireMethod('GET');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $id = (int) getParam('id', 0);
     if (!$id) jsonError('Chybí ID', 400, 'MISSING_ID');
@@ -106,7 +106,7 @@ function handleAdd(): void
 {
     requireMethod('POST');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $nazev    = sanitize($_POST['nazev'] ?? '');
     $popis    = sanitize($_POST['popis'] ?? '');
@@ -125,7 +125,7 @@ function handleAdd(): void
     if (!empty($_FILES['foto']) && $_FILES['foto']['error'] !== UPLOAD_ERR_NO_FILE) {
         $file = $_FILES['foto'];
         if ($file['error'] !== UPLOAD_ERR_OK) jsonError('Chyba při nahrávání fotky', 400, 'UPLOAD_ERROR');
-        if ($file['size'] > 5 * 1024 * 1024) jsonError('Fotka je příliš velká (max 5 MB)', 413, 'FILE_TOO_LARGE');
+        if ($file['size'] > UPLOAD_MAX_PHOTO) jsonError('Fotka je příliš velká (max 5 MB)', 413, 'FILE_TOO_LARGE');
 
         $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
         $allowedMime = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
@@ -175,7 +175,7 @@ function handleUpdate(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $data = json_decode(file_get_contents('php://input'), true) ?: $_POST;
     $id = (int) ($data['id'] ?? 0);
@@ -255,7 +255,7 @@ function handleComment(): void
 {
     requireMethod('POST');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $data = json_decode(file_get_contents('php://input'), true) ?: $_POST;
     $zavadaId = (int) ($data['zavada_id'] ?? 0);
@@ -280,7 +280,7 @@ function handleDelete(): void
 {
     requireMethod('POST');
     $user = requireRole('admin');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $data = json_decode(file_get_contents('php://input'), true) ?: $_POST;
     $id = (int) ($data['id'] ?? 0);
@@ -304,7 +304,7 @@ function handlePhoto(): void
 {
     requireMethod('GET');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $id = (int) getParam('id', 0);
     if (!$id) jsonError('Chybí ID', 400, 'MISSING_ID');

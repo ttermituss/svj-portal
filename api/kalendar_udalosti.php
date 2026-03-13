@@ -23,7 +23,7 @@ function handleList(): void
 {
     requireMethod('GET');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $svjId = $user['svj_id'];
     $rok   = (int) getParam('rok', date('Y'));
@@ -54,7 +54,7 @@ function handleSave(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $body = getJsonBody();
     $svjId = $user['svj_id'];
@@ -132,7 +132,7 @@ function handleDelete(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $body = getJsonBody();
     $id = (int) ($body['id'] ?? 0);

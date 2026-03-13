@@ -37,7 +37,7 @@ function handlePredpisList(): void
 {
     requireMethod('GET');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $rok = (int) getParam('rok', date('Y'));
     $db = getDb();
@@ -64,7 +64,7 @@ function handlePredpisSave(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $body = getJsonBody();
     $rok          = (int) ($body['rok'] ?? date('Y'));
@@ -103,7 +103,7 @@ function handlePredpisGenerate(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $body = getJsonBody();
     $rok = (int) ($body['rok'] ?? date('Y'));
@@ -172,7 +172,7 @@ function handlePredpisDelete(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $body = getJsonBody();
     $id = (int) ($body['id'] ?? 0);
@@ -192,7 +192,7 @@ function handleZalohyList(): void
 {
     requireMethod('GET');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $rok   = (int) getParam('rok', date('Y'));
     $mesic = (int) getParam('mesic', date('n'));
@@ -226,7 +226,7 @@ function handleZalohyGenerate(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $body = getJsonBody();
     $rok   = (int) ($body['rok'] ?? date('Y'));
@@ -266,7 +266,7 @@ function handleZalohySave(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $body = getJsonBody();
     $id         = (int) ($body['id'] ?? 0);
@@ -304,7 +304,7 @@ function handleZalohyStats(): void
 {
     requireMethod('GET');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $rok = (int) getParam('rok', date('Y'));
     $db = getDb();

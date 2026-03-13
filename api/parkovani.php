@@ -16,7 +16,7 @@ function handleList(): void
 {
     requireMethod('GET');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $stmt = getDb()->prepare(
         'SELECT id, cislo, typ, cislo_jednotky, najemce, poznamka
@@ -31,7 +31,7 @@ function handleSave(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $id           = (int) ($_POST['id'] ?? 0);
     $cislo        = sanitize($_POST['cislo'] ?? '');
@@ -78,7 +78,7 @@ function handleDelete(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $id = (int) getParam('id', 0);
     if (!$id) jsonError('Chybí ID', 400, 'MISSING_ID');

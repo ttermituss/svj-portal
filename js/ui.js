@@ -14,7 +14,7 @@ function showToast(message, type) {
   toast.style.cssText = [
     'position:fixed', 'bottom:24px', 'right:24px', 'z-index:9999',
     'padding:12px 16px 12px 20px', 'border-radius:8px', 'font-size:0.95rem', 'font-weight:500',
-    'color:#fff', 'background:' + (isErr ? '#c62828' : '#2e7d32'),
+    'color:#fff', 'background:' + (isErr ? 'var(--danger, #c62828)' : 'var(--success, #2e7d32)'),
     'box-shadow:0 4px 20px rgba(0,0,0,0.3)',
     'display:flex', 'align-items:flex-start', 'gap:10px',
     'opacity:0', 'transform:translateY(14px)',

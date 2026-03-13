@@ -65,7 +65,7 @@ function handleUpload(): void
     if ($ext !== 'zfo') {
         jsonError('Pouze soubory .zfo jsou podporovány', 422, 'INVALID_TYPE');
     }
-    if ($file['size'] > 10 * 1024 * 1024) {
+    if ($file['size'] > UPLOAD_MAX_STANDARD) {
         jsonError('Soubor je příliš velký (max 10 MB)', 422, 'FILE_TOO_LARGE');
     }
 

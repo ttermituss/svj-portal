@@ -151,7 +151,7 @@ function fondBuildPrilohySection(modal, existing) {
     fd.append('fond_oprav_id', existing.id);
     fd.append('soubor', fileInp.files[0]);
     uploadBtn.disabled = true;
-    fetch('api/fond_oprav.php?action=upload', {
+    fetch('api/fond_prilohy.php?action=upload', {
       method: 'POST', body: fd, credentials: 'same-origin',
     }).then(function(r) { return r.json(); }).then(function(res) {
       if (res.status === 'ok') {
@@ -176,7 +176,7 @@ function fondBuildPrilohySection(modal, existing) {
   modal.appendChild(sec);
 
   function loadPrilohy() {
-    Api.apiGet('api/fond_oprav.php?action=prilohy&fond_oprav_id=' + existing.id).then(function(res) {
+    Api.apiGet('api/fond_prilohy.php?action=list&fond_oprav_id=' + existing.id).then(function(res) {
       fondRenderPrilohyList(prilohyList, res.prilohy || [], loadPrilohy);
     });
   }
@@ -196,7 +196,7 @@ function fondRenderPrilohyList(wrap, prilohy, onReload) {
     var row = document.createElement('div');
     row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:4px 0;font-size:0.85rem;';
     var link = document.createElement('a');
-    link.href = 'api/fond_oprav.php?action=prilohaDownload&id=' + p.id;
+    link.href = 'api/fond_prilohy.php?action=download&id=' + p.id;
     link.textContent = p.soubor_nazev;
     link.style.cssText = 'flex:1;color:var(--accent);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
     link.target = '_blank';
@@ -209,7 +209,7 @@ function fondRenderPrilohyList(wrap, prilohy, onReload) {
     delBtn.title = 'Smazat p\u0159\xedlohu';
     delBtn.addEventListener('click', function() {
       showConfirmModal('Smazat p\u0159\xedlohu?', p.soubor_nazev, function() {
-        Api.apiPost('api/fond_oprav.php?action=prilohaDelete', { id: p.id }).then(function() {
+        Api.apiPost('api/fond_prilohy.php?action=delete', { id: p.id }).then(function() {
           showToast('P\u0159\xedloha smaz\xe1na.', 'success');
           onReload();
         }).catch(function(e) { showToast(e.message || 'Chyba.', 'error'); });

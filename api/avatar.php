@@ -27,7 +27,7 @@ function handleUpload(): void
         jsonError('Chyba při nahrávání souboru', 400, 'UPLOAD_ERROR');
     }
 
-    if ($file['size'] > 2 * 1024 * 1024) {
+    if ($file['size'] > UPLOAD_MAX_AVATAR) {
         jsonError('Soubor je příliš velký (max 2 MB)', 413, 'FILE_TOO_LARGE');
     }
 

@@ -2,13 +2,13 @@
 
 var RZ_ZAVAZNOSTI = [
   { value: 'nizka',    label: 'N\u00edzk\u00e1',    color: 'var(--text-light)' },
-  { value: 'stredni',  label: 'St\u0159edn\u00ed',   color: '#f08600' },
+  { value: 'stredni',  label: 'St\u0159edn\u00ed',   color: 'var(--warning-dark, #f08600)' },
   { value: 'vysoka',   label: 'Vysok\u00e1',         color: 'var(--danger)' },
   { value: 'kriticka', label: 'Kritick\u00e1',       color: '#b71c1c' },
 ];
 
 var RZ_STAVY = [
-  { value: 'nova',      label: 'Nov\u00e1',       icon: '\u26a0\ufe0f', color: '#f08600' },
+  { value: 'nova',      label: 'Nov\u00e1',       icon: '\u26a0\ufe0f', color: 'var(--warning-dark, #f08600)' },
   { value: 'v_reseni',  label: 'V \u0159e\u0161en\u00ed', icon: '\uD83D\uDD27', color: 'var(--primary)' },
   { value: 'vyresena',  label: 'Vy\u0159e\u0161ena',      icon: '\u2705', color: 'var(--accent)' },
 ];

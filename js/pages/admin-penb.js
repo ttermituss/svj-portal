@@ -1,8 +1,14 @@
 /* ===== PENB — Průkaz energetické náročnosti ===== */
 
+function penbBarva(trida) {
+  var el = document.createElement('span');
+  var map = { A:'--penb-a', B:'--penb-b', C:'--penb-c', D:'--penb-d', E:'--penb-e', F:'--penb-f', G:'--penb-g' };
+  var v = map[trida] || '--penb-g';
+  return getComputedStyle(document.documentElement).getPropertyValue(v).trim() || '#888';
+}
 var PENB_BARVY = {
-  A: '#1a7c00', B: '#4a9e2a', C: '#8fc127',
-  D: '#f4c400', E: '#f08600', F: '#d44000', G: '#c00000',
+  get A() { return penbBarva('A'); }, get B() { return penbBarva('B'); }, get C() { return penbBarva('C'); },
+  get D() { return penbBarva('D'); }, get E() { return penbBarva('E'); }, get F() { return penbBarva('F'); }, get G() { return penbBarva('G'); },
 };
 
 function renderPenbCard(el, user) {

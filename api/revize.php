@@ -27,7 +27,7 @@ function handleList(): void
 {
     requireMethod('GET');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $db = getDb();
 
@@ -51,7 +51,7 @@ function handleSave(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $id             = (int) ($_POST['id'] ?? 0);
     $typ            = sanitize($_POST['typ'] ?? '');
@@ -141,7 +141,7 @@ function handleDelete(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $id = (int) getParam('id', 0);
     if (!$id) jsonError('Chybí ID', 400, 'MISSING_ID');
@@ -153,7 +153,6 @@ function handleDelete(): void
     if (!$row) jsonError('Revize nenalezena', 404, 'NOT_FOUND');
 
     // Smazat soubory historie
-    $svjId = (int) $user['svj_id'];
     $hist = $db->prepare('SELECT soubor_cesta FROM revize_historie WHERE revize_id = ?');
     $hist->execute([$id]);
     while ($h = $hist->fetch(PDO::FETCH_ASSOC)) {
@@ -175,7 +174,7 @@ function handleDownload(): void
 {
     requireMethod('GET');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $id = (int) getParam('id', 0);
     if (!$id) jsonError('Chybí ID', 400, 'MISSING_ID');
@@ -193,7 +192,7 @@ function handleHistorieList(): void
 {
     requireMethod('GET');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $revizeId = (int) getParam('revize_id', 0);
     if (!$revizeId) jsonError('Chybí revize_id', 400);
@@ -217,7 +216,7 @@ function handleHistorieSave(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $revizeId    = (int) ($_POST['revize_id'] ?? 0);
     $id          = (int) ($_POST['id'] ?? 0);
@@ -290,7 +289,7 @@ function handleHistorieDelete(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $id = (int) getParam('id', 0);
     if (!$id) jsonError('Chybí ID', 400);
@@ -314,7 +313,7 @@ function handleHistorieDownload(): void
 {
     requireMethod('GET');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $id = (int) getParam('id', 0);
     if (!$id) jsonError('Chybí ID', 400);
@@ -332,7 +331,7 @@ function handleHistorieDownload(): void
 function revizeUploadPdf(array $file, int $svjId, ?string $oldCesta): array
 {
     if ($file['error'] !== UPLOAD_ERR_OK) jsonError('Chyba při nahrávání souboru', 400);
-    if ($file['size'] > 10 * 1024 * 1024) jsonError('Soubor je příliš velký (max 10 MB)', 413);
+    if ($file['size'] > UPLOAD_MAX_STANDARD) jsonError('Soubor je příliš velký (max 10 MB)', 413);
 
     $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
     if ($mime !== 'application/pdf') jsonError('Povoleny jsou pouze soubory PDF', 415);

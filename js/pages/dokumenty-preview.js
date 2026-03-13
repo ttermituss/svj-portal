@@ -270,7 +270,10 @@ function mdInline(text) {
   text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
   text = text.replace(/`(.+?)`/g, '<code>$1</code>');
-  text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+  text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function(_, label, url) {
+    if (/^javascript:/i.test(url)) return label;
+    return '<a href="' + url + '" rel="noopener noreferrer">' + label + '</a>';
+  });
   return text;
 }
 

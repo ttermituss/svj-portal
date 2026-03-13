@@ -27,7 +27,7 @@ function handleList(): void
 {
     requireMethod('GET');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403);
+    $svjId = requireSvj($user);
 
     $historieId = (int) getParam('revize_historie_id', 0);
     if (!$historieId) jsonError('Chybí revize_historie_id', 400);
@@ -53,7 +53,7 @@ function handleListByRevize(): void
 {
     requireMethod('GET');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403);
+    $svjId = requireSvj($user);
 
     $revizeId = (int) getParam('revize_id', 0);
     if (!$revizeId) jsonError('Chybí revize_id', 400);
@@ -78,7 +78,7 @@ function handleSave(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403);
+    $svjId = requireSvj($user);
 
     $body = getJsonBody();
     $svjId = (int) $user['svj_id'];
@@ -131,7 +131,7 @@ function handleDeleteZavada(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403);
+    $svjId = requireSvj($user);
 
     $body = getJsonBody();
     $id = (int) ($body['id'] ?? 0);
@@ -149,7 +149,7 @@ function handleUpdateStav(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403);
+    $svjId = requireSvj($user);
 
     $body = getJsonBody();
     $id = (int) ($body['id'] ?? 0);

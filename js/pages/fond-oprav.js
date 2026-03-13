@@ -167,7 +167,7 @@ Router.register('fond-oprav', function(el) {
       Api.apiGet('api/fond_oprav.php?action=stats'),
       Api.apiGet('api/fond_oprav.php?action=statsRocni'),
       Api.apiGet('api/fond_oprav.php?action=statsKat'),
-      Api.apiGet('api/fond_oprav.php?action=uctyList'),
+      Api.apiGet('api/fond_ucty.php?action=list'),
       Api.apiGet('api/fond_oprav.php?action=list&limit=' + fondListLimit + '&offset=' + fondListOffset + qs),
     ]).then(function(res) {
       fondRenderSummary(statsWrap, res[0]);

@@ -191,7 +191,7 @@ function merRenderCard(m, isPriv, user, listWrap) {
     var badge = document.createElement('span');
     badge.style.cssText = 'padding:4px 10px;border-radius:12px;font-size:0.82rem;font-weight:600;color:#fff;flex-shrink:0;';
     if (cejch === 'expired') { badge.style.background = 'var(--danger)'; badge.textContent = 'Cejch!'; }
-    else if (cejch === 'warning') { badge.style.background = '#f08600'; badge.textContent = 'Brzy'; }
+    else if (cejch === 'warning') { badge.style.background = 'var(--warning-dark, #f08600)'; badge.textContent = 'Brzy'; }
     else { badge.style.background = 'var(--accent)'; badge.textContent = 'OK'; }
     top.appendChild(badge);
   }

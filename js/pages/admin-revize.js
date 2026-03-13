@@ -71,7 +71,7 @@ function renderRevizeMiniCard(el, user) {
         var badge = document.createElement('span');
         badge.style.cssText = 'padding:4px 10px;border-radius:12px;font-size:0.82rem;font-weight:600;color:#fff;flex-shrink:0;';
         if (status === 'expired') { badge.style.background = 'var(--danger)'; badge.textContent = 'Prohl\xe1\u0161l\xe1'; }
-        else if (status === 'warning') { badge.style.background = '#f08600'; badge.textContent = 'Brzy'; }
+        else if (status === 'warning') { badge.style.background = 'var(--warning-dark, #f08600)'; badge.textContent = 'Brzy'; }
         else { badge.style.background = 'var(--accent)'; badge.textContent = 'OK'; }
         row.appendChild(badge);
 
@@ -197,7 +197,7 @@ function revizeMakeRow(rev, isPriv, listWrap, formWrap, user) {
       badge.style.background = 'var(--danger)'; badge.style.color = '#fff';
       badge.textContent = '\u26A0 Prohl\xe1\u0161l\xe1!';
     } else if (status === 'warning') {
-      badge.style.background = '#f08600'; badge.style.color = '#fff';
+      badge.style.background = 'var(--warning-dark, #f08600)'; badge.style.color = '#fff';
       badge.textContent = '\u26A0 Brzy vypr\u0161\xed';
     } else {
       badge.style.background = 'var(--accent)'; badge.style.color = '#fff';

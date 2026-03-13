@@ -19,7 +19,7 @@ function handleList(): void
 {
     requireMethod('GET');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $isPriv = in_array($user['role'], ['admin', 'vybor'], true);
 
@@ -43,7 +43,7 @@ function handleUpload(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $nazev    = sanitize($_POST['nazev'] ?? '');
     $popis    = sanitize($_POST['popis'] ?? '');
@@ -69,7 +69,7 @@ function handleUpload(): void
     if ($file['error'] !== UPLOAD_ERR_OK) {
         jsonError('Chyba při nahrávání souboru', 400, 'UPLOAD_ERROR');
     }
-    if ($file['size'] > 20 * 1024 * 1024) {
+    if ($file['size'] > UPLOAD_MAX_DOCUMENT) {
         jsonError('Soubor je příliš velký (max 20 MB)', 413, 'FILE_TOO_LARGE');
     }
 
@@ -128,7 +128,7 @@ function handleDownload(): void
 {
     requireMethod('GET');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $id = (int)getParam('id', '0');
     if (!$id) jsonError('Chybí ID dokumentu', 400, 'MISSING_ID');
@@ -174,7 +174,7 @@ function handlePreview(): void
 {
     requireMethod('GET');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $id = (int)getParam('id', '0');
     if (!$id) jsonError('Chybí ID dokumentu', 400, 'MISSING_ID');
@@ -222,7 +222,7 @@ function handleDelete(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $body = getJsonBody();
     $id   = (int)($body['id'] ?? 0);

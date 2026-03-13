@@ -212,9 +212,7 @@ function handleWatchStart(): never
 {
     requireMethod('POST');
     $user = requireRole('admin');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
-
-    $svjId = (int) $user['svj_id'];
+    $svjId = requireSvj($user);
     $db = getDb();
 
     // Check existing
@@ -272,9 +270,7 @@ function handleWatchStop(): never
 {
     requireMethod('POST');
     $user = requireRole('admin');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
-
-    $svjId = (int) $user['svj_id'];
+    $svjId = requireSvj($user);
     $db = getDb();
 
     $stmt = $db->prepare('SELECT channel_id, resource_id FROM google_calendar_watch WHERE svj_id = ?');
@@ -310,7 +306,7 @@ function handleWatchStatus(): never
 {
     requireMethod('GET');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $db = getDb();
     $stmt = $db->prepare('SELECT channel_id, expiration, sync_token, created_at FROM google_calendar_watch WHERE svj_id = ?');

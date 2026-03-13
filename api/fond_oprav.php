@@ -19,13 +19,7 @@ switch ($action) {
     case 'add':             handleAdd();             break;
     case 'update':          handleUpdate();          break;
     case 'delete':          handleDelete();          break;
-    case 'upload':          handleUpload();          break;
-    case 'prilohy':         handlePrilohy();         break;
-    case 'prilohaDownload': handlePrilohaDownload(); break;
-    case 'prilohaDelete':   handlePrilohaDelete();   break;
-    case 'uctyList':        handleUctyList();        break;
-    case 'uctySave':        handleUctySave();        break;
-    case 'uctyDelete':      handleUctyDelete();      break;
+    // Přílohy → api/fond_prilohy.php, Účty → api/fond_ucty.php
     default: jsonError('Neznámá akce', 400, 'UNKNOWN_ACTION');
 }
 
@@ -35,7 +29,7 @@ function handleList(): void
 {
     requireMethod('GET');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $limit     = max(1, min(200, (int) getParam('limit', 50)));
     $offset    = max(0, (int) getParam('offset', 0));
@@ -92,7 +86,7 @@ function handleStats(): void
 {
     requireMethod('GET');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $db = getDb();
     $svjId = $user['svj_id'];
@@ -133,7 +127,7 @@ function handleStatsRocni(): void
 {
     requireMethod('GET');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $db = getDb();
     $stmt = $db->prepare(
@@ -207,7 +201,7 @@ function handleStatsKat(): void
 {
     requireMethod('GET');
     $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $db = getDb();
     $stmt = $db->prepare(
@@ -254,7 +248,7 @@ function handleAdd(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $body = getJsonBody();
     $data = fondValidateRecord($body);
@@ -289,7 +283,7 @@ function handleUpdate(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $body = getJsonBody();
     $id = (int) ($body['id'] ?? 0);
@@ -351,7 +345,7 @@ function handleDelete(): void
 {
     requireMethod('POST');
     $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+    $svjId = requireSvj($user);
 
     $body = getJsonBody();
     $id = (int) ($body['id'] ?? getParam('id', 0));
@@ -383,215 +377,3 @@ function fondDeleteAttachmentFiles(PDO $db, int $fondId, int $svjId): void
     }
 }
 
-/* ===== PŘÍLOHY ===== */
-
-function handleUpload(): void
-{
-    requireMethod('POST');
-    $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
-
-    $fondId = (int) ($_POST['fond_oprav_id'] ?? 0);
-    if (!$fondId) jsonError('Chybí fond_oprav_id', 400, 'MISSING_ID');
-
-    $db = getDb();
-    $stmt = $db->prepare('SELECT id FROM fond_oprav WHERE id = :id AND svj_id = :sid');
-    $stmt->execute([':id' => $fondId, ':sid' => $user['svj_id']]);
-    if (!$stmt->fetch()) jsonError('Záznam nenalezen', 404, 'NOT_FOUND');
-
-    if (empty($_FILES['soubor']) || $_FILES['soubor']['error'] === UPLOAD_ERR_NO_FILE) {
-        jsonError('Soubor nebyl nahrán', 400, 'NO_FILE');
-    }
-    $file = $_FILES['soubor'];
-    if ($file['error'] !== UPLOAD_ERR_OK) {
-        jsonError('Chyba při nahrávání', 400, 'UPLOAD_ERROR');
-    }
-    if ($file['size'] > 10 * 1024 * 1024) {
-        jsonError('Soubor je příliš velký (max 10 MB)', 413, 'FILE_TOO_LARGE');
-    }
-
-    $finfo = new finfo(FILEINFO_MIME_TYPE);
-    $mime  = $finfo->file($file['tmp_name']);
-    $allowed = [
-        'application/pdf' => 'pdf',
-        'image/jpeg'      => 'jpg',
-        'image/png'       => 'png',
-    ];
-    if (!isset($allowed[$mime])) {
-        jsonError('Nepodporovaný formát. Povoleny: PDF, JPEG, PNG', 415, 'INVALID_MIME');
-    }
-    $ext = $allowed[$mime];
-
-    $filename = $user['svj_id'] . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
-    $storage = storageUpload((int) $user['svj_id'], 'fond', $file, $filename, $file['name']);
-
-    $db->prepare(
-        'INSERT INTO fond_prilohy (fond_oprav_id, svj_id, soubor_nazev, soubor_cesta)
-         VALUES (:fid, :sid, :nazev, :cesta)'
-    )->execute([
-        ':fid'   => $fondId,
-        ':sid'   => $user['svj_id'],
-        ':nazev' => basename($file['name']),
-        ':cesta' => $filename,
-    ]);
-
-    $resp = ['message' => 'Příloha nahrána', 'id' => (int) $db->lastInsertId()];
-    if ($storage['gdrive_file_id']) $resp['gdrive'] = true;
-    if ($storage['gdrive_error'])   $resp['gdrive_warning'] = $storage['gdrive_error'];
-    jsonOk($resp);
-}
-
-function handlePrilohy(): void
-{
-    requireMethod('GET');
-    $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
-
-    $fondId = (int) getParam('fond_oprav_id', '0');
-    if (!$fondId) jsonError('Chybí fond_oprav_id', 400, 'MISSING_ID');
-
-    $stmt = getDb()->prepare(
-        'SELECT id, soubor_nazev, created_at FROM fond_prilohy
-         WHERE fond_oprav_id = :fid AND svj_id = :sid ORDER BY created_at DESC'
-    );
-    $stmt->execute([':fid' => $fondId, ':sid' => $user['svj_id']]);
-
-    jsonOk(['prilohy' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
-}
-
-function handlePrilohaDownload(): void
-{
-    requireMethod('GET');
-    $user = requireAuth();
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
-
-    $id = (int) getParam('id', '0');
-    if (!$id) jsonError('Chybí ID přílohy', 400, 'MISSING_ID');
-
-    $stmt = getDb()->prepare(
-        'SELECT soubor_cesta, soubor_nazev FROM fond_prilohy WHERE id = :id AND svj_id = :sid'
-    );
-    $stmt->execute([':id' => $id, ':sid' => $user['svj_id']]);
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    if (!$row) jsonError('Příloha nenalezena', 404, 'NOT_FOUND');
-
-    $relPath = 'uploads/fond/' . basename($row['soubor_cesta']);
-    $path = storageDownload((int) $user['svj_id'], $relPath);
-    if (!file_exists($path)) jsonError('Soubor nenalezen na disku', 404, 'FILE_MISSING');
-
-    $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-    $mimes = ['pdf' => 'application/pdf', 'jpg' => 'image/jpeg', 'png' => 'image/png'];
-
-    header('Content-Type: ' . ($mimes[$ext] ?? 'application/octet-stream'));
-    header('Content-Disposition: attachment; filename="' . rawurlencode($row['soubor_nazev']) . '"');
-    header('Content-Length: ' . filesize($path));
-    readfile($path);
-    exit;
-}
-
-function handlePrilohaDelete(): void
-{
-    requireMethod('POST');
-    $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
-
-    $body = getJsonBody();
-    $id = (int) ($body['id'] ?? 0);
-    if (!$id) jsonError('Chybí ID přílohy', 400, 'MISSING_ID');
-
-    $db = getDb();
-    $stmt = $db->prepare(
-        'SELECT soubor_cesta FROM fond_prilohy WHERE id = :id AND svj_id = :sid'
-    );
-    $stmt->execute([':id' => $id, ':sid' => $user['svj_id']]);
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    if (!$row) jsonError('Příloha nenalezena', 404, 'NOT_FOUND');
-
-    storageDelete((int) $user['svj_id'], 'uploads/fond/' . basename($row['soubor_cesta']));
-
-    $db->prepare('DELETE FROM fond_prilohy WHERE id = :id')->execute([':id' => $id]);
-    jsonOk(['deleted' => true]);
-}
-
-/* ===== BANKOVNÍ ÚČTY ===== */
-
-function handleUctyList(): void
-{
-    requireMethod('GET');
-    $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
-
-    $db = getDb();
-    $stmt = $db->prepare(
-        'SELECT * FROM fond_ucty WHERE svj_id = :sid ORDER BY nazev'
-    );
-    $stmt->execute([':sid' => $user['svj_id']]);
-
-    jsonOk(['ucty' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
-}
-
-function handleUctySave(): void
-{
-    requireMethod('POST');
-    $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
-
-    $body = getJsonBody();
-    $id          = (int) ($body['id'] ?? 0);
-    $nazev       = sanitize($body['nazev'] ?? '');
-    $cisloUctu   = sanitize($body['cislo_uctu'] ?? '');
-    $banka       = sanitize($body['banka'] ?? '');
-    $typ         = sanitize($body['typ'] ?? 'bezny');
-    $zustatek    = str_replace(',', '.', $body['zustatek'] ?? '0');
-    $sazba       = $body['urokova_sazba'] ?? null;
-    $poznamka    = sanitize($body['poznamka'] ?? '');
-
-    if (!$nazev) jsonError('Název účtu je povinný', 422, 'VALIDATION_ERROR');
-    if (!in_array($typ, ['bezny', 'sporici', 'terminovany', 'jiny'], true)) $typ = 'bezny';
-
-    $db = getDb();
-    $params = [
-        ':nazev' => $nazev, ':cislo' => $cisloUctu ?: null, ':banka' => $banka ?: null,
-        ':typ' => $typ, ':zust' => round((float) $zustatek, 2),
-        ':sazba' => ($sazba !== null && $sazba !== '') ? round((float) $sazba, 3) : null,
-        ':poz' => $poznamka ?: null, ':sid' => $user['svj_id'],
-    ];
-
-    if ($id > 0) {
-        $stmt = $db->prepare('SELECT id FROM fond_ucty WHERE id = :id AND svj_id = :sid');
-        $stmt->execute([':id' => $id, ':sid' => $user['svj_id']]);
-        if (!$stmt->fetch()) jsonError('Účet nenalezen', 404, 'NOT_FOUND');
-
-        $db->prepare(
-            'UPDATE fond_ucty SET nazev=:nazev, cislo_uctu=:cislo, banka=:banka, typ=:typ,
-                    zustatek=:zust, urokova_sazba=:sazba, poznamka=:poz
-             WHERE id=:id AND svj_id=:sid'
-        )->execute(array_merge($params, [':id' => $id]));
-    } else {
-        $db->prepare(
-            'INSERT INTO fond_ucty (svj_id, nazev, cislo_uctu, banka, typ, zustatek, urokova_sazba, poznamka)
-             VALUES (:sid, :nazev, :cislo, :banka, :typ, :zust, :sazba, :poz)'
-        )->execute($params);
-        $id = (int) $db->lastInsertId();
-    }
-
-    jsonOk(['id' => $id]);
-}
-
-function handleUctyDelete(): void
-{
-    requireMethod('POST');
-    $user = requireRole('admin', 'vybor');
-    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
-
-    $body = getJsonBody();
-    $id = (int) ($body['id'] ?? 0);
-    if ($id <= 0) jsonError('Neplatné ID', 422, 'VALIDATION_ERROR');
-
-    $db = getDb();
-    $stmt = $db->prepare('DELETE FROM fond_ucty WHERE id = :id AND svj_id = :sid');
-    $stmt->execute([':id' => $id, ':sid' => $user['svj_id']]);
-    if ($stmt->rowCount() === 0) jsonError('Účet nenalezen', 404, 'NOT_FOUND');
-
-    jsonOk(['deleted' => true]);
-}

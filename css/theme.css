@@ -28,6 +28,18 @@
   --info:       #1e88e5;
   --info-light: #e3f2fd;
 
+  --success:    #2e7d32;
+  --warning-dark:#f08600;
+
+  /* PENB energy class colors (A–G) */
+  --penb-a: #1a7c00;
+  --penb-b: #4a9e2a;
+  --penb-c: #8fc127;
+  --penb-d: #f4c400;
+  --penb-e: #f08600;
+  --penb-f: #d44000;
+  --penb-g: #c00000;
+
   --shadow:     0 1px 3px rgba(0,0,0,0.08);
   --shadow-lg:  0 4px 12px rgba(0,0,0,0.1);
 
@@ -73,6 +85,17 @@
   --warning-light:#3a3a1a;
   --info:       #42a5f5;
   --info-light: #1a2a3a;
+
+  --success:    #4caf50;
+  --warning-dark:#ffb74d;
+
+  --penb-a: #2e7d32;
+  --penb-b: #66bb6a;
+  --penb-c: #aed581;
+  --penb-d: #fdd835;
+  --penb-e: #ffb74d;
+  --penb-f: #ff7043;
+  --penb-g: #ef5350;
 
   --shadow:     0 1px 3px rgba(0,0,0,0.3);
   --shadow-lg:  0 4px 12px rgba(0,0,0,0.4);

@@ -2,7 +2,7 @@
 
 var REV_VYSLEDKY = [
   { value: 'ok',            label: 'Bez z\xe1vad',     icon: '\u2705', color: 'var(--accent)' },
-  { value: 'zavady',        label: 'Se z\xe1vadami',   icon: '\u26A0\uFE0F', color: '#f08600' },
+  { value: 'zavady',        label: 'Se z\xe1vadami',   icon: '\u26A0\uFE0F', color: 'var(--warning-dark, #f08600)' },
   { value: 'nezpusobile',   label: 'Nezp\u016fsobil\xe9', icon: '\u274C', color: 'var(--danger)' },
 ];
 
