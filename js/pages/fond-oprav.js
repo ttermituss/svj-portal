@@ -195,7 +195,8 @@ Router.register('fond-oprav', function(el) {
     Api.apiGet('api/fond_oprav.php?action=list&limit=' + fondListLimit + '&offset=' + fondListOffset + qs)
       .then(function(res) {
         fondRenderZaznamy(listWrap, res.zaznamy || [], res.total || 0, user, loadAll, loadRecords);
-      });
+      })
+      .catch(function(e) { showToast(e.message || 'Chyba', 'error'); });
   }
 
   loadAll();

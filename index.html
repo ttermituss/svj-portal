@@ -13,23 +13,23 @@
 <div class="app">
   <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
 
-  <aside class="sidebar" id="sidebar">
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Hlavn\xed menu">
     <h2>SVJ Portál</h2>
     <p>Správa domu</p>
-    <nav id="mainNav"></nav>
+    <nav id="mainNav" aria-label="Hlavn\xed navigace"></nav>
   </aside>
 
   <div class="main-wrap">
     <header class="header">
-      <button class="hamburger" onclick="toggleSidebar()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <button class="hamburger" onclick="toggleSidebar()" aria-label="Otev\u0159\xedt menu" aria-controls="sidebar" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <path d="M3 12h18M3 6h18M3 18h18"/>
         </svg>
       </button>
       <div class="theme-sw" id="themeSwitcher"></div>
     </header>
 
-    <main class="content" id="content"></main>
+    <main class="content" id="content" role="main"></main>
   </div>
 </div>
 

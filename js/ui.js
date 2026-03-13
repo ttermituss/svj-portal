@@ -10,6 +10,8 @@ function showToast(message, type) {
 
   var toast = document.createElement('div');
   toast.id = 'svj-toast';
+  toast.setAttribute('role', 'alert');
+  toast.setAttribute('aria-live', 'assertive');
   var isErr = type === 'error';
   toast.style.cssText = [
     'position:fixed', 'bottom:24px', 'right:24px', 'z-index:9999',
@@ -33,7 +35,8 @@ function showToast(message, type) {
   toast.appendChild(msg);
 
   var closeBtn = document.createElement('button');
-  closeBtn.textContent = '×';
+  closeBtn.textContent = '\u00d7';
+  closeBtn.setAttribute('aria-label', 'Zav\u0159\xedt');
   closeBtn.style.cssText = [
     'flex-shrink:0', 'background:none', 'border:none', 'color:rgba(255,255,255,0.7)',
     'font-size:1.3rem', 'line-height:1', 'cursor:pointer', 'padding:0 0 0 4px',
@@ -77,6 +80,9 @@ function showConfirmModal(title, detail, onConfirm) {
     'align-items:center', 'justify-content:center', 'padding:16px',
   ].join(';');
 
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+
   var modal = document.createElement('div');
   modal.style.cssText = [
     'background:var(--bg-card)', 'border:1px solid var(--border)',
@@ -87,6 +93,8 @@ function showConfirmModal(title, detail, onConfirm) {
   ].join(';');
 
   var h = document.createElement('h3');
+  overlay.setAttribute('aria-labelledby', 'confirm-title');
+  h.id = 'confirm-title';
   h.style.cssText = 'margin:0 0 8px;font-size:1.1rem;color:var(--text);';
   h.textContent = title;
 
@@ -176,6 +184,66 @@ function handleGdriveFeedback(data) {
   } else if (data.gdrive) {
     showToast('Soubor ulo\u017een i na Google Drive');
   }
+}
+
+/* ---- Accessible form field helper ---- */
+
+/**
+ * Vytvoří label + input s proper for/id propojením a aria atributy.
+ * @returns {{ el: HTMLElement, input: HTMLInputElement, label: HTMLLabelElement }}
+ */
+function makeFormField(labelText, type, value, opts) {
+  opts = opts || {};
+  var id = 'ff-' + (makeFormField._seq = (makeFormField._seq || 0) + 1);
+  var wrap = document.createElement('div');
+  wrap.className = 'form-group';
+
+  var label = document.createElement('label');
+  label.setAttribute('for', id);
+  label.textContent = labelText;
+  wrap.appendChild(label);
+
+  var input;
+  if (type === 'textarea') {
+    input = document.createElement('textarea');
+    input.className = 'form-input';
+    input.rows = opts.rows || 3;
+  } else if (type === 'select') {
+    input = document.createElement('select');
+    input.className = 'form-input';
+    (opts.options || []).forEach(function(o) {
+      var opt = document.createElement('option');
+      opt.value = o.value;
+      opt.textContent = o.label;
+      if (o.value === value) opt.selected = true;
+      input.appendChild(opt);
+    });
+  } else {
+    input = document.createElement('input');
+    input.type = type || 'text';
+    input.className = 'form-input';
+    input.value = value || '';
+  }
+
+  input.id = id;
+  if (opts.required) {
+    input.required = true;
+    input.setAttribute('aria-required', 'true');
+  }
+  if (opts.placeholder) input.placeholder = opts.placeholder;
+  wrap.appendChild(input);
+
+  if (opts.hint) {
+    var hintId = id + '-hint';
+    var hint = document.createElement('div');
+    hint.className = 'form-hint';
+    hint.id = hintId;
+    hint.textContent = opts.hint;
+    input.setAttribute('aria-describedby', hintId);
+    wrap.appendChild(hint);
+  }
+
+  return { el: wrap, input: input, label: label };
 }
 
 /* ---- Avatar helpers ---- */

@@ -22,6 +22,9 @@ var NotifBadge = (function() {
     btn.style.cssText = 'position:relative;padding:6px 10px;font-size:1.2rem;min-width:40px;min-height:40px;';
     btn.textContent = '\uD83D\uDD14';
     btn.title = 'Notifikace';
+    btn.setAttribute('aria-label', 'Notifikace');
+    btn.setAttribute('aria-haspopup', 'true');
+    btn.setAttribute('aria-expanded', 'false');
 
     // Badge count
     badgeEl = document.createElement('span');
@@ -77,6 +80,7 @@ var NotifBadge = (function() {
   function openPanel() {
     closePanel();
     panelOpen = true;
+    btn.setAttribute('aria-expanded', 'true');
 
     var panel = document.createElement('div');
     panel.id = 'notif-panel';
@@ -103,7 +107,7 @@ var NotifBadge = (function() {
       Api.apiPost('api/notifikace.php?action=readAll', {}).then(function() {
         refreshCount();
         loadNotifList(panel);
-      });
+      }).catch(function() {});
     });
     hdr.appendChild(readAllBtn);
     panel.appendChild(hdr);
@@ -238,6 +242,7 @@ var NotifBadge = (function() {
 
   function closePanel() {
     panelOpen = false;
+    btn.setAttribute('aria-expanded', 'false');
     var panel = document.getElementById('notif-panel');
     if (panel && panel.parentNode) panel.parentNode.removeChild(panel);
   }

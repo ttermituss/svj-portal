@@ -1,5 +1,12 @@
 /* ===== APP INIT ===== */
 
+// Globální handler pro neošetřené promise rejection
+window.addEventListener('unhandledrejection', function(e) {
+  var msg = e.reason && e.reason.message ? e.reason.message : 'Neočekávaná chyba';
+  if (typeof showToast === 'function') showToast(msg, 'error');
+  e.preventDefault();
+});
+
 // Položky viditelné bez přihlášení
 var NAV_ITEMS_PUBLIC = [
   { page: 'home', icon: '\uD83C\uDFE0', label: 'Úvod' },
@@ -175,11 +182,17 @@ function buildNavWithUser() {
 /* ===== SIDEBAR TOGGLE (mobile) ===== */
 
 function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
+  var sb = document.getElementById('sidebar');
+  sb.classList.toggle('open');
   document.getElementById('overlay').classList.toggle('show');
+  var isOpen = sb.classList.contains('open');
+  var hamburger = document.querySelector('.hamburger');
+  if (hamburger) hamburger.setAttribute('aria-expanded', String(isOpen));
 }
 
 function closeSidebar() {
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('overlay').classList.remove('show');
+  var hamburger = document.querySelector('.hamburger');
+  if (hamburger) hamburger.setAttribute('aria-expanded', 'false');
 }
