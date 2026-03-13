@@ -12,7 +12,7 @@ $format = $_GET['format'] ?? 'csv';
 
 if (!in_array($format, ['csv', 'xlsx', 'pdf'], true)) jsonError('Nepodporovaný formát', 400);
 
-$allowed = ['vlastnici', 'jednotky', 'fond_oprav', 'revize', 'parkovani', 'zavady'];
+$allowed = ['vlastnici', 'jednotky', 'fond_oprav', 'revize', 'parkovani', 'zavady', 'meridla'];
 if (!in_array($type, $allowed, true)) jsonError('Nepodporovaný typ exportu', 400);
 
 $db = getDb();
@@ -133,6 +133,43 @@ switch ($type) {
         ], $rows);
         $filename = 'parkovani';
         $sheet    = 'Parkovací místa';
+        break;
+
+    case 'meridla':
+        requireRole('admin', 'vybor');
+        $stmt = $db->prepare(
+            'SELECT m.typ, m.vyrobni_cislo, m.umisteni_typ, m.misto, m.jednotka_mereni,
+                    m.datum_instalace, m.datum_cejchu, m.datum_pristi_cejch, m.aktivni,
+                    j.cislo_jednotky,
+                    (SELECT o.hodnota FROM odecty o WHERE o.meridlo_id = m.id ORDER BY o.datum DESC LIMIT 1) AS posledni_hodnota,
+                    (SELECT o.datum   FROM odecty o WHERE o.meridlo_id = m.id ORDER BY o.datum DESC LIMIT 1) AS posledni_datum
+             FROM meridla m
+             LEFT JOIN jednotky j ON j.id = m.jednotka_id
+             WHERE m.svj_id = ?
+             ORDER BY m.typ, j.cislo_jednotky, m.vyrobni_cislo'
+        );
+        $stmt->execute([$svjId]);
+        $rows    = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $typyMap = ['voda_studena' => 'Studená voda', 'voda_tepla' => 'Teplá voda',
+                    'plyn' => 'Plyn', 'elektrina' => 'Elektřina', 'teplo' => 'Teplo', 'jine' => 'Jiné'];
+        $headers = ['Typ', 'Výr. číslo', 'Umístění', 'Jednotka', 'Místo', 'Jednotka měření',
+                    'Instalace', 'Cejch', 'Příští cejch', 'Aktivní', 'Posl. odečet', 'Datum odečtu'];
+        $data    = array_map(fn($r) => [
+            $typyMap[$r['typ']] ?? $r['typ'],
+            $r['vyrobni_cislo'] ?? '',
+            $r['umisteni_typ'] === 'spolecne' ? 'Společné' : 'Jednotka',
+            $r['cislo_jednotky'] ?? '',
+            $r['misto'] ?? '',
+            $r['jednotka_mereni'] ?? '',
+            $r['datum_instalace'] ? date('d.m.Y', strtotime($r['datum_instalace'])) : '',
+            $r['datum_cejchu'] ? date('d.m.Y', strtotime($r['datum_cejchu'])) : '',
+            $r['datum_pristi_cejch'] ? date('d.m.Y', strtotime($r['datum_pristi_cejch'])) : '',
+            $r['aktivni'] ? 'Ano' : 'Ne',
+            $r['posledni_hodnota'] !== null ? $r['posledni_hodnota'] : '',
+            $r['posledni_datum'] ? date('d.m.Y', strtotime($r['posledni_datum'])) : '',
+        ], $rows);
+        $filename = 'meridla';
+        $sheet    = 'Měřidla';
         break;
 
     case 'zavady':

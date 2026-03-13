@@ -39,13 +39,32 @@ Router.register('meridla', function(el) {
   header.appendChild(title);
 
   if (isPriv) {
+    var btnGroup = document.createElement('div');
+    btnGroup.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;';
+
     var addBtn = document.createElement('button');
     addBtn.className = 'btn btn-primary';
     addBtn.textContent = '+ P\u0159idat m\u011b\u0159idlo';
     addBtn.addEventListener('click', function() {
       merShowModal(null, user, function() { merLoadList(listWrap, user); });
     });
-    header.appendChild(addBtn);
+    btnGroup.appendChild(addBtn);
+
+    var batchBtn = document.createElement('button');
+    batchBtn.className = 'btn btn-secondary';
+    batchBtn.textContent = '\uD83D\uDCCB Hromadn\u00fd ode\u010det';
+    batchBtn.addEventListener('click', function() {
+      merHromadnyModal(user, function() { merLoadList(listWrap, user); });
+    });
+    btnGroup.appendChild(batchBtn);
+
+    var exportBtn = document.createElement('button');
+    exportBtn.className = 'btn btn-secondary';
+    exportBtn.textContent = '\uD83D\uDCE4 Export';
+    exportBtn.addEventListener('click', function() { merShowExportMenu(exportBtn); });
+    btnGroup.appendChild(exportBtn);
+
+    header.appendChild(btnGroup);
   }
 
   el.appendChild(header);
@@ -219,6 +238,14 @@ function merRenderCard(m, isPriv, user, listWrap) {
   });
   akce.appendChild(odectyBtn);
 
+  if (cnt >= 2) {
+    var grafBtn = document.createElement('button');
+    grafBtn.className = 'btn btn-secondary btn-sm';
+    grafBtn.textContent = '\uD83D\uDCC8 Graf';
+    grafBtn.addEventListener('click', function() { merGrafModal(m); });
+    akce.appendChild(grafBtn);
+  }
+
   if (isPriv) {
     var editBtn = document.createElement('button');
     editBtn.className = 'btn btn-secondary btn-sm';
@@ -258,4 +285,38 @@ function merDetailRow(parent, label, value) {
   val.textContent = value;
   row.appendChild(val);
   parent.appendChild(row);
+}
+
+function merShowExportMenu(anchor) {
+  var existing = document.getElementById('mer-export-menu');
+  if (existing) { existing.remove(); return; }
+
+  var menu = document.createElement('div');
+  menu.id = 'mer-export-menu';
+  menu.style.cssText = 'position:absolute;background:var(--bg-card);border:1px solid var(--border);'
+    + 'border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:6px 0;z-index:100;min-width:120px;';
+
+  ['CSV', 'XLSX', 'PDF'].forEach(function(fmt) {
+    var item = document.createElement('a');
+    item.style.cssText = 'display:block;padding:8px 16px;font-size:0.85rem;color:var(--text);'
+      + 'text-decoration:none;cursor:pointer;';
+    item.textContent = fmt;
+    item.href = 'api/export.php?type=meridla&format=' + fmt.toLowerCase();
+    item.addEventListener('click', function() { menu.remove(); });
+    item.addEventListener('mouseenter', function() { item.style.background = 'var(--bg-hover)'; });
+    item.addEventListener('mouseleave', function() { item.style.background = ''; });
+    menu.appendChild(item);
+  });
+
+  var rect = anchor.getBoundingClientRect();
+  menu.style.top = (rect.bottom + window.scrollY + 4) + 'px';
+  menu.style.left = rect.left + 'px';
+  document.body.appendChild(menu);
+
+  setTimeout(function() {
+    document.addEventListener('click', function handler() {
+      menu.remove();
+      document.removeEventListener('click', handler);
+    }, { once: true });
+  }, 0);
 }

@@ -16,7 +16,7 @@
 - [x] **Výsledek revize** — ok / se závadami / nezpůsobilé (badge s barvou)
 - [x] **Náklady revize** — kolik stála (na hlavní revizi i na každém záznamu historie)
 - [x] **Notifikace** — upozornění X dní před vypršením revize (konfigurovatelné per revize)
-- [ ] **Závady z revize** — seznam závad z revizní zprávy s termínem odstranění (budoucí rozšíření)
+- [x] **Závady z revize** — seznam závad z revizní zprávy s termínem odstranění, závažnost, workflow stavu
 
 ## Fáze 3 — Měřidla a odečty
 
@@ -27,6 +27,6 @@
 - [x] **Odečty modal** — tabulka s historií odečtů, spotřeba (delta), inline přidání odečtu
 - [x] **CRUD měřidel** — admin/výbor: přidání, úprava, smazání (modal s výběrem jednotky)
 - [x] **Migrace** `028_meridla.sql`
-- [ ] **Hromadný odečet** — výbor/admin zadá odečty pro celý dům najednou (budoucí)
-- [ ] **Grafy spotřeby** — vývoj spotřeby v čase (per jednotka i celý dům) (budoucí)
-- [ ] **Export** — CSV/XLSX/PDF pro rozúčtování (budoucí)
+- [x] **Hromadný odečet** — výbor/admin zadá odečty pro celý dům najednou (modal s tabulkou všech měřidel)
+- [x] **Grafy spotřeby** — CSS bar chart spotřeby mezi odečty, souhrn, tabulka odečtů
+- [x] **Export** — CSV/XLSX/PDF (měřidla + poslední odečty + cejch + umístění)

@@ -189,6 +189,12 @@ function revHistMakeRow(h, rev, user, listWrap) {
   }
 
   if (akce.childNodes.length) row.appendChild(akce);
+
+  // Závady z revize — show when vysledek is zavady or nezpusobile
+  if (h.vysledek === 'zavady' || h.vysledek === 'nezpusobile' || isPriv) {
+    rzRenderSection(row, h, isPriv);
+  }
+
   return row;
 }
 

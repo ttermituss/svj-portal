@@ -1,4 +1,4 @@
-# SVJ Portál v2.4.0
+# SVJ Portál v2.5.0
 
 Univerzální multi-tenant webový portál pro správu **Společenství vlastníků jednotek (SVJ)** v ČR.
 
@@ -18,7 +18,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 ### 🏢 O domě — pro všechny vlastníky
 - 🏗️ **Info o budově** — adresa, GPS, rok dokončení, konstrukce, podlaží, výtah, vytápění (z RÚIAN/KN)
 - ⚡ **PENB** — průkaz energetické náročnosti (třída A–G, platnost, upload PDF, upozornění na vypršení)
-- 🔧 **Evidence revizí** — výtah, elektro, plyn, hromosvod, hasicí přístroje; historie (archiv), revizní firma, náklady, notifikace
+- 🔧 **Evidence revizí** — výtah, elektro, plyn, hromosvod, hasicí přístroje; historie (archiv), revizní firma, náklady, notifikace, závady z revize
 - 💰 **Fond oprav** — příjmy/výdaje, zůstatek, měsíční sloupcový graf (read-only přehled)
 - 🗺️ **Okolí budovy** — MHD, obchody, lékárny, banky, pošta v okruhu 600 m (OpenStreetMap)
 - 🅿️ **Parkovací místa** — evidence garáží a stání, přiřazení k jednotce nebo nájemci
@@ -26,7 +26,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 
 ### 📋 Pro všechny členy SVJ
 - 📞 **Kontakty** — servisní firmy, řemeslníci, dodavatelé (12 kategorií); CRUD pro výbor/admin
-- 💧 **Měřidla a odečty** — vodoměry, plynoměry, elektroměry, měřiče tepla; self-service odečty, spotřeba, cejch
+- 💧 **Měřidla a odečty** — vodoměry, plynoměry, elektroměry, měřiče tepla; self-service odečty, hromadný odečet, grafy spotřeby, export CSV/XLSX/PDF, cejch
 - 📢 **Nástěnka** — příspěvky a oznámení
 - 🗳️ **Hlasování** — ankety s výsledky, progress bary a quorem
 - 📁 **Dokumenty** — drag & drop upload, kategorie, datum platnosti, náhled (PDF/obrázky/Markdown/TXT)
@@ -221,6 +221,7 @@ sudo mysql svj_portal < api/migrations/00X_nazev.sql
 | 032 | Fond rozpočet + zálohy + notifikace (fond_rozpocet, fond_predpis, fond_zalohy) |
 | 033 | Google Drive storage (gdrive_folders, gdrive_files, svj.gdrive_*) |
 | 034 | Calendar webhooky (google_calendar_watch, webhook URL setting) |
+| 035 | Revize závady (revize_zavady — závady z revizní zprávy) |
 
 Nikdy neupravuj stávající migraci — vždy přidej novou.
 

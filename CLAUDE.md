@@ -48,7 +48,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
 │       ├── admin-penb.js   # karta: PENB — průkaz energetické náročnosti (třída, platnost, PDF)
 │       ├── admin-revize.js # karta: evidence revizí — seznam, status badge, historie tlačítko
 │       ├── admin-revize-form.js  # formulář přidání/úpravy revize (kontakt, náklady, připomenutí)
-│       ├── admin-revize-historie.js # modal historie: archiv revizí (výsledek, PDF, kontakt, CRUD)
+│       ├── admin-revize-historie.js # modal historie: archiv revizí (výsledek, PDF, kontakt, CRUD, závady)
+│       ├── revize-zavady.js         # závady z revize: CRUD, závažnost, termín, workflow stavu
 │       ├── admin-fond-oprav.js # karta: fond oprav — READ-ONLY mini (zůstatek + graf) pro O domě
 │       ├── fond-oprav.js      # stránka: fond oprav dashboard (admin/výbor) — taby (přehled/rozpočet/zálohy), grafy, trend, účty, filtry
 │       ├── fond-oprav-modal.js # fond oprav: modal přidání/editace záznamu + přílohy (upload, seznam, smazání)
@@ -71,6 +72,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
 │       ├── kontakty.js     # stránka: servisní kontakty — karty, kategorie, CRUD modal
 │       ├── meridla.js     # stránka: měřidla — seznam karet, seskupení, cejch badge
 │       ├── meridla-modal.js # modaly: přidání/úprava měřidla + odečty (tabulka, inline přidání)
+│       ├── meridla-hromadny.js # hromadný odečet: modal s tabulkou všech měřidel, batch save
+│       ├── meridla-graf.js    # graf spotřeby: CSS bar chart, souhrn, tabulka odečtů
 │       ├── admin-vlastnici-ext.js # karta: neregistrovaní vlastníci (vlastnici_ext CRUD + modal)
 │       ├── admin-settings.js# karta: systémová nastavení (jen admin)
 │       └── kalendar-modal.js   # modal pro vytvoření/editaci vlastní události
@@ -95,6 +98,7 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
     ├── hlasovani.php       # hlasování/ankety: list, get, create, vote, close, delete, setExterni
     ├── penb.php            # PENB: get, save (upsert + PDF upload), delete, download (auth)
     ├── revize.php          # revize: list, save, delete, download (PDF protokol)
+    ├── revize_zavady.php   # závady z revize: list, listByRevize, save, delete, updateStav
     ├── fond_oprav.php      # fond oprav: list (filtry+fulltext), stats, statsRocni, statsKat, add, update, delete, upload/prilohy/prilohaDownload/prilohaDelete, uctyList/Save/Delete + notifikace
     ├── fond_rozpocet.php   # fond rozpočet: list, save (upsert), delete, compare (plán vs. skutečnost)
     ├── fond_zalohy.php     # fond zálohy: predpisList/Save/Generate/Delete, zalohyList/Generate/Save, zalohyStats
@@ -160,7 +164,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
         ├── 031_fond_oprav_ext.sql    # tabulka fond_prilohy (přílohy k záznamům fondu oprav)
         ├── 032_fond_rozpocet_zalohy.sql # fond_rozpocet + fond_predpis + fond_zalohy + notifikace typ 'fond'
         ├── 033_gdrive_storage.sql    # gdrive_folders + gdrive_files + svj.gdrive_folder_id + svj.gdrive_enabled
-        └── 034_calendar_watch.sql   # google_calendar_watch (webhook kanály, sync tokeny)
+        ├── 034_calendar_watch.sql   # google_calendar_watch (webhook kanály, sync tokeny)
+        └── 035_revize_zavady_meridla_ext.sql # revize_zavady (závady z revizní zprávy)
 ```
 
 ### CLI skripty

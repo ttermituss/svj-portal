@@ -5,6 +5,33 @@ Formát: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [2.5.0] — 2026-03-13
+
+### Přidáno
+
+#### Revize — závady z revizní zprávy
+- **Závady z revize** — u každého záznamu historie s výsledkem „se závadami" nebo „nezpůsobilé" lze evidovat konkrétní závady
+  - Závažnost: nízká / střední / vysoká / kritická (barevné badge)
+  - Termín odstranění s upozorněním na překročení (po termínu!)
+  - Workflow: Nová → V řešení → Vyřešena (rychlé tlačítko pro posun stavu)
+  - Inline formulář pro přidání/editaci přímo v historii revize
+  - API `revize_zavady.php`: list, listByRevize, save, delete, updateStav
+- **DB migrace 035** — tabulka `revize_zavady` (FK na `revize_historie`)
+
+#### Měřidla — hromadný odečet, grafy, export
+- **Hromadný odečet** — modal s tabulkou všech aktivních měřidel, výběr data, hromadné zadání hodnot
+  - Prázdná pole se přeskočí, batch save přes Promise.all
+- **Grafy spotřeby** — modal s CSS bar chartem spotřeby mezi odečty (bez externích knihoven)
+  - Souhrn: celková spotřeba, průměr, počet období
+  - Bar chart s barevným kódováním, tabulka odečtů
+  - Tlačítko „Graf" u karet měřidel s ≥ 2 odečty
+- **Export měřidel** — CSV/XLSX/PDF přes stávající `export.php`
+  - Data: typ, výr. číslo, umístění, jednotka, místo, cejch, poslední odečet
+  - Export dropdown menu v toolbaru stránky
+- Frontend: `meridla-hromadny.js`, `meridla-graf.js`, `revize-zavady.js`
+
+---
+
 ## [2.4.0] — 2026-03-13
 
 ### Přidáno

@@ -194,3 +194,5 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 - [x] **Google Drive úložiště** — hybridní storage (local + GDrive záloha), 7 modulů, sync panel, folder hierarchie, fallback download
 - [x] **CLI skripty** — `cli/google-gmail.php` (inbox/read/send), `cli/google-drive.php` (status/list/sync/upload), `cli/google-calendar.php` (list/push/pull/watch)
 - [x] **Google Calendar webhooky** — push notifikace (events.watch), inkrementální sync (syncToken), cron obnova kanálů, webhook endpoint
+- [x] **Revize závady** — seznam závad z revizní zprávy, závažnost (nízká–kritická), termín odstranění, workflow (nová → v řešení → vyřešena)
+- [x] **Měřidla rozšíření** — hromadný odečet, grafy spotřeby (CSS bar chart), export CSV/XLSX/PDF
