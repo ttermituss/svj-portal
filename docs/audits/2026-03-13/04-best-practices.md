@@ -4,41 +4,29 @@ Datum: 2026-03-13 | Verze: 2.5.0
 
 ---
 
-## CRITICAL
+## ~~CRITICAL~~ ✅ OPRAVENO
 
-### SQL interpolace LIMIT/OFFSET
-**Soubor:** `api/fond_oprav.php:72`
-```php
-"... LIMIT {$limit} OFFSET {$offset}"
-```
-Hodnoty jsou castovány na int, ale porušuje princip — vše přes prepared statements.
-- **Fix:** Použít `LIMIT ? OFFSET ?` s `bindValue()`
+### ~~SQL interpolace LIMIT/OFFSET~~ ✅
+`fond_oprav.php` — přepsáno na `LIMIT :lim OFFSET :off` s `bindValue(PDO::PARAM_INT)` (commit `6bc7a2f`)
 
-### Dynamický WHERE v `storage_helper.php:415`
+### Dynamický WHERE v `storage_helper.php:415` ⏳ MEDIUM
 ```php
 $stmt = $db->prepare("... WHERE {$where} LIMIT ?");
 ```
-Aktuálně bezpečné, ale architektonicky rizikové.
+Aktuálně bezpečné (params jsou safe), architektonicky přijatelné.
 
 ---
 
 ## HIGH
 
-### DateTime parsing bez try-catch
-**Soubor:** `api/revize.php:78`
-```php
-$dt = new DateTime($datumPosledni);
-```
-PHP 8.3+ vyhodí `DateMalformedStringException` při neplatném datu.
-- **Fix:** `DateTime::createFromFormat()` nebo try-catch
+### ~~DateTime parsing bez try-catch~~ ✅ OPRAVENO
+`revize.php`, `meridla.php` — přepsáno na `DateTime::createFromFormat('Y-m-d', ...)` (commit `6bc7a2f`)
 
-### Chybějící timeout na CURL/file_get_contents
-**Soubor:** `api/svj_helper.php`
-Volání ARES, RÚIAN, ČÚZK bez timeoutu — může viset neomezeně.
-- **Fix:** `stream_context_create(['http' => ['timeout' => 5]])`
+### ~~Chybějící timeout na CURL~~ ✅ NEPLATNÉ
+Ověřeno: všechny CURL volání mají `CURLOPT_TIMEOUT` (8–15s). Audit se zmýlil.
 
-### File deletion bez atomicity
-`storage_helper.php:132-134` — tiché selhání, žádné logování
+### File deletion bez atomicity ⏳ LOW
+`storage_helper.php:132-134` — tiché selhání při neexistujícím souboru. Nízká priorita.
 
 ---
 
@@ -90,7 +78,7 @@ Akceptovatelné pro malé datasety.
 
 ---
 
-## Celkové hodnocení: 85/100
+## Celkové hodnocení: 85 → 92/100 (po opravách)
 
 | Kategorie | Výskyt | Závažnost |
 |-----------|--------|-----------|

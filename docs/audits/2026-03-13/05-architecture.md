@@ -4,13 +4,9 @@ Datum: 2026-03-13 | Verze: 2.5.0
 
 ---
 
-## CRITICAL: README.md outdated
+## ~~CRITICAL: README.md outdated~~ ✅ OPRAVENO
 
-**Soubor:** `README.md:130`
-```
-"# Aktuálně: 001–031"
-```
-Skutečný stav: 35 migrací (001–035). Nutno opravit.
+Aktualizováno na `001–035` (commit `6bc7a2f`).
 
 ---
 

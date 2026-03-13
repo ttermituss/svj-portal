@@ -1,51 +1,35 @@
 # Audit: SECURITY (mega audit)
 
 Datum: 2026-03-13 | Verze: 2.5.0
+Opravy: commit `6bc7a2f` (2026-03-13)
 
 ---
 
-## CRITICAL: Tenant Isolation Bypass v `admin.php`
+## ~~CRITICAL: Tenant Isolation Bypass v `admin.php`~~ ✅ OPRAVENO
 
-### handleListUsers() — chybí WHERE svj_id
-**Soubor:** `api/admin.php:20-45`
-- SQL nemá filtr `WHERE u.svj_id = ?`
-- Admin SVJ A vidí VŠECHNY uživatele ze VŠECH SVJ
-- **Impact:** Přímý únik tenant dat
+### ~~handleListUsers() — chybí WHERE svj_id~~ ✅
+Přidán `WHERE u.svj_id = :svj_id` + validace `$svjId`
 
-### handleUpdateRole() — chybí svj_id check
-**Soubor:** `api/admin.php:104`
-- `SELECT id FROM users WHERE id = :id` — bez `AND svj_id = ?`
-- Admin může měnit role uživatelů v JINÝCH SVJ
-- **Impact:** Privilege escalation
+### ~~handleUpdateRole() — chybí svj_id check~~ ✅
+Přidán `AND svj_id = :svj_id` do SELECT i UPDATE
 
-### handleDeleteUser() — chybí svj_id check
-**Soubor:** `api/admin.php:133`
-- Stejný problém — smazání uživatele z jiného SVJ
-- **Impact:** Mazání dat across tenants
-
-**FIX: Okamžitě přidat `AND svj_id = ?` do všech tří dotazů.**
+### ~~handleDeleteUser() — chybí svj_id check~~ ✅
+Přidán `AND svj_id = :svj_id` do SELECT i DELETE
 
 ---
 
-## HIGH: SQL non-parameterization
+## ~~HIGH: SQL non-parameterization~~ ✅ OPRAVENO
 
-### `kn.php` — `$db->query()` místo `prepare()`
-```php
-$row = $db->query("SELECT value FROM settings WHERE `key` = 'cuzk_api_klic'")->fetch();
-```
-Technicky bezpečné (žádný user input), ale porušuje princip.
-- **Fix:** Přepsat na `$db->prepare()`
+### ~~`kn.php` — `$db->query()` místo `prepare()`~~ ✅
+Přepsáno na `$db->prepare()` s parametrem `:k`
 
 ---
 
 ## MEDIUM: SQL anti-pattern
 
-### Dynamický WHERE v `fond_oprav.php:71-72`
-```php
-$stmt = $db->prepare("... WHERE {$where} LIMIT {$limit} OFFSET {$offset}");
-```
-Hodnoty castovány na int, ale interpolace do SQL stringu.
-- **Fix:** LIMIT/OFFSET přes `bindValue()`
+### ~~Dynamický WHERE + LIMIT v `fond_oprav.php:71-72`~~ ✅ OPRAVENO
+LIMIT/OFFSET přepsáno na `bindValue(:lim, $limit, PDO::PARAM_INT)`.
+WHERE interpolace zůstává (parametry jsou safe), ale LIMIT/OFFSET opraveno.
 
 ### Dynamický WHERE v `storage_helper.php:415`
 Stejný pattern — aktuálně bezpečné, architektonicky rizikové.
@@ -99,4 +83,4 @@ Chybí v Apache konfiguraci:
 | 5 | LOW | Rate Limiting | `api/ratelimit.php` |
 | 6 | LOW | HTTPS Config | Server config |
 
-**PRODUKČNÍ NASAZENÍ: BLOKOVÁNO** dokud se neopraví CRITICAL #1 (tenant isolation v admin.php).
+**PRODUKČNÍ NASAZENÍ: ODBLOKOVÁNO** — všechny CRITICAL a HIGH security nálezy opraveny (commit `6bc7a2f`).
