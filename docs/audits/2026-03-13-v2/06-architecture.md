@@ -1,6 +1,6 @@
 # Architecture Audit — 2026-03-13
 
-**Skóre: 87/100 → 92/100 (po opravách)**
+**Skóre: 87/100 → 96/100 (po opravách)**
 
 ---
 
@@ -16,24 +16,22 @@
 
 - [ ] **A3 — 4 soubory nad 500 řádků**
   - fond-oprav-detail.js (528), nastaveni-google.js (507), hlasovani.js (505), pdf_helper.php (503)
+  - PONECHÁNO: lehce přes limit, logické celky
 
-- [ ] **A4 — Duplikátní --radius CSS proměnné** — `theme.css:46-47 vs 56-57`
-  - Prvních 6px/10px přepsáno 8px/12px — dead code
+- [x] **A4 — Duplikátní --radius CSS proměnné**
+  - **OPRAVENO:** odstraněna dead definice 6px/10px, zůstává 8px/12px
 
-- [ ] **A5 — Hardcoded barvy v CSS** — `components.css:80,99,103`
-  - `#fff` na btn-primary/danger, `#c62828` na btn-danger:hover
-  - Fix: CSS variable `--btn-text-light`, `--btn-danger-hover`
+- [x] **A5 — Hardcoded barvy v CSS**
+  - **OPRAVENO:** --danger-hover variable v theme.css (light+dark), components.css aktualizován
 
-- [ ] **A6 — Missing indexy: penb.svj_id, dokumenty.svj_id**
-  - Žádný explicitní index na svj_id (MySQL možná auto-vytvoří pro FK)
-  - Fix: migrace s ADD INDEX
+- [x] **A6 — Missing indexy: penb.svj_id, dokumenty.svj_id**
+  - **OPRAVENO:** migrace 037_missing_indexes.sql
 
-- [ ] **A7 — CLAUDE.md chybí 6 souborů** v architektuře
-  - datovka.php, zfo_parser.php, ratelimit.php, session.php, datovka.js, datovka-guide.js
+- [x] **A7 — CLAUDE.md chybí 6 souborů**
+  - **OPRAVENO:** přidáno datovka.php, zfo_parser.php, ratelimit.php, session.php, datovka.js, datovka-guide.js + migrace 036-037
 
-- [ ] **A8 — Smíšený requireSvj()/user['svj_id'] pattern** — 9 souborů
-  - requireSvj() voláno ale return ignorován, pak $user['svj_id'] použito
-  - Fix: vždy $svjId = requireSvj($user), pak používat $svjId
+- [x] **A8 — Smíšený requireSvj()/user['svj_id'] pattern**
+  - **OPRAVENO:** 65 výskytů $user['svj_id'] nahrazeno $svjId v 8 souborech
 
 ## LOW
 

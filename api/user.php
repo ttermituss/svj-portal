@@ -44,13 +44,13 @@ function handleUpdateProfile(): void
     $telefon  = sanitize($body['telefon']  ?? '');
 
     if (!$jmeno) {
-        jsonResponse(['error' => ['message' => 'Jméno nesmí být prázdné', 'code' => 'VALIDATION_ERROR']], 422);
+        jsonError('Jméno nesmí být prázdné', 422, 'VALIDATION_ERROR');
     }
     if (strlen($jmeno) > 100 || strlen($prijmeni) > 100) {
-        jsonResponse(['error' => ['message' => 'Jméno nebo příjmení je příliš dlouhé', 'code' => 'VALIDATION_ERROR']], 422);
+        jsonError('Jméno nebo příjmení je příliš dlouhé', 422, 'VALIDATION_ERROR');
     }
     if (strlen($telefon) > 20) {
-        jsonResponse(['error' => ['message' => 'Telefon je příliš dlouhý (max 20 znaků)', 'code' => 'VALIDATION_ERROR']], 422);
+        jsonError('Telefon je příliš dlouhý (max 20 znaků)', 422, 'VALIDATION_ERROR');
     }
 
     $db = getDb();
@@ -58,14 +58,14 @@ function handleUpdateProfile(): void
     // Změna e-mailu (volitelná)
     if ($email) {
         if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 255) {
-            jsonResponse(['error' => ['message' => 'Neplatný formát e-mailu', 'code' => 'VALIDATION_ERROR']], 422);
+            jsonError('Neplatný formát e-mailu', 422, 'VALIDATION_ERROR');
         }
         $emailLower = strtolower($email);
         // Ověřit že e-mail nepoužívá jiný uživatel
         $stmt = $db->prepare('SELECT id FROM users WHERE email = :email AND id != :id');
         $stmt->execute([':email' => $emailLower, ':id' => $user['id']]);
         if ($stmt->fetch()) {
-            jsonResponse(['error' => ['message' => 'Tento e-mail je již použit', 'code' => 'EMAIL_EXISTS']], 409);
+            jsonError('Tento e-mail je již použit', 409, 'EMAIL_EXISTS');
         }
         $db->prepare('UPDATE users SET jmeno=:jmeno, prijmeni=:prijmeni, email=:email, telefon=:telefon WHERE id=:id')
            ->execute([':jmeno' => $jmeno, ':prijmeni' => $prijmeni, ':email' => $emailLower,
@@ -92,13 +92,13 @@ function handleChangePassword(): void
     $newPassword = $body['new_password'] ?? '';
 
     if (!$oldPassword || !$newPassword) {
-        jsonResponse(['error' => ['message' => 'Vyplňte všechna pole', 'code' => 'VALIDATION_ERROR']], 422);
+        jsonError('Vyplňte všechna pole', 422, 'VALIDATION_ERROR');
     }
     if (strlen($newPassword) < 8) {
-        jsonResponse(['error' => ['message' => 'Nové heslo musí mít alespoň 8 znaků', 'code' => 'VALIDATION_ERROR']], 422);
+        jsonError('Nové heslo musí mít alespoň 8 znaků', 422, 'VALIDATION_ERROR');
     }
     if (strlen($newPassword) > 128) {
-        jsonResponse(['error' => ['message' => 'Nové heslo je příliš dlouhé (max 128 znaků)', 'code' => 'VALIDATION_ERROR']], 422);
+        jsonError('Nové heslo je příliš dlouhé (max 128 znaků)', 422, 'VALIDATION_ERROR');
     }
 
     $db = getDb();
@@ -108,7 +108,7 @@ function handleChangePassword(): void
 
     if (!$row || !password_verify($oldPassword, $row['password_hash'])) {
         recordRateLimit('chpwd_' . $user['id'] . '_');
-        jsonResponse(['error' => ['message' => 'Stávající heslo není správné', 'code' => 'VALIDATION_ERROR']], 422);
+        jsonError('Stávající heslo není správné', 422, 'VALIDATION_ERROR');
     }
 
     clearRateLimit('chpwd_' . $user['id'] . '_');

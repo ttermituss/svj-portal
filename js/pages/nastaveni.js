@@ -213,10 +213,15 @@ function renderNotifPrefsCard(container) {
         // Toggle switch
         var toggle = document.createElement('label');
         toggle.style.cssText = 'position:relative;display:inline-block;width:44px;height:24px;cursor:pointer;';
+        toggle.setAttribute('role', 'switch');
+        toggle.setAttribute('aria-checked', !!data[p.key] ? 'true' : 'false');
         var cb = document.createElement('input');
         cb.type = 'checkbox';
         cb.checked = !!data[p.key];
         cb.style.cssText = 'opacity:0;width:0;height:0;';
+        cb.setAttribute('aria-hidden', 'true');
+        cb.tabIndex = -1;
+        toggle.tabIndex = 0;
         var slider = document.createElement('span');
         slider.style.cssText = 'position:absolute;inset:0;background:var(--border);border-radius:12px;transition:0.2s;';
         var knob = document.createElement('span');
@@ -231,8 +236,18 @@ function renderNotifPrefsCard(container) {
             slider.style.background = 'var(--border)';
             knob.style.transform = 'translateX(0)';
           }
+          toggle.setAttribute('aria-checked', cb.checked ? 'true' : 'false');
         }
         syncToggle();
+
+        // Allow keyboard toggle via Space/Enter on the label
+        toggle.addEventListener('keydown', function(e) {
+          if (e.key === ' ' || e.key === 'Enter') {
+            e.preventDefault();
+            cb.checked = !cb.checked;
+            cb.dispatchEvent(new Event('change'));
+          }
+        });
 
         cb.addEventListener('change', function() {
           syncToggle();

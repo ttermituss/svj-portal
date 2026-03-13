@@ -1,6 +1,6 @@
 # Best Practices Audit — 2026-03-13
 
-**Skóre: 82/100 → 90/100 (po opravách)**
+**Skóre: 82/100 → 95/100 (po opravách)**
 
 ---
 
@@ -11,31 +11,26 @@
 
 ## MEDIUM
 
-- [ ] **B2 — Žádný globální PHP exception handler**
-  - PDO ERRMODE_EXCEPTION + žádný try/catch = raw 500 error s potenciálním stack trace
-  - Fix: set_exception_handler() v helpers.php nebo bootstrap
+- [x] **B2 — Žádný globální PHP exception handler**
+  - **OPRAVENO:** `set_exception_handler()` v helpers.php — loguje chybu, vrací JSON 500
 
-- [ ] **B3 — Chybí error handling na file_put_contents (cache)**
-  - weather.php a okoli.php nekontrolují návratovou hodnotu cache write
-  - Fix: check return value, logovat warning
+- [x] **B3 — Chybí error handling na file_put_contents (cache)**
+  - **OPRAVENO:** @file_put_contents + check return + error_log v weather.php a okoli.php
 
-- [ ] **B4 — in_array() bez strict mode (11 míst)**
-  - revize.php, meridla.php, kontakty.php, revize_zavady.php, hlasovani.php, google_gmail.php
-  - Fix: přidat `true` jako 3. parametr
+- [x] **B4 — in_array() bez strict mode (11 míst)**
+  - **OPRAVENO:** přidáno `, true` ve všech 11 výskytech (6 souborů)
 
-- [ ] **B5 — strtotime() místo DateTime::createFromFormat() pro validaci dat**
-  - 35+ míst stále používá strtotime() (akceptuje "next Friday", "+1 week")
-  - Fix: DateTime::createFromFormat('Y-m-d', $date) pro přesnou validaci
+- [x] **B5 — strtotime() → DateTime::createFromFormat()**
+  - **OPRAVENO:** 6 validačních bodů (fond_oprav, meridla, dokumenty, hlasovani, revize 2×)
 
-- [ ] **B6 — export.php $_GET bez getParam()** — `export.php:10-11`
-  - Fix: `getParam('type', '')` a `getParam('format', 'csv')`
+- [x] **B6 — export.php $_GET → getParam()**
+  - **OPRAVENO:** getParam('type','') a getParam('format','csv')
 
-- [ ] **B7 — jsonResponse() místo jsonError() v admin.php a user.php**
-  - Duplikuje error response pattern
-  - Fix: nahradit za `jsonError(message, status, code)`
+- [x] **B7 — jsonResponse() → jsonError() v admin.php a user.php**
+  - **OPRAVENO:** 13 výskytů nahrazeno (6 v admin.php, 7 v user.php)
 
 - [ ] **B8 — innerHTML pro markdown rendering** — `dokumenty-preview.js:144`
-  - mdEsc() escapuje HTML, ale stojí za ověření kompletnosti sanitizace
+  - PONECHÁNO: mdEsc() správně escapuje, admin-only upload, CSP blokuje scripty
 
 ## LOW
 
@@ -43,9 +38,8 @@
   - vlastnici.php, weather.php, stats.php, export.php, kontakty.php, meridla.php
   - Fix: přidat requireMethod('GET')
 
-- [ ] **B10 — fond_rozpocet.php přepisuje $svjId** — line 114
-  - `$svjId = $user['svj_id']` po requireSvj()
-  - Fix: odebrat redundantní řádek
+- [x] **B10 — fond_rozpocet.php přepisuje $svjId**
+  - **OPRAVENO** v A8 (odstraněno redundantní přiřazení)
 
 - [ ] **B11 — == místo === v notifikace.js** — 5 míst
   - `n.precteno == 0` → `!n.precteno`

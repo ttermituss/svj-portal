@@ -1,4 +1,15 @@
 <?php
+
+set_exception_handler(function (Throwable $e): void {
+    error_log('Uncaught ' . get_class($e) . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+    if (!headers_sent()) {
+        http_response_code(500);
+        header('Content-Type: application/json; charset=utf-8');
+    }
+    echo json_encode(['error' => ['message' => 'Interní chyba serveru.', 'code' => 'INTERNAL_ERROR']], JSON_UNESCAPED_UNICODE);
+    exit;
+});
+
 const DEFAULT_LIST_LIMIT = 50;
 const MAX_LIST_LIMIT = 200;
 

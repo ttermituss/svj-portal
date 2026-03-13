@@ -39,7 +39,7 @@ function handleList(): void
          FROM fond_rozpocet WHERE svj_id = :sid AND rok = :rok
          ORDER BY typ ASC, kategorie ASC'
     );
-    $stmt->execute([':sid' => $user['svj_id'], ':rok' => $rok]);
+    $stmt->execute([':sid' => $svjId, ':rok' => $rok]);
 
     jsonOk(['rok' => $rok, 'polozky' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
 }
@@ -71,7 +71,7 @@ function handleSave(): void
          VALUES (:sid, :rok, :typ, :kat, :castka, :poz)
          ON DUPLICATE KEY UPDATE castka = VALUES(castka), poznamka = VALUES(poznamka)'
     )->execute([
-        ':sid'    => $user['svj_id'],
+        ':sid'    => $svjId,
         ':rok'    => $rok,
         ':typ'    => $typ,
         ':kat'    => $kategorie,
@@ -96,7 +96,7 @@ function handleDelete(): void
 
     $db = getDb();
     $stmt = $db->prepare('DELETE FROM fond_rozpocet WHERE id = :id AND svj_id = :sid');
-    $stmt->execute([':id' => $id, ':sid' => $user['svj_id']]);
+    $stmt->execute([':id' => $id, ':sid' => $svjId]);
     if ($stmt->rowCount() === 0) jsonError('Záznam nenalezen', 404, 'NOT_FOUND');
 
     jsonOk(['deleted' => true]);
@@ -111,7 +111,6 @@ function handleCompare(): void
     $svjId = requireSvj($user);
 
     $rok = (int) getParam('rok', date('Y'));
-    $svjId = $user['svj_id'];
     $db = getDb();
 
     // Plánované částky

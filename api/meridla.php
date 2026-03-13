@@ -74,7 +74,7 @@ function handleSave(array $user, int $svjId): void
     $poznamka        = trim(strip_tags($body['poznamka'] ?? ''));
 
     $validTypy = ['voda_studena','voda_tepla','plyn','elektrina','teplo','jine'];
-    if (!in_array($typ, $validTypy)) $typ = 'jine';
+    if (!in_array($typ, $validTypy, true)) $typ = 'jine';
 
     if ($umisteniTyp === 'spolecne') $jednotkaId = null;
 
@@ -179,7 +179,9 @@ function handleOdectySave(array $user, int $svjId): void
     $poznamka  = trim(strip_tags($body['poznamka'] ?? ''));
 
     if (!$meridloId) jsonError('Chybí meridlo_id', 400);
-    if (!$datum || !strtotime($datum)) jsonError('Neplatné datum', 400);
+    $dt = DateTime::createFromFormat('Y-m-d', $datum);
+    if (!$dt || $dt->format('Y-m-d') !== $datum) jsonError('Neplatný formát data (YYYY-MM-DD)', 422);
+    $datum = $dt->format('Y-m-d');
     if ($hodnota === null) jsonError('Chybí hodnota', 400);
 
     $db = getDb();

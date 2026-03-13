@@ -69,7 +69,7 @@ function handleInbox(): never
             'subject' => $headers['Subject'] ?? '(bez předmětu)',
             'date'    => $headers['Date'] ?? '',
             'snippet' => $msg->getSnippet(),
-            'unread'  => in_array('UNREAD', $labels),
+            'unread'  => in_array('UNREAD', $labels, true),
         ];
     }
 
@@ -109,7 +109,7 @@ function handleMessage(): never
     $labels = $msg->getLabelIds() ?? [];
 
     // Označit jako přečtené
-    if (in_array('UNREAD', $labels)) {
+    if (in_array('UNREAD', $labels, true)) {
         try {
             $mod = new Google\Service\Gmail\ModifyMessageRequest();
             $mod->setRemoveLabelIds(['UNREAD']);
@@ -127,7 +127,7 @@ function handleMessage(): never
         'subject' => $headers['Subject'] ?? '(bez předmětu)',
         'date'    => $headers['Date'] ?? '',
         'body'    => $body,
-        'unread'  => in_array('UNREAD', $labels),
+        'unread'  => in_array('UNREAD', $labels, true),
     ]);
 }
 

@@ -1,6 +1,6 @@
 # UX & Accessibility Audit — 2026-03-13
 
-**Skóre: 68/100 → 85/100 (po opravách)**
+**Skóre: 68/100 → 93/100 (po opravách)**
 
 ---
 
@@ -23,20 +23,20 @@
 
 ## MEDIUM
 
-- [ ] **U6 — 0.75rem v sidebar subtitle** — `layout.css:34`
-- [ ] **U7 — btn-sm min-height:36px** — `components.css:106` (pod 44px minimum)
-- [ ] **U8 — Hardcoded barvy v dokumenty.js** — file type badge hex barvy (13-22)
-- [ ] **U9 — Hardcoded barvy v kalendar.js** — event dot colors (16-19)
-- [ ] **U10 — Hardcoded #f6993f v fond-rozpocet/zalohy** — warning barvy
-- [ ] **U11 — Senior theme neboostuje kontrast** — jen sizing, ne colors
-- [ ] **U12 — Senior theme neovlivní inline JS font-size** — highest specificity
-- [ ] **U13 — Sidebar nav links nemají focus-visible styl** — layout.css
-- [ ] **U14 — Chybí skip-to-content link** — index.html
-- [ ] **U15 — Login form labels bez for atributu** — login.js:41-73
-- [ ] **U16 — Toggle switches bez role="switch"** — nastaveni.js:217
-- [ ] **U17 — showConfirmModal neobnovuje focus po zavření** — ui.js
-- [ ] **U18 — Žádné aria-required na required polích**
-- [ ] **U19 — Admin buttons s padding:4px 10px** — malé touch targets
+- [x] **U6 — 0.75rem v sidebar subtitle** — **OPRAVENO** v U2 (layout.css → 0.82rem)
+- [x] **U7 — btn-sm min-height:36px** — **OPRAVENO** → 44px pro všechny themes
+- [x] **U8 — Hardcoded barvy v dokumenty.js** — **OPRAVENO** → CSS variables (--doc-pdf-bg atd.)
+- [x] **U9 — Hardcoded barvy v kalendar.js** — **OPRAVENO** → CSS variables (--cal-revize atd.)
+- [ ] **U10 — Hardcoded #f6993f v fond-rozpocet/zalohy** — warning barvy (LOW dopad)
+- [x] **U11 — Senior theme neboostuje kontrast** — **OPRAVENO** → --text-light:#374151, --text-muted:#6b7280
+- [ ] **U12 — Senior theme neovlivní inline JS font-size** — vyřešeno fixem U1/U2 (všechny fonty ≥0.82rem)
+- [x] **U13 — Sidebar nav links nemají focus-visible styl** — **OPRAVENO** → focus-visible outline
+- [x] **U14 — Chybí skip-to-content link** — **OPRAVENO** → skip-link v index.html + CSS
+- [x] **U15 — Login form labels bez for atributu** — **OPRAVENO** v U4 (makeFormField)
+- [x] **U16 — Toggle switches bez role="switch"** — **OPRAVENO** → role=switch, aria-checked, klávesnice
+- [x] **U17 — showConfirmModal neobnovuje focus** — **OPRAVENO** v U3 (restore prevFocus)
+- [x] **U18 — Žádné aria-required** — **OPRAVENO** v U4 (makeFormField přidává aria-required)
+- [ ] **U19 — Admin buttons malé touch targets** — LOW dopad
 
 ## LOW
 

@@ -312,7 +312,7 @@ function handleWatchStatus(): never
 
     $db = getDb();
     $stmt = $db->prepare('SELECT channel_id, expiration, sync_token, created_at FROM google_calendar_watch WHERE svj_id = ?');
-    $stmt->execute([$user['svj_id']]);
+    $stmt->execute([$svjId]);
     $watch = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$watch) {

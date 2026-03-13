@@ -100,10 +100,10 @@
 }
 
 .btn-danger:hover:not(:disabled) {
-  background: #c62828;
+  background: var(--danger-hover);
 }
 
-.btn-sm { padding: 7px 12px; font-size: 0.85rem; min-height: 36px; }
+.btn-sm { padding: 7px 12px; font-size: 0.85rem; min-height: 44px; }
 .btn-lg { padding: 10px 24px; font-size: 1rem; }
 
 /* ===== INPUTS ===== */

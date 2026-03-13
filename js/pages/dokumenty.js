@@ -10,16 +10,16 @@ var DOK_KATEGORIE = {
 };
 
 var DOK_FILE_META = {
-  pdf:  { ext: 'PDF',   bg: '#ffebee', fg: '#c62828', preview: true },
-  doc:  { ext: 'DOC',   bg: '#e3f2fd', fg: '#1565c0', preview: false },
-  docx: { ext: 'DOCX',  bg: '#e3f2fd', fg: '#1565c0', preview: false },
-  xls:  { ext: 'XLS',   bg: '#e8f5e9', fg: '#2e7d32', preview: false },
-  xlsx: { ext: 'XLSX',  bg: '#e8f5e9', fg: '#2e7d32', preview: false },
-  jpg:  { ext: 'JPG',   bg: '#f3e5f5', fg: '#6a1b9a', preview: true },
-  jpeg: { ext: 'JPEG',  bg: '#f3e5f5', fg: '#6a1b9a', preview: true },
-  png:  { ext: 'PNG',   bg: '#f3e5f5', fg: '#6a1b9a', preview: true },
-  md:   { ext: 'MD',    bg: '#eceff1', fg: '#455a64', preview: true },
-  txt:  { ext: 'TXT',   bg: '#eceff1', fg: '#455a64', preview: true },
+  pdf:  { ext: 'PDF',   bg: 'var(--doc-pdf-bg)',   fg: 'var(--doc-pdf-text)',   preview: true },
+  doc:  { ext: 'DOC',   bg: 'var(--doc-word-bg)',  fg: 'var(--doc-word-text)',  preview: false },
+  docx: { ext: 'DOCX',  bg: 'var(--doc-word-bg)',  fg: 'var(--doc-word-text)',  preview: false },
+  xls:  { ext: 'XLS',   bg: 'var(--doc-xls-bg)',   fg: 'var(--doc-xls-text)',   preview: false },
+  xlsx: { ext: 'XLSX',  bg: 'var(--doc-xls-bg)',   fg: 'var(--doc-xls-text)',   preview: false },
+  jpg:  { ext: 'JPG',   bg: 'var(--doc-img-bg)',   fg: 'var(--doc-img-text)',   preview: true },
+  jpeg: { ext: 'JPEG',  bg: 'var(--doc-img-bg)',   fg: 'var(--doc-img-text)',   preview: true },
+  png:  { ext: 'PNG',   bg: 'var(--doc-img-bg)',   fg: 'var(--doc-img-text)',   preview: true },
+  md:   { ext: 'MD',    bg: 'var(--doc-other-bg)', fg: 'var(--doc-other-text)', preview: true },
+  txt:  { ext: 'TXT',   bg: 'var(--doc-other-bg)', fg: 'var(--doc-other-text)', preview: true },
 };
 
 var DOK_ALLOWED_EXT = Object.keys(DOK_FILE_META);
@@ -133,7 +133,7 @@ function dokRenderList(wrap, docs, user) {
 
 function dokMakeCard(doc, isPriv, dnes, user) {
   var ext = (doc.soubor_nazev || '').split('.').pop().toLowerCase();
-  var fm  = DOK_FILE_META[ext] || { ext: ext.toUpperCase(), bg: '#f5f5f5', fg: '#666', preview: false };
+  var fm  = DOK_FILE_META[ext] || { ext: ext.toUpperCase(), bg: 'var(--doc-other-bg)', fg: 'var(--doc-other-text)', preview: false };
 
   var dniDo = doc.datum_platnosti ? daysUntil(doc.datum_platnosti) : null;
   var isExpired = dniDo !== null && dniDo < 0;

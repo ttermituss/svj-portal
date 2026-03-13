@@ -54,7 +54,7 @@ function handleSave(array $user, int $svjId): void
 
     $validKat = ['spravce','vytah','elektro','plyn','voda','topeni',
                  'klicova_sluzba','uklid','zahradnik','pojistovna','ucetni','jine'];
-    if (!in_array($kat, $validKat)) $kat = 'jine';
+    if (!in_array($kat, $validKat, true)) $kat = 'jine';
 
     $db = getDb();
 

@@ -89,7 +89,10 @@ $elements = array_map(function ($el) {
 }, $data['elements']);
 
 $result = ['lat' => $lat, 'lon' => $lon, 'elements' => $elements];
-file_put_contents($cacheFile, json_encode($result));
+$written = @file_put_contents($cacheFile, json_encode($result));
+if ($written === false) {
+    error_log('Cache write failed: ' . $cacheFile);
+}
 header('Cache-Control: private, max-age=' . $cacheTtl);
 header('X-Cache: MISS');
 jsonOk($result);

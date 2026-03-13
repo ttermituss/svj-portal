@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SVJ Portál — JS Testy</title>
+<style>
+  body { font-family: monospace; padding: 24px; background: #111; color: #eee; font-size: 14px; }
+  h1   { color: #7ec8e3; margin-bottom: 4px; }
+  h2   { color: #7ec8e3; margin: 20px 0 6px; font-size: 1rem; }
+  .pass { color: #4caf50; }
+  .fail { color: #f44336; }
+  .summary { margin-top: 24px; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 1rem; }
+  .summary.ok  { background: #1b3a1b; color: #4caf50; }
+  .summary.err { background: #3a1b1b; color: #f44336; }
+  hr { border-color: #333; margin: 16px 0; }
+</style>
+</head>
+<body>
+<h1>SVJ Portál — JS Testy</h1>
+<hr>
+<div id="output"></div>
+<div id="summary"></div>
+
+<!-- Načíst testované moduly -->
+<script src="../../js/ui.js"></script>
+
+<!-- Test runner -->
+<script>
+var _passed = 0, _failed = 0, _suite = '', _out = document.getElementById('output');
+
+function suite(name) {
+  _suite = name;
+  var h = document.createElement('h2');
+  h.textContent = '▶ ' + name;
+  _out.appendChild(h);
+}
+
+function assert(label, condition) {
+  var d = document.createElement('div');
+  if (condition) {
+    _passed++;
+    d.className = 'pass';
+    d.textContent = '  ✓ ' + label;
+  } else {
+    _failed++;
+    d.className = 'fail';
+    d.textContent = '  ✗ ' + label + '  [suite: ' + _suite + ']';
+  }
+  _out.appendChild(d);
+}
+
+function assertEqual(label, expected, actual) {
+  var ok = JSON.stringify(expected) === JSON.stringify(actual);
+  if (!ok) {
+    var d = document.createElement('div');
+    d.style.color = '#888';
+    d.style.paddingLeft = '24px';
+    d.textContent = 'expected: ' + JSON.stringify(expected) + '  actual: ' + JSON.stringify(actual);
+    _out.appendChild(d);
+  }
+  assert(label, ok);
+}
+</script>
+
+<!-- Testovací soubory -->
+<script src="test_ui.js"></script>
+<script src="test_invite_url.js"></script>
+
+<!-- Výsledek -->
+<script>
+var s = document.getElementById('summary');
+s.className = 'summary ' + (_failed === 0 ? 'ok' : 'err');
+var total = _passed + _failed;
+s.textContent = _failed === 0
+  ? '✓ Všechny testy prošly (' + _passed + '/' + total + ')'
+  : '✗ Selhalo: ' + _failed + '/' + total;
+</script>
+</body>
+</html>

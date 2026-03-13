@@ -79,7 +79,9 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
 │       ├── meridla-graf.js    # graf spotřeby: CSS bar chart, souhrn, tabulka odečtů
 │       ├── admin-vlastnici-ext.js # karta: neregistrovaní vlastníci (vlastnici_ext CRUD + modal)
 │       ├── admin-settings.js# karta: systémová nastavení (jen admin)
-│       └── kalendar-modal.js   # modal pro vytvoření/editaci vlastní události
+│       ├── kalendar-modal.js   # modal pro vytvoření/editaci vlastní události
+│       ├── datovka.js          # datová schránka — archiv zpráv, přílohy, stav
+│       └── datovka-guide.js    # průvodce nastavením datové schránky
 └── api/
     ├── config.php          # DB + konstanty (není v gitu — v .gitignore!)
     ├── settings_crypto.php # AES-256-CBC šifrování citlivých settings
@@ -133,6 +135,10 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
     ├── google_oauth.php    # Google OAuth: authUrl, callback, status, disconnect
     ├── google_gmail.php    # Gmail API: inbox, message detail, send (admin/výbor)
     ├── google_calendar.php # Google Calendar sync: push/pull/delete + watchStart/Stop/Status (webhooky)
+    ├── datovka.php         # datová schránka: archiv zpráv, přílohy, stažení
+    ├── zfo_parser.php      # ZFO file parser (formát datových zpráv)
+    ├── ratelimit.php       # rate limiting pro auth endpointy
+    ├── session.php         # session management (start, validate, destroy)
     ├── composer.json       # Composer (google/apiclient — Calendar, Drive, Gmail, Oauth2)
     ├── vendor/             # Composer dependencies (v .gitignore)
     └── migrations/
@@ -170,7 +176,9 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
         ├── 032_fond_rozpocet_zalohy.sql # fond_rozpocet + fond_predpis + fond_zalohy + notifikace typ 'fond'
         ├── 033_gdrive_storage.sql    # gdrive_folders + gdrive_files + svj.gdrive_folder_id + svj.gdrive_enabled
         ├── 034_calendar_watch.sql   # google_calendar_watch (webhook kanály, sync tokeny)
-        └── 035_revize_zavady_meridla_ext.sql # revize_zavady (závady z revizní zprávy)
+        ├── 035_revize_zavady_meridla_ext.sql # revize_zavady (závady z revizní zprávy)
+        ├── 036_datovka_fk.sql            # cizí klíče pro datovka tabulky
+        └── 037_missing_indexes.sql       # chybějící indexy: penb(svj_id), dokumenty(svj_id, kategorie, created_at)
 ```
 
 ### CLI skripty

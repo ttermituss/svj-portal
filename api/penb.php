@@ -25,7 +25,7 @@ function handleGet(): void
                 soubor_nazev, poznamka, created_at
          FROM penb WHERE svj_id = :svj_id ORDER BY created_at DESC LIMIT 1'
     );
-    $stmt->execute([':svj_id' => $user['svj_id']]);
+    $stmt->execute([':svj_id' => $svjId]);
     jsonOk(['penb' => $stmt->fetch(PDO::FETCH_ASSOC) ?: null]);
 }
 
@@ -53,7 +53,7 @@ function handleSave(): void
     $db = getDb();
 
     $stmt = $db->prepare('SELECT id, soubor_cesta FROM penb WHERE svj_id = :svj_id ORDER BY created_at DESC LIMIT 1');
-    $stmt->execute([':svj_id' => $user['svj_id']]);
+    $stmt->execute([':svj_id' => $svjId]);
     $existing = $stmt->fetch(PDO::FETCH_ASSOC);
 
     $souborNazev = $existing['soubor_nazev'] ?? null;
@@ -95,7 +95,7 @@ function handleSave(): void
              soubor_nazev, soubor_cesta, poznamka)
              VALUES (:svj_id, :trida, :vystaveni, :platnosti, :nazev, :cesta, :poznamka)'
         )->execute([
-            ':svj_id'   => $user['svj_id'],
+            ':svj_id'   => $svjId,
             ':trida'    => $trida,
             ':vystaveni' => $datumVystaveni,
             ':platnosti' => $datumPlatnosti,
@@ -119,13 +119,13 @@ function handleDelete(): void
 
     $db   = getDb();
     $stmt = $db->prepare('SELECT id, soubor_cesta FROM penb WHERE svj_id = :svj_id ORDER BY created_at DESC LIMIT 1');
-    $stmt->execute([':svj_id' => $user['svj_id']]);
+    $stmt->execute([':svj_id' => $svjId]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$row) jsonError('PENB nenalezen', 404, 'NOT_FOUND');
 
     if ($row['soubor_cesta']) {
-        storageDelete((int) $user['svj_id'], 'uploads/penb/' . basename($row['soubor_cesta']));
+        storageDelete($svjId, 'uploads/penb/' . basename($row['soubor_cesta']));
     }
 
     $db->prepare('DELETE FROM penb WHERE id = :id')->execute([':id' => $row['id']]);
@@ -141,12 +141,12 @@ function handleDownload(): void
     $stmt = getDb()->prepare(
         'SELECT soubor_cesta, soubor_nazev FROM penb WHERE svj_id = :svj_id ORDER BY created_at DESC LIMIT 1'
     );
-    $stmt->execute([':svj_id' => $user['svj_id']]);
+    $stmt->execute([':svj_id' => $svjId]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$row || !$row['soubor_cesta']) jsonError('Soubor nenalezen', 404, 'NOT_FOUND');
 
-    $path = storageDownload((int) $user['svj_id'], 'uploads/penb/' . basename($row['soubor_cesta']));
+    $path = storageDownload($svjId, 'uploads/penb/' . basename($row['soubor_cesta']));
     if (!file_exists($path)) jsonError('Soubor nenalezen na disku', 404, 'FILE_MISSING');
 
     $nazev = $row['soubor_nazev'] ?: 'penb.pdf';

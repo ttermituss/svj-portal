@@ -137,7 +137,7 @@ function handleCreate(array $user, int $svjId): void
     $popis   = trim(strip_tags($input['popis']   ?? ''));
     $moznosti = $input['moznosti'] ?? [];
     $deadline = $input['deadline'] ?? null;
-    $vaha    = in_array($input['vaha_hlasu'] ?? '', ['rovny', 'podil']) ? $input['vaha_hlasu'] : 'podil';
+    $vaha    = in_array($input['vaha_hlasu'] ?? '', ['rovny', 'podil'], true) ? $input['vaha_hlasu'] : 'podil';
 
     if (!$nazev) jsonError('Název hlasování je povinný', 400);
     if (count($moznosti) < 2 || count($moznosti) > 10) jsonError('Zadejte 2–10 možností', 400);
@@ -148,9 +148,12 @@ function handleCreate(array $user, int $svjId): void
     }
 
     if ($deadline) {
-        $ts = strtotime($deadline);
-        if (!$ts || $ts <= time()) jsonError('Deadline musí být v budoucnosti', 400);
-        $deadline = date('Y-m-d H:i:s', $ts);
+        $dt = DateTime::createFromFormat('Y-m-d', $deadline)
+           ?: DateTime::createFromFormat('Y-m-d H:i:s', $deadline)
+           ?: DateTime::createFromFormat('Y-m-d\TH:i', $deadline);
+        if (!$dt) jsonError('Neplatný formát data (YYYY-MM-DD)', 422, 'INVALID_DATE');
+        if ($dt->getTimestamp() <= time()) jsonError('Deadline musí být v budoucnosti', 400);
+        $deadline = $dt->format('Y-m-d H:i:s');
     }
 
     $db   = getDb();

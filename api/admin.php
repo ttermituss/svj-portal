@@ -102,23 +102,23 @@ function handleUpdateRole(): void
     $role   = sanitize($body['role'] ?? '');
 
     if (!$userId) {
-        jsonResponse(['error' => ['message' => 'Chybí user_id', 'code' => 'VALIDATION_ERROR']], 422);
+        jsonError('Chybí user_id', 422, 'VALIDATION_ERROR');
     }
 
     $allowedRoles = ['vlastnik', 'vybor', 'admin'];
     if (!in_array($role, $allowedRoles, true)) {
-        jsonResponse(['error' => ['message' => 'Neplatná role', 'code' => 'VALIDATION_ERROR']], 422);
+        jsonError('Neplatná role', 422, 'VALIDATION_ERROR');
     }
 
     if ($userId === (int)$currentUser['id']) {
-        jsonResponse(['error' => ['message' => 'Nemůžete změnit svou vlastní roli', 'code' => 'VALIDATION_ERROR']], 422);
+        jsonError('Nemůžete změnit svou vlastní roli', 422, 'VALIDATION_ERROR');
     }
 
     $db = getDb();
     $stmt = $db->prepare('SELECT id FROM users WHERE id = :id AND svj_id = :svj_id');
     $stmt->execute([':id' => $userId, ':svj_id' => $svjId]);
     if (!$stmt->fetch()) {
-        jsonResponse(['error' => ['message' => 'Uživatel nenalezen', 'code' => 'NOT_FOUND']], 404);
+        jsonError('Uživatel nenalezen', 404, 'NOT_FOUND');
     }
 
     $stmt = $db->prepare('UPDATE users SET role = :role WHERE id = :id AND svj_id = :svj_id');
@@ -138,18 +138,18 @@ function handleDeleteUser(): void
     $userId = isset($body['user_id']) ? (int)$body['user_id'] : 0;
 
     if (!$userId) {
-        jsonResponse(['error' => ['message' => 'Chybí user_id', 'code' => 'VALIDATION_ERROR']], 422);
+        jsonError('Chybí user_id', 422, 'VALIDATION_ERROR');
     }
 
     if ($userId === (int)$currentUser['id']) {
-        jsonResponse(['error' => ['message' => 'Nemůžete smazat svůj vlastní účet', 'code' => 'VALIDATION_ERROR']], 422);
+        jsonError('Nemůžete smazat svůj vlastní účet', 422, 'VALIDATION_ERROR');
     }
 
     $db = getDb();
     $stmt = $db->prepare('SELECT id FROM users WHERE id = :id AND svj_id = :svj_id');
     $stmt->execute([':id' => $userId, ':svj_id' => $svjId]);
     if (!$stmt->fetch()) {
-        jsonResponse(['error' => ['message' => 'Uživatel nenalezen', 'code' => 'NOT_FOUND']], 404);
+        jsonError('Uživatel nenalezen', 404, 'NOT_FOUND');
     }
 
     // Smazat sessions uživatele
@@ -191,14 +191,14 @@ function handleUpdateSetting(): void
     $value = $body['value'] ?? '';
 
     if (!$key) {
-        jsonResponse(['error' => ['message' => 'Chybí klíč nastavení', 'code' => 'VALIDATION_ERROR']], 422);
+        jsonError('Chybí klíč nastavení', 422, 'VALIDATION_ERROR');
     }
 
     $db = getDb();
     $stmt = $db->prepare('SELECT `key` FROM settings WHERE `key` = :key');
     $stmt->execute([':key' => $key]);
     if (!$stmt->fetch()) {
-        jsonResponse(['error' => ['message' => 'Neznámý klíč nastavení', 'code' => 'VALIDATION_ERROR']], 422);
+        jsonError('Neznámý klíč nastavení', 422, 'VALIDATION_ERROR');
     }
 
     $storeValue = isSecretSettingKey($key) ? encryptSetting($value) : $value;

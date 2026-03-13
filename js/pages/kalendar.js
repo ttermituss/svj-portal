@@ -12,11 +12,11 @@ var KAL_TYP_IKONY = {
 };
 
 var KAL_BARVY = {
-  danger:  'var(--danger, #e53e3e)',
-  blue:    '#3b82f6',
-  orange:  '#f59e0b',
-  success: 'var(--success, #22c55e)',
-  purple:  '#8b5cf6',
+  danger:  'var(--cal-zavada)',
+  blue:    'var(--cal-revize)',
+  orange:  'var(--cal-penb)',
+  success: 'var(--cal-dokument)',
+  purple:  'var(--cal-hlasovani)',
   muted:   'var(--text-light)',
 };
 

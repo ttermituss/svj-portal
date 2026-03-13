@@ -54,7 +54,7 @@ function handleList(): void
     $countStmt = $db->prepare(
         "SELECT stav, COUNT(*) AS cnt FROM zavady WHERE svj_id = :svj_id GROUP BY stav"
     );
-    $countStmt->execute([':svj_id' => $user['svj_id']]);
+    $countStmt->execute([':svj_id' => $svjId]);
     $counts = [];
     foreach ($countStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
         $counts[$row['stav']] = (int) $row['cnt'];
@@ -82,7 +82,7 @@ function handleGet(): void
          JOIN users u ON u.id = z.vytvoril_id
          WHERE z.id = :id AND z.svj_id = :svj_id'
     );
-    $stmt->execute([':id' => $id, ':svj_id' => $user['svj_id']]);
+    $stmt->execute([':id' => $id, ':svj_id' => $svjId]);
     $zavada = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$zavada) jsonError('Závada nenalezena', 404, 'NOT_FOUND');
 
@@ -125,8 +125,8 @@ function handleAdd(): void
         $file = $_FILES['foto'];
         $allowedMime = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
         $ext = validateUpload($file, $allowedMime, UPLOAD_MAX_PHOTO, 'Povoleny jsou pouze obrázky (JPEG, PNG, WebP)');
-        $filename = $user['svj_id'] . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
-        $fotoStorage = storageUpload((int) $user['svj_id'], 'zavady', $file, $filename, $file['name']);
+        $filename = $svjId . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
+        $fotoStorage = storageUpload((int) $svjId, 'zavady', $file, $filename, $file['name']);
         $fotoNazev = basename($file['name']);
         $fotoCesta = $filename;
     }
@@ -136,7 +136,7 @@ function handleAdd(): void
         'INSERT INTO zavady (svj_id, nazev, popis, lokace, priorita, foto_nazev, foto_cesta, vytvoril_id)
          VALUES (:svj_id, :nazev, :popis, :lokace, :priorita, :fn, :fc, :uid)'
     )->execute([
-        ':svj_id'   => $user['svj_id'],
+        ':svj_id'   => $svjId,
         ':nazev'    => $nazev,
         ':popis'    => $popis,
         ':lokace'   => $lokace ?: null,
@@ -176,7 +176,7 @@ function handleUpdate(): void
 
     $db = getDb();
     $stmt = $db->prepare('SELECT * FROM zavady WHERE id = :id AND svj_id = :svj_id');
-    $stmt->execute([':id' => $id, ':svj_id' => $user['svj_id']]);
+    $stmt->execute([':id' => $id, ':svj_id' => $svjId]);
     $existing = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$existing) jsonError('Závada nenalezena', 404, 'NOT_FOUND');
 
@@ -259,7 +259,7 @@ function handleComment(): void
 
     $db = getDb();
     $chk = $db->prepare('SELECT id FROM zavady WHERE id = :id AND svj_id = :svj_id');
-    $chk->execute([':id' => $zavadaId, ':svj_id' => $user['svj_id']]);
+    $chk->execute([':id' => $zavadaId, ':svj_id' => $svjId]);
     if (!$chk->fetch()) jsonError('Závada nenalezena', 404, 'NOT_FOUND');
 
     $db->prepare(
@@ -281,12 +281,12 @@ function handleDelete(): void
 
     $db = getDb();
     $stmt = $db->prepare('SELECT id, foto_cesta FROM zavady WHERE id = :id AND svj_id = :svj_id');
-    $stmt->execute([':id' => $id, ':svj_id' => $user['svj_id']]);
+    $stmt->execute([':id' => $id, ':svj_id' => $svjId]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$row) jsonError('Závada nenalezena', 404, 'NOT_FOUND');
 
     if ($row['foto_cesta']) {
-        storageDelete((int) $user['svj_id'], 'uploads/zavady/' . basename($row['foto_cesta']));
+        storageDelete((int) $svjId, 'uploads/zavady/' . basename($row['foto_cesta']));
     }
 
     $db->prepare('DELETE FROM zavady WHERE id = :id')->execute([':id' => $row['id']]);
@@ -305,11 +305,11 @@ function handlePhoto(): void
     $stmt = getDb()->prepare(
         'SELECT foto_cesta, foto_nazev FROM zavady WHERE id = :id AND svj_id = :svj_id'
     );
-    $stmt->execute([':id' => $id, ':svj_id' => $user['svj_id']]);
+    $stmt->execute([':id' => $id, ':svj_id' => $svjId]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$row || !$row['foto_cesta']) jsonError('Fotka nenalezena', 404, 'NOT_FOUND');
 
-    $path = storageDownload((int) $user['svj_id'], 'uploads/zavady/' . basename($row['foto_cesta']));
+    $path = storageDownload((int) $svjId, 'uploads/zavady/' . basename($row['foto_cesta']));
     if (!file_exists($path)) jsonError('Soubor nenalezen na disku', 404, 'FILE_MISSING');
 
     $mime = (new finfo(FILEINFO_MIME_TYPE))->file($path);

@@ -23,7 +23,7 @@ function handleList(): void
          FROM parkovani WHERE svj_id = :svj_id
          ORDER BY cislo + 0, cislo'
     );
-    $stmt->execute([':svj_id' => $user['svj_id']]);
+    $stmt->execute([':svj_id' => $svjId]);
     jsonOk(['stani' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
 }
 
@@ -48,7 +48,7 @@ function handleSave(): void
 
     if ($id) {
         $chk = $db->prepare('SELECT id FROM parkovani WHERE id = :id AND svj_id = :svj_id');
-        $chk->execute([':id' => $id, ':svj_id' => $user['svj_id']]);
+        $chk->execute([':id' => $id, ':svj_id' => $svjId]);
         if (!$chk->fetch()) jsonError('Stání nenalezeno', 404, 'NOT_FOUND');
 
         $db->prepare(
@@ -64,7 +64,7 @@ function handleSave(): void
             'INSERT INTO parkovani (svj_id, cislo, typ, cislo_jednotky, najemce, poznamka)
              VALUES (:svj_id, :c, :t, :cj, :n, :p)'
         )->execute([
-            ':svj_id' => $user['svj_id'],
+            ':svj_id' => $svjId,
             ':c' => $cislo, ':t' => $typ,
             ':cj' => $cisloJednotky ?: null, ':n' => $najemce ?: null,
             ':p' => $poznamka ?: null,
@@ -84,7 +84,7 @@ function handleDelete(): void
     if (!$id) jsonError('Chybí ID', 400, 'MISSING_ID');
 
     $stmt = getDb()->prepare('SELECT id FROM parkovani WHERE id = :id AND svj_id = :svj_id');
-    $stmt->execute([':id' => $id, ':svj_id' => $user['svj_id']]);
+    $stmt->execute([':id' => $id, ':svj_id' => $svjId]);
     if (!$stmt->fetch()) jsonError('Stání nenalezeno', 404, 'NOT_FOUND');
 
     getDb()->prepare('DELETE FROM parkovani WHERE id = :id')->execute([':id' => $id]);

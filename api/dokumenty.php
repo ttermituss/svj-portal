@@ -35,7 +35,7 @@ function handleList(): void
     $sql .= ' ORDER BY d.kategorie, d.created_at DESC';
 
     $stmt = getDb()->prepare($sql);
-    $stmt->execute([':svj_id' => $user['svj_id']]);
+    $stmt->execute([':svj_id' => $svjId]);
     jsonOk(['dokumenty' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
 }
 
@@ -59,7 +59,12 @@ function handleUpload(): void
     $validPristup = ['vsichni', 'vybor'];
     if (!in_array($pristup, $validPristup, true)) $pristup = 'vsichni';
 
-    $datumPlatnostiVal = ($datumPlatnosti && strtotime($datumPlatnosti)) ? $datumPlatnosti : null;
+    $datumPlatnostiVal = null;
+    if ($datumPlatnosti) {
+        $dt = DateTime::createFromFormat('Y-m-d', $datumPlatnosti);
+        if (!$dt || $dt->format('Y-m-d') !== $datumPlatnosti) jsonError('Neplatný formát data platnosti (YYYY-MM-DD)', 422, 'INVALID_DATE');
+        $datumPlatnostiVal = $dt->format('Y-m-d');
+    }
 
     if (empty($_FILES['soubor']) || $_FILES['soubor']['error'] === UPLOAD_ERR_NO_FILE) {
         jsonError('Soubor nebyl nahrán', 400, 'NO_FILE');
@@ -82,8 +87,8 @@ function handleUpload(): void
         'Nepodporovaný formát. Povoleny: PDF, Word, Excel, JPEG, PNG, Markdown, TXT'
     );
 
-    $filename = $user['svj_id'] . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
-    $storage = storageUpload((int) $user['svj_id'], 'dokumenty', $file, $filename, $file['name']);
+    $filename = $svjId . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
+    $storage = storageUpload((int) $svjId, 'dokumenty', $file, $filename, $file['name']);
 
     getDb()->prepare(
         'INSERT INTO dokumenty (svj_id, nazev, popis, kategorie, soubor_nazev, soubor_cesta,
@@ -91,7 +96,7 @@ function handleUpload(): void
          VALUES (:svj_id, :nazev, :popis, :kategorie, :soubor_nazev, :soubor_cesta,
          :datum_platnosti, :pristup, :uploaded_by)'
     )->execute([
-        ':svj_id'          => $user['svj_id'],
+        ':svj_id'          => $svjId,
         ':nazev'           => $nazev,
         ':popis'           => $popis ?: null,
         ':kategorie'       => $kategorie,
@@ -120,7 +125,7 @@ function handleDownload(): void
     $stmt = getDb()->prepare(
         'SELECT soubor_cesta, soubor_nazev, pristup FROM dokumenty WHERE id = :id AND svj_id = :svj_id'
     );
-    $stmt->execute([':id' => $id, ':svj_id' => $user['svj_id']]);
+    $stmt->execute([':id' => $id, ':svj_id' => $svjId]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$row) jsonError('Dokument nenalezen', 404, 'NOT_FOUND');
@@ -131,7 +136,7 @@ function handleDownload(): void
     }
 
     $relPath = 'uploads/dokumenty/' . basename($row['soubor_cesta']);
-    $path = storageDownload((int) $user['svj_id'], $relPath);
+    $path = storageDownload((int) $svjId, $relPath);
     if (!file_exists($path)) jsonError('Soubor nenalezen na disku', 404, 'FILE_MISSING');
 
     $ext  = strtolower(pathinfo($path, PATHINFO_EXTENSION));
@@ -166,7 +171,7 @@ function handlePreview(): void
     $stmt = getDb()->prepare(
         'SELECT soubor_cesta, soubor_nazev, pristup FROM dokumenty WHERE id = :id AND svj_id = :svj_id'
     );
-    $stmt->execute([':id' => $id, ':svj_id' => $user['svj_id']]);
+    $stmt->execute([':id' => $id, ':svj_id' => $svjId]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$row) jsonError('Dokument nenalezen', 404, 'NOT_FOUND');
@@ -177,7 +182,7 @@ function handlePreview(): void
     }
 
     $relPath = 'uploads/dokumenty/' . basename($row['soubor_cesta']);
-    $path = storageDownload((int) $user['svj_id'], $relPath);
+    $path = storageDownload((int) $svjId, $relPath);
     if (!file_exists($path)) jsonError('Soubor nenalezen na disku', 404, 'FILE_MISSING');
 
     $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
@@ -214,12 +219,12 @@ function handleDelete(): void
 
     $db   = getDb();
     $stmt = $db->prepare('SELECT id, soubor_cesta FROM dokumenty WHERE id = :id AND svj_id = :svj_id');
-    $stmt->execute([':id' => $id, ':svj_id' => $user['svj_id']]);
+    $stmt->execute([':id' => $id, ':svj_id' => $svjId]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$row) jsonError('Dokument nenalezen', 404, 'NOT_FOUND');
 
-    storageDelete((int) $user['svj_id'], 'uploads/dokumenty/' . basename($row['soubor_cesta']));
+    storageDelete((int) $svjId, 'uploads/dokumenty/' . basename($row['soubor_cesta']));
 
     $db->prepare('DELETE FROM dokumenty WHERE id = :id')->execute([':id' => $row['id']]);
     jsonOk();

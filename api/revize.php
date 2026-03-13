@@ -42,7 +42,7 @@ function handleList(): void
         WHERE r.svj_id = ?
         ORDER BY r.datum_pristi ASC, r.nazev ASC
     ');
-    $stmt->execute([$user['svj_id']]);
+    $stmt->execute([$svjId]);
     jsonOk(['revize' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
 }
 
@@ -71,9 +71,15 @@ function handleSave(): void
     $allowedTypy = ['vytah', 'elektro', 'plyn', 'hromosvod', 'hasici', 'jine'];
     if (!in_array($typ, $allowedTypy, true)) jsonError('Neplatný typ revize', 400, 'INVALID_TYP');
     if (!$nazev) jsonError('Název je povinný', 400, 'MISSING_NAZEV');
-    if (!$datumPosledni || !strtotime($datumPosledni)) jsonError('Neplatné datum poslední revize', 400, 'INVALID_DATE');
+    $dtPosledni = DateTime::createFromFormat('Y-m-d', $datumPosledni);
+    if (!$dtPosledni || $dtPosledni->format('Y-m-d') !== $datumPosledni) jsonError('Neplatný formát data poslední revize (YYYY-MM-DD)', 422, 'INVALID_DATE');
+    $datumPosledni = $dtPosledni->format('Y-m-d');
 
-    if ($datumPristi && !strtotime($datumPristi)) jsonError('Neplatné datum příští revize', 400, 'INVALID_DATE');
+    if ($datumPristi) {
+        $dtPristi = DateTime::createFromFormat('Y-m-d', $datumPristi);
+        if (!$dtPristi || $dtPristi->format('Y-m-d') !== $datumPristi) jsonError('Neplatný formát data příští revize (YYYY-MM-DD)', 422, 'INVALID_DATE');
+        $datumPristi = $dtPristi->format('Y-m-d');
+    }
     if (!$datumPristi && $intervalMesice) {
         $dt = DateTime::createFromFormat('Y-m-d', $datumPosledni);
         if ($dt) {
@@ -86,7 +92,7 @@ function handleSave(): void
 
     if ($id) {
         $chk = $db->prepare('SELECT id, soubor_cesta FROM revize WHERE id = ? AND svj_id = ?');
-        $chk->execute([$id, $user['svj_id']]);
+        $chk->execute([$id, $svjId]);
         $existing = $chk->fetch(PDO::FETCH_ASSOC);
         if (!$existing) jsonError('Revize nenalezena', 404, 'NOT_FOUND');
     }
@@ -97,7 +103,7 @@ function handleSave(): void
     // Upload PDF protokolu
     $gdriveWarning = null;
     if (!empty($_FILES['soubor']) && $_FILES['soubor']['error'] !== UPLOAD_ERR_NO_FILE) {
-        $result = revizeUploadPdf($_FILES['soubor'], $user['svj_id'], $souborCesta);
+        $result = revizeUploadPdf($_FILES['soubor'], $svjId, $souborCesta);
         $souborNazev = $result['nazev'];
         $souborCesta = $result['cesta'];
         $gdriveWarning = $result['gdrive_warning'] ?? null;
@@ -120,7 +126,7 @@ function handleSave(): void
                 datum_pristi, soubor_nazev, soubor_cesta, poznamka, kontakt_id, naklady, pripomenout_dni)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ')->execute([
-            $user['svj_id'], $typ, $nazev, $datumPosledni, $intervalMesice,
+            $svjId, $typ, $nazev, $datumPosledni, $intervalMesice,
             $datumPristi ?: null, $souborNazev, $souborCesta, $poznamka ?: null,
             $kontaktId, $naklady, $pripomenoutDni,
         ]);
@@ -128,7 +134,7 @@ function handleSave(): void
 
     // Notifikace při blížící se revizi
     if ($pripomenoutDni && $datumPristi) {
-        revizeScheduleNotif($db, $user['svj_id'], $nazev, $datumPristi, $pripomenoutDni);
+        revizeScheduleNotif($db, $svjId, $nazev, $datumPristi, $pripomenoutDni);
     }
 
     $resp = ['message' => 'Revize uložena'];
@@ -148,7 +154,7 @@ function handleDelete(): void
 
     $db  = getDb();
     $row = $db->prepare('SELECT id, soubor_cesta FROM revize WHERE id = ? AND svj_id = ?');
-    $row->execute([$id, $user['svj_id']]);
+    $row->execute([$id, $svjId]);
     $row = $row->fetch(PDO::FETCH_ASSOC);
     if (!$row) jsonError('Revize nenalezena', 404, 'NOT_FOUND');
 
@@ -180,11 +186,11 @@ function handleDownload(): void
     if (!$id) jsonError('Chybí ID', 400, 'MISSING_ID');
 
     $stmt = getDb()->prepare('SELECT soubor_cesta, soubor_nazev FROM revize WHERE id = ? AND svj_id = ?');
-    $stmt->execute([$id, $user['svj_id']]);
+    $stmt->execute([$id, $svjId]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$row || !$row['soubor_cesta']) jsonError('Soubor nenalezen', 404, 'NOT_FOUND');
-    servePdf($row['soubor_cesta'], $row['soubor_nazev'], (int) $user['svj_id']);
+    servePdf($row['soubor_cesta'], $row['soubor_nazev'], (int) $svjId);
 }
 
 /* ── Historie: List ───────────────────────────────── */
@@ -207,7 +213,7 @@ function handleHistorieList(): void
         WHERE rh.revize_id = ? AND rh.svj_id = ?
         ORDER BY rh.datum_revize DESC
     ');
-    $st->execute([$revizeId, $user['svj_id']]);
+    $st->execute([$revizeId, $svjId]);
     jsonOk(['historie' => $st->fetchAll(PDO::FETCH_ASSOC)]);
 }
 
@@ -227,16 +233,18 @@ function handleHistorieSave(): void
     $poznamka    = sanitize($_POST['poznamka'] ?? '');
 
     if (!$revizeId) jsonError('Chybí revize_id', 400);
-    if (!$datumRevize || !strtotime($datumRevize)) jsonError('Neplatné datum', 400);
+    $dtRevize = DateTime::createFromFormat('Y-m-d', $datumRevize);
+    if (!$dtRevize || $dtRevize->format('Y-m-d') !== $datumRevize) jsonError('Neplatný formát data (YYYY-MM-DD)', 422);
+    $datumRevize = $dtRevize->format('Y-m-d');
 
     $validVysledky = ['ok', 'zavady', 'nezpusobile'];
-    if (!in_array($vysledek, $validVysledky)) $vysledek = 'ok';
+    if (!in_array($vysledek, $validVysledky, true)) $vysledek = 'ok';
 
     $db = getDb();
 
     // Ověříme vlastnictví revize
     $chk = $db->prepare('SELECT id FROM revize WHERE id = ? AND svj_id = ?');
-    $chk->execute([$revizeId, $user['svj_id']]);
+    $chk->execute([$revizeId, $svjId]);
     if (!$chk->fetch()) jsonError('Revize nenalezena', 404);
 
     $souborNazev = null;
@@ -244,7 +252,7 @@ function handleHistorieSave(): void
 
     if ($id > 0) {
         $ex = $db->prepare('SELECT soubor_cesta FROM revize_historie WHERE id = ? AND svj_id = ?');
-        $ex->execute([$id, $user['svj_id']]);
+        $ex->execute([$id, $svjId]);
         $existing = $ex->fetch(PDO::FETCH_ASSOC);
         if (!$existing) jsonError('Záznam nenalezen', 404);
         $souborCesta = $existing['soubor_cesta'];
@@ -252,7 +260,7 @@ function handleHistorieSave(): void
 
     $histGdriveWarning = null;
     if (!empty($_FILES['soubor']) && $_FILES['soubor']['error'] !== UPLOAD_ERR_NO_FILE) {
-        $result = revizeUploadPdf($_FILES['soubor'], $user['svj_id'], $souborCesta);
+        $result = revizeUploadPdf($_FILES['soubor'], $svjId, $souborCesta);
         $souborNazev = $result['nazev'];
         $souborCesta = $result['cesta'];
         $histGdriveWarning = $result['gdrive_warning'] ?? null;
@@ -266,7 +274,7 @@ function handleHistorieSave(): void
         ')->execute([
             $datumRevize, $vysledek, $naklady,
             $kontaktId, $souborNazev, $souborCesta, $poznamka ?: null,
-            $id, $user['svj_id'],
+            $id, $svjId,
         ]);
     } else {
         $db->prepare('
@@ -274,7 +282,7 @@ function handleHistorieSave(): void
                 kontakt_id, soubor_nazev, soubor_cesta, poznamka)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ')->execute([
-            $revizeId, $user['svj_id'], $datumRevize, $vysledek, $naklady,
+            $revizeId, $svjId, $datumRevize, $vysledek, $naklady,
             $kontaktId, $souborNazev, $souborCesta, $poznamka ?: null,
         ]);
     }
@@ -296,12 +304,12 @@ function handleHistorieDelete(): void
 
     $db  = getDb();
     $row = $db->prepare('SELECT soubor_cesta FROM revize_historie WHERE id = ? AND svj_id = ?');
-    $row->execute([$id, $user['svj_id']]);
+    $row->execute([$id, $svjId]);
     $row = $row->fetch(PDO::FETCH_ASSOC);
     if (!$row) jsonError('Záznam nenalezen', 404);
 
     if ($row['soubor_cesta']) {
-        storageDelete((int) $user['svj_id'], 'uploads/revize/' . basename($row['soubor_cesta']));
+        storageDelete((int) $svjId, 'uploads/revize/' . basename($row['soubor_cesta']));
     }
 
     $db->prepare('DELETE FROM revize_historie WHERE id = ?')->execute([$id]);
@@ -319,11 +327,11 @@ function handleHistorieDownload(): void
     if (!$id) jsonError('Chybí ID', 400);
 
     $st = getDb()->prepare('SELECT soubor_cesta, soubor_nazev FROM revize_historie WHERE id = ? AND svj_id = ?');
-    $st->execute([$id, $user['svj_id']]);
+    $st->execute([$id, $svjId]);
     $row = $st->fetch(PDO::FETCH_ASSOC);
 
     if (!$row || !$row['soubor_cesta']) jsonError('Soubor nenalezen', 404);
-    servePdf($row['soubor_cesta'], $row['soubor_nazev'], (int) $user['svj_id']);
+    servePdf($row['soubor_cesta'], $row['soubor_nazev'], (int) $svjId);
 }
 
 /* ── Helpers ──────────────────────────────────────── */

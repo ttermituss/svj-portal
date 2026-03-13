@@ -311,7 +311,9 @@ function fondValidateRecord(array $body): array
     if (!$kategorie) jsonError('Kategorie je povinná', 400, 'MISSING_KAT');
     if (!$popis) jsonError('Popis je povinný', 400, 'MISSING_POPIS');
     if (!is_numeric($castka) || (float)$castka <= 0) jsonError('Neplatná částka', 400, 'INVALID_CASTKA');
-    if (!$datum || !strtotime($datum)) jsonError('Neplatné datum', 400, 'INVALID_DATE');
+    $dt = DateTime::createFromFormat('Y-m-d', $datum);
+    if (!$dt || $dt->format('Y-m-d') !== $datum) jsonError('Neplatný formát data (YYYY-MM-DD)', 422, 'INVALID_DATE');
+    $datum = $dt->format('Y-m-d');
 
     return [
         'typ'       => $typ,

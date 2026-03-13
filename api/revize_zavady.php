@@ -91,8 +91,8 @@ function handleSave(): void
     $poznamka         = sanitize($body['poznamka'] ?? '');
 
     if (!$popis) jsonError('Popis závady je povinný', 422);
-    if (!in_array($zavaznost, ['nizka', 'stredni', 'vysoka', 'kriticka'])) $zavaznost = 'stredni';
-    if (!in_array($stav, ['nova', 'v_reseni', 'vyresena'])) $stav = 'nova';
+    if (!in_array($zavaznost, ['nizka', 'stredni', 'vysoka', 'kriticka'], true)) $zavaznost = 'stredni';
+    if (!in_array($stav, ['nova', 'v_reseni', 'vyresena'], true)) $stav = 'nova';
 
     if ($stav === 'vyresena' && !$vyresenoDatum) {
         $vyresenoDatum = date('Y-m-d');
@@ -151,7 +151,7 @@ function handleUpdateStav(): void
     $body = getJsonBody();
     $id = (int) ($body['id'] ?? 0);
     $stav = sanitize($body['stav'] ?? '');
-    if (!$id || !in_array($stav, ['nova', 'v_reseni', 'vyresena'])) {
+    if (!$id || !in_array($stav, ['nova', 'v_reseni', 'vyresena'], true)) {
         jsonError('Neplatné parametry', 422);
     }
 

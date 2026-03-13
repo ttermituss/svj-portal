@@ -7,8 +7,8 @@ require_once __DIR__ . '/pdf_helper.php';
 
 $user   = requireAuth();
 $svjId  = requireSvj($user);
-$type   = $_GET['type']   ?? '';
-$format = $_GET['format'] ?? 'csv';
+$type   = getParam('type', '');
+$format = getParam('format', 'csv');
 
 if (!in_array($format, ['csv', 'xlsx', 'pdf'], true)) jsonError('Nepodporovaný formát', 400);
 

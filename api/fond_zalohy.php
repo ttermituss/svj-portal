@@ -55,7 +55,7 @@ function handlePredpisList(): void
          WHERE p.svj_id = :sid AND p.rok = :rok
          ORDER BY j.cislo_jednotky ASC'
     );
-    $stmt->execute([':sid' => $user['svj_id'], ':rok' => $rok]);
+    $stmt->execute([':sid' => $svjId, ':rok' => $rok]);
 
     jsonOk(['rok' => $rok, 'predpisy' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
 }
@@ -81,7 +81,7 @@ function handlePredpisSave(): void
 
     // Verify jednotka belongs to SVJ
     $jStmt = $db->prepare('SELECT id FROM jednotky WHERE id = :jid AND svj_id = :sid');
-    $jStmt->execute([':jid' => $jednotkaId, ':sid' => $user['svj_id']]);
+    $jStmt->execute([':jid' => $jednotkaId, ':sid' => $svjId]);
     if (!$jStmt->fetch()) jsonError('Jednotka nenalezena', 404, 'NOT_FOUND');
 
     $db->prepare(
@@ -89,7 +89,7 @@ function handlePredpisSave(): void
          VALUES (:sid, :rok, :jid, :castka, :poz)
          ON DUPLICATE KEY UPDATE mesicni_castka = VALUES(mesicni_castka), poznamka = VALUES(poznamka)'
     )->execute([
-        ':sid'    => $user['svj_id'],
+        ':sid'    => $svjId,
         ':rok'    => $rok,
         ':jid'    => $jednotkaId,
         ':castka' => round((float) $mesicniCastka, 2),
@@ -118,7 +118,7 @@ function handlePredpisGenerate(): void
     $stmt = $db->prepare(
         'SELECT id, podil_citatel, podil_jmenovatel FROM jednotky WHERE svj_id = :sid'
     );
-    $stmt->execute([':sid' => $user['svj_id']]);
+    $stmt->execute([':sid' => $svjId]);
     $jednotky = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (empty($jednotky)) jsonError('Žádné jednotky v SVJ', 404, 'NO_UNITS');
@@ -157,7 +157,7 @@ function handlePredpisGenerate(): void
         $castka = round(($share / $totalShare) * $total, 2);
 
         $ins->execute([
-            ':sid'    => $user['svj_id'],
+            ':sid'    => $svjId,
             ':rok'    => $rok,
             ':jid'    => $j['id'],
             ':castka' => $castka,
@@ -180,7 +180,7 @@ function handlePredpisDelete(): void
 
     $db = getDb();
     $stmt = $db->prepare('DELETE FROM fond_predpis WHERE id = :id AND svj_id = :sid');
-    $stmt->execute([':id' => $id, ':sid' => $user['svj_id']]);
+    $stmt->execute([':id' => $id, ':sid' => $svjId]);
     if ($stmt->rowCount() === 0) jsonError('Předpis nenalezen', 404, 'NOT_FOUND');
 
     jsonOk(['deleted' => true]);
@@ -213,7 +213,7 @@ function handleZalohyList(): void
          WHERE z.svj_id = :sid AND p.rok = :rok AND z.mesic = :m
          ORDER BY j.cislo_jednotky ASC'
     );
-    $stmt->execute([':sid' => $user['svj_id'], ':rok' => $rok, ':m' => $mesic]);
+    $stmt->execute([':sid' => $svjId, ':rok' => $rok, ':m' => $mesic]);
 
     jsonOk([
         'rok'    => $rok,
@@ -237,7 +237,7 @@ function handleZalohyGenerate(): void
     $stmt = $db->prepare(
         'SELECT id, mesicni_castka FROM fond_predpis WHERE svj_id = :sid AND rok = :rok'
     );
-    $stmt->execute([':sid' => $user['svj_id'], ':rok' => $rok]);
+    $stmt->execute([':sid' => $svjId, ':rok' => $rok]);
     $predpisy = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (empty($predpisy)) jsonError('Žádné předpisy pro rok ' . $rok, 404, 'NO_PREDPISY');
@@ -251,7 +251,7 @@ function handleZalohyGenerate(): void
     $count = 0;
     foreach ($predpisy as $p) {
         $ins->execute([
-            ':sid'  => $user['svj_id'],
+            ':sid'  => $svjId,
             ':pid'  => $p['id'],
             ':m'    => $mesic,
             ':pred' => $p['mesicni_castka'],
@@ -283,7 +283,7 @@ function handleZalohySave(): void
 
     // Verify ownership
     $stmt = $db->prepare('SELECT id FROM fond_zalohy WHERE id = :id AND svj_id = :sid');
-    $stmt->execute([':id' => $id, ':sid' => $user['svj_id']]);
+    $stmt->execute([':id' => $id, ':sid' => $svjId]);
     if (!$stmt->fetch()) jsonError('Záloha nenalezena', 404, 'NOT_FOUND');
 
     $db->prepare(
@@ -323,7 +323,7 @@ function handleZalohyStats(): void
          GROUP BY z.mesic
          ORDER BY z.mesic ASC'
     );
-    $stmt->execute([':sid' => $user['svj_id'], ':rok' => $rok]);
+    $stmt->execute([':sid' => $svjId, ':rok' => $rok]);
 
     jsonOk(['rok' => $rok, 'mesice' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
 }
