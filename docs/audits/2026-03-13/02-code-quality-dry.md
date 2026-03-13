@@ -1,10 +1,11 @@
 # Audit: Code Quality (DRY / KISS / YAGNI)
 
-Datum: 2026-03-13 | Verze: 2.5.0
+Datum: 2026-03-13 | Verze: 2.5.0 → 2.6.0
+Opravy: commity `ac9d6af`, `7672f6c`, `7776e91`
 
 ---
 
-## CRITICAL: Soubory překračující 500 řádků
+## ~~CRITICAL: Soubory překračující 500 řádků~~ ✅ OPRAVENO
 
 | Soubor | Řádků | Překročení |
 |--------|-------|------------|
@@ -19,7 +20,7 @@ Datum: 2026-03-13 | Verze: 2.5.0
 
 ---
 
-## HIGH: DRY porušení
+## ~~HIGH: DRY porušení~~ ✅ OPRAVENO
 
 ### Magic numbers — file size limity hardcoded
 7 souborů duplikuje `X * 1024 * 1024` bez centrální konstanty:

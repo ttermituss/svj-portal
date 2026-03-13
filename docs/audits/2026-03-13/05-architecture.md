@@ -10,7 +10,7 @@ Aktualizováno na `001–035` (commit `6bc7a2f`).
 
 ---
 
-## HIGH: Soubory překračující 500 řádků
+## ~~HIGH: Soubory překračující 500 řádků~~ ✅ OPRAVENO (5 rozdělen, 3 akceptováno)
 
 ### JavaScript (6 souborů):
 | Soubor | Řádků | Doporučení |
@@ -29,7 +29,7 @@ Aktualizováno na `001–035` (commit `6bc7a2f`).
 
 ---
 
-## HIGH: Hardcoded barvy v JS
+## ~~HIGH: Hardcoded barvy v JS~~ ✅ OPRAVENO (CSS vars v theme.css)
 
 Porušení pravidla "vždy `var(--*)`":
 

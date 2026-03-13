@@ -5,6 +5,36 @@ Formát: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [2.6.0] — 2026-03-13
+
+### Opraveno (z 5 auditů — P0 až P3)
+
+#### Security
+- **Tenant isolation bypass** v `admin.php` — přidán `WHERE svj_id` do listUsers/updateRole/deleteUser
+- **SQL LIMIT/OFFSET** v `fond_oprav.php` — přepsáno na `bindValue(PDO::PARAM_INT)`
+- **WhereBuilder** — nová třída v `helpers.php` nahrazuje dynamický WHERE string interpolaci
+- **DateTime safety** — `DateTime::createFromFormat()` místo `new DateTime()` (revize, meridla)
+- **kn.php** — `$db->query()` → `$db->prepare()`
+- **HTTP security headers** — CSP, X-Frame-Options, Referrer-Policy, Permissions-Policy v `.htaccess`
+- **Markdown XSS** — blokování `javascript:` URLs v odkazech
+
+#### UX & Accessibility
+- **Fonty** — 100+ míst s 0.65–0.76rem → min 0.82rem; CSS komponenty (badge, btn-sm, labels, hints, th) zvětšeny
+- **Touch targets** — btn-sm min-height 36px, badge min-height 28px, sidebar 44px, hamburger 44×44px
+- **Senior theme** — 13 nových overrides (badge, btn-sm, labels, tabulky, info-box, hamburger 52px)
+- **ARIA atributy** — toast (role=alert, aria-live), modal (role=dialog, aria-modal), sidebar (role=navigation), hamburger (aria-expanded), notifikace (aria-haspopup)
+- **makeFormField()** — nový helper v `ui.js` s `label[for]`, `aria-required`, `aria-describedby`
+- **PENB/toast/warning barvy** → CSS custom properties (--penb-a..g, --success, --warning-dark)
+
+#### Code Quality
+- **requireSvj()** — nový helper v `middleware.php`, nahrazuje 70+ duplikátních SVJ checků
+- **UPLOAD_MAX_*** — 4 konstanty místo 7× hardcoded file sizes
+- **File splits (PHP)**: `fond_oprav.php` (592→379) → `fond_prilohy.php` + `fond_ucty.php`
+- **File splits (JS)**: `dokumenty.js` (570→323), `fond-oprav.js` (558→369), `jednotky.js` (524→436)
+- **Promise chains** — globální `unhandledrejection` handler + `.catch()` na klíčových místech
+
+---
+
 ## [2.5.0] — 2026-03-13
 
 ### Přidáno

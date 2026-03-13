@@ -34,7 +34,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
 │       ├── nastenka.js     # nástěnka příspěvků
 │       ├── vlastnici.js    # správa vlastníků
 │       ├── jednotky.js     # přehled jednotek (z KN importu)
-│       ├── dokumenty.js    # nahrávání dokumentů
+│       ├── dokumenty.js    # dokumenty: seznam, karty, helpery
+│       ├── dokumenty-upload.js # dokumenty: upload karta (drag&drop, preview, formulář)
 │       ├── nastaveni.js    # profil + avatar uživatele
 │       ├── nastaveni-google.js # karta: Google integrace (připojit/odpojit Google účet)
 │       ├── nastaveni-gdrive.js # karta: Google Drive úložiště (aktivace, sync panel, progress)
@@ -51,7 +52,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
 │       ├── admin-revize-historie.js # modal historie: archiv revizí (výsledek, PDF, kontakt, CRUD, závady)
 │       ├── revize-zavady.js         # závady z revize: CRUD, závažnost, termín, workflow stavu
 │       ├── admin-fond-oprav.js # karta: fond oprav — READ-ONLY mini (zůstatek + graf) pro O domě
-│       ├── fond-oprav.js      # stránka: fond oprav dashboard (admin/výbor) — taby (přehled/rozpočet/zálohy), grafy, trend, účty, filtry
+│       ├── fond-oprav.js      # stránka: fond oprav dashboard (admin/výbor) — taby, filtry, summary
+│       ├── fond-oprav-charts.js # fond oprav: měsíční bar chart, trend SVG, helper funkce
 │       ├── fond-oprav-modal.js # fond oprav: modal přidání/editace záznamu + přílohy (upload, seznam, smazání)
 │       ├── fond-oprav-detail.js # fond oprav: roční tabulka, statistiky, účty render, záznamy + stránkování
 │       ├── fond-rozpocet.js    # fond oprav: rozpočet tab — plán vs. skutečnost, progress bary, CRUD modal
@@ -61,7 +63,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
 │       ├── admin-parkovani.js  # karta: parkovací místa (garáž, stání, venkovní, moto)
 │       ├── admin-cenova-mapa.js# karta: cenová mapa — odkazy cenovamapa.org, ČÚZK, Sreality
 │       ├── odom.js         # stránka O domě: info o budově + PENB + revize + fond oprav + okolí + parkování + ceny
-│       ├── jednotky.js     # jednotky — přehled, Vlastník, Pronájem badge, QR kódy, export XLSX/CSV; modal Upravit (pronájem/nájemce)
+│       ├── jednotky.js     # jednotky — přehled, Vlastník, Pronájem badge, export; modal Upravit
+│       ├── jednotky-qr.js  # jednotky: QR kódy — modal, tisk, api.qrserver.com
 │       ├── vlastnici.js    # vlastníci — registrovaní (telefon, jednotka, ISIR) + neregistrovaní (vlastnici_ext)
 │       ├── hlasovani.js    # hlasování/ankety (list, create, vote, výsledky)
 │       ├── dokumenty.js    # dokumenty — drag&drop upload, kategorie, karty se stahováním
@@ -99,7 +102,9 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
     ├── penb.php            # PENB: get, save (upsert + PDF upload), delete, download (auth)
     ├── revize.php          # revize: list, save, delete, download (PDF protokol)
     ├── revize_zavady.php   # závady z revize: list, listByRevize, save, delete, updateStav
-    ├── fond_oprav.php      # fond oprav: list (filtry+fulltext), stats, statsRocni, statsKat, add, update, delete, upload/prilohy/prilohaDownload/prilohaDelete, uctyList/Save/Delete + notifikace
+    ├── fond_oprav.php      # fond oprav: list (filtry+fulltext+WhereBuilder), stats, statsRocni, statsKat, add, update, delete + notifikace
+    ├── fond_prilohy.php    # fond přílohy: upload, list, download, delete (vyčleněno z fond_oprav)
+    ├── fond_ucty.php       # fond účty SVJ: list, save, delete (vyčleněno z fond_oprav)
     ├── fond_rozpocet.php   # fond rozpočet: list, save (upsert), delete, compare (plán vs. skutečnost)
     ├── fond_zalohy.php     # fond zálohy: predpisList/Save/Generate/Delete, zalohyList/Generate/Save, zalohyStats
     ├── fond_notif_helper.php # fond notifikace: helper — lowBalance, highExpense, unpaidZalohy

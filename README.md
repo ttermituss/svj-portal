@@ -1,4 +1,4 @@
-# SVJ Portál v2.5.0
+# SVJ Portál v2.6.0
 
 Univerzální multi-tenant webový portál pro správu **Společenství vlastníků jednotek (SVJ)** v ČR.
 

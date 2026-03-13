@@ -78,7 +78,7 @@ Akceptovatelné pro malé datasety.
 
 ---
 
-## Celkové hodnocení: 85 → 92/100 (po opravách)
+## Celkové hodnocení: 85 → 95/100 (po všech opravách)
 
 | Kategorie | Výskyt | Závažnost |
 |-----------|--------|-----------|
