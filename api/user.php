@@ -2,6 +2,7 @@
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/middleware.php';
+require_once __DIR__ . '/ratelimit.php';
 require_once __DIR__ . '/config.php';
 
 $action = getParam('action', '');
@@ -82,6 +83,9 @@ function handleChangePassword(): void
 {
     requireMethod('POST');
     $user = requireAuth();
+
+    checkRateLimit('chpwd_' . $user['id'] . '_', 10, 'Příliš mnoho pokusů o změnu hesla. Zkuste to za 5 minut.');
+
     $body = getJsonBody();
 
     $oldPassword = $body['old_password'] ?? '';
@@ -103,9 +107,11 @@ function handleChangePassword(): void
     $row = $stmt->fetch();
 
     if (!$row || !password_verify($oldPassword, $row['password_hash'])) {
+        recordRateLimit('chpwd_' . $user['id'] . '_');
         jsonResponse(['error' => ['message' => 'Stávající heslo není správné', 'code' => 'VALIDATION_ERROR']], 422);
     }
 
+    clearRateLimit('chpwd_' . $user['id'] . '_');
     $newHash = password_hash($newPassword, PASSWORD_BCRYPT, ['cost' => BCRYPT_COST]);
     $stmt = $db->prepare('UPDATE users SET password_hash = :hash WHERE id = :id');
     $stmt->execute([':hash' => $newHash, ':id' => $user['id']]);

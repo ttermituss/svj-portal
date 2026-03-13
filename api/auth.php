@@ -19,6 +19,10 @@ require_once __DIR__ . '/svj_helper.php';
 define('LOGIN_MAX_ATTEMPTS',    10);
 define('REGISTER_MAX_ATTEMPTS',  5);
 
+const MIN_PASSWORD_LENGTH = 8;
+const MAX_EMAIL_LENGTH = 255;
+const MAX_NAME_LENGTH = 100;
+
 $action = getParam('action', '');
 
 switch ($action) {
@@ -53,8 +57,8 @@ function handleRegister(): void
     $prijmeni     = sanitize($body['prijmeni']     ?? '');
     $inviteToken  = sanitize($body['invite_token'] ?? '');
 
-    if (strlen($email) > 255 || strlen($password) > 128 ||
-        strlen($jmeno) > 100 || strlen($prijmeni) > 100) {
+    if (strlen($email) > MAX_EMAIL_LENGTH || strlen($password) > 128 ||
+        strlen($jmeno) > MAX_NAME_LENGTH || strlen($prijmeni) > MAX_NAME_LENGTH) {
         jsonError('Vstup je příliš dlouhý', 400, 'VALIDATION_ERROR');
     }
 
@@ -62,8 +66,8 @@ function handleRegister(): void
     if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors['email'] = ['Zadejte platný e-mail'];
     }
-    if (strlen($password) < 8) {
-        $errors['password'] = ['Heslo musí mít alespoň 8 znaků'];
+    if (strlen($password) < MIN_PASSWORD_LENGTH) {
+        $errors['password'] = ['Heslo musí mít alespoň ' . MIN_PASSWORD_LENGTH . ' znaků'];
     }
     if (!$jmeno) {
         $errors['jmeno'] = ['Zadejte jméno'];
@@ -163,8 +167,8 @@ function handleRegisterAdmin(): void
     $prijmeni = sanitize($body['prijmeni'] ?? '');
     $ico      = str_pad(preg_replace('/\D/', '', $body['ico'] ?? ''), 8, '0', STR_PAD_LEFT);
 
-    if (strlen($email) > 255 || strlen($password) > 128 ||
-        strlen($jmeno) > 100 || strlen($prijmeni) > 100) {
+    if (strlen($email) > MAX_EMAIL_LENGTH || strlen($password) > 128 ||
+        strlen($jmeno) > MAX_NAME_LENGTH || strlen($prijmeni) > MAX_NAME_LENGTH) {
         jsonError('Vstup je příliš dlouhý', 400, 'VALIDATION_ERROR');
     }
 
@@ -172,8 +176,8 @@ function handleRegisterAdmin(): void
     if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors['email'] = ['Zadejte platný e-mail'];
     }
-    if (strlen($password) < 8) {
-        $errors['password'] = ['Heslo musí mít alespoň 8 znaků'];
+    if (strlen($password) < MIN_PASSWORD_LENGTH) {
+        $errors['password'] = ['Heslo musí mít alespoň ' . MIN_PASSWORD_LENGTH . ' znaků'];
     }
     if (!$jmeno) {
         $errors['jmeno'] = ['Zadejte jméno'];
@@ -261,7 +265,7 @@ function handleLogin(): void
     if (!$email || !$password) {
         jsonError('Neplatný e-mail nebo heslo', 401, 'INVALID_CREDENTIALS');
     }
-    if (strlen($email) > 255 || strlen($password) > 128) {
+    if (strlen($email) > MAX_EMAIL_LENGTH || strlen($password) > 128) {
         jsonError('Neplatný e-mail nebo heslo', 401, 'INVALID_CREDENTIALS');
     }
 

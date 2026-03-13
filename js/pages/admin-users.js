@@ -53,7 +53,7 @@ function renderUsersTable(wrap, users, me, reloadFn, loadJednotky) {
   }
 
   var isAdmin = me.role === 'admin';
-  var isPriv  = me.role === 'admin' || me.role === 'vybor';
+  var isPriv  = isPrivileged(me);
 
   var table = document.createElement('table');
   table.style.cssText = 'width:100%;border-collapse:collapse;font-size:0.9rem;';

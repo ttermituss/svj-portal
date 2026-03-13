@@ -76,7 +76,7 @@ Router.register('home', function(el) {
   }
   actions.push({ icon: '\uD83D\uDCCB', label: 'Nástěnka',  page: 'nastenka'  });
   actions.push({ icon: '\uD83D\uDCC1', label: 'Dokumenty', page: 'dokumenty' });
-  if (user && (user.role === 'admin' || user.role === 'vybor')) {
+  if (isPrivileged(user)) {
     actions.push({ icon: '\uD83D\uDEE1\uFE0F', label: 'Správa portálu', page: 'admin' });
   }
 

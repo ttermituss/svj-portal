@@ -17,7 +17,7 @@ function renderFondOpravCard(el, user) {
   var chartWrap = document.createElement('div');
   body.appendChild(chartWrap);
 
-  var isPriv = user.role === 'admin' || user.role === 'vybor';
+  var isPriv = isPrivileged(user);
   if (isPriv) {
     var link = document.createElement('a');
     link.href = '#fond-oprav';
@@ -126,7 +126,5 @@ function fondMiniChart(wrap, mesice) {
   wrap.appendChild(legenda);
 }
 
-function fondMiniFormat(val) {
-  var n = parseFloat(val) || 0;
-  return n.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-}
+// fondMiniFormat — alias pro zpětnou kompatibilitu (globální formatCzk v ui.js)
+var fondMiniFormat = formatCzk;

@@ -161,10 +161,8 @@ function fondRenderTrendChart(wrap, trend) {
 
 /* ===== HELPERS ===== */
 
-function fondFmt(val) {
-  var n = parseFloat(val) || 0;
-  return n.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-}
+// fondFmt — alias pro zpětnou kompatibilitu (globální formatCzk v ui.js)
+var fondFmt = formatCzk;
 
 function fondFmtShort(val) {
   var n = parseFloat(val) || 0;

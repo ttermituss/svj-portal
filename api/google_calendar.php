@@ -107,7 +107,8 @@ function handleSyncPull(): never
             'maxResults'   => 250,
         ]);
     } catch (\Exception $e) {
-        jsonError('Chyba při čtení Google Calendar: ' . $e->getMessage(), 502, 'GCAL_ERROR');
+        error_log('GCal list error: ' . $e->getMessage());
+        jsonError('Chyba při čtení Google Calendar.', 502, 'GCAL_ERROR');
     }
 
     $items = [];
@@ -244,7 +245,8 @@ function handleWatchStart(): never
     try {
         $response = $service->events->watch('primary', $channel);
     } catch (\Exception $e) {
-        jsonError('Google Watch API: ' . $e->getMessage(), 502, 'WATCH_ERROR');
+        error_log('GCal watch error: ' . $e->getMessage());
+        jsonError('Chyba při nastavení Google Calendar webhook.', 502, 'WATCH_ERROR');
     }
 
     $resourceId = $response->getResourceId();
@@ -330,7 +332,7 @@ function handleWatchStatus(): never
 function getCalendarWebhookUrl(): ?string
 {
     $db = getDb();
-    $stmt = $db->prepare("SELECT val FROM settings WHERE klic = 'google_calendar_webhook_url'");
+    $stmt = $db->prepare("SELECT value FROM settings WHERE `key` = 'google_calendar_webhook_url'");
     $stmt->execute();
     return $stmt->fetchColumn() ?: null;
 }

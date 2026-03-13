@@ -33,7 +33,6 @@ function handleList(): void
     if (!$historieId) jsonError('Chybí revize_historie_id', 400);
 
     $db = getDb();
-    $svjId = (int) $user['svj_id'];
 
     // Ověřit, že historie patří tomuto SVJ
     $chk = $db->prepare('SELECT id FROM revize_historie WHERE id = ? AND svj_id = ?');
@@ -59,7 +58,6 @@ function handleListByRevize(): void
     if (!$revizeId) jsonError('Chybí revize_id', 400);
 
     $db = getDb();
-    $svjId = (int) $user['svj_id'];
 
     $stmt = $db->prepare(
         'SELECT rz.id, rz.popis, rz.zavaznost, rz.termin_odstraneni, rz.stav,
@@ -81,7 +79,6 @@ function handleSave(): void
     $svjId = requireSvj($user);
 
     $body = getJsonBody();
-    $svjId = (int) $user['svj_id'];
     $db = getDb();
 
     $id               = (int) ($body['id'] ?? 0);
@@ -139,7 +136,7 @@ function handleDeleteZavada(): void
 
     $db = getDb();
     $stmt = $db->prepare('DELETE FROM revize_zavady WHERE id = ? AND svj_id = ?');
-    $stmt->execute([$id, (int) $user['svj_id']]);
+    $stmt->execute([$id, $svjId]);
     if ($stmt->rowCount() === 0) jsonError('Závada nenalezena', 404);
 
     jsonOk(['deleted' => true]);
@@ -162,7 +159,7 @@ function handleUpdateStav(): void
 
     $db = getDb();
     $db->prepare('UPDATE revize_zavady SET stav=?, vyreseno_datum=? WHERE id=? AND svj_id=?')
-       ->execute([$stav, $vyreseno, $id, (int) $user['svj_id']]);
+       ->execute([$stav, $vyreseno, $id, $svjId]);
 
     jsonOk(['stav' => $stav]);
 }

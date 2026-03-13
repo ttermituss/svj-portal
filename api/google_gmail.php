@@ -45,7 +45,8 @@ function handleInbox(): never
     try {
         $list = $service->users_messages->listUsersMessages('me', $params);
     } catch (\Exception $e) {
-        jsonError('Chyba při čtení Gmailu: ' . $e->getMessage(), 502, 'GMAIL_ERROR');
+        error_log('Gmail inbox error: ' . $e->getMessage());
+        jsonError('Chyba při čtení Gmailu.', 502, 'GMAIL_ERROR');
     }
 
     $messages = [];
@@ -163,7 +164,8 @@ function handleSend(): never
     try {
         $sent = $service->users_messages->send('me', $msg);
     } catch (\Exception $e) {
-        jsonError('Chyba při odesílání: ' . $e->getMessage(), 502, 'GMAIL_SEND_ERROR');
+        error_log('Gmail send error: ' . $e->getMessage());
+        jsonError('Chyba při odesílání e-mailu.', 502, 'GMAIL_SEND_ERROR');
     }
 
     jsonOk(['id' => $sent->getId(), 'message' => 'E-mail byl odeslán.']);
@@ -212,5 +214,28 @@ function extractBody(Google\Service\Gmail\MessagePart $payload): string
         }
     }
 
-    return $html ?: $plain;
+    return $html ? sanitizeEmailHtml($html) : nl2br(htmlspecialchars($plain, ENT_QUOTES, 'UTF-8'));
+}
+
+/**
+ * Sanitizuje HTML z emailu — odstraní skripty, event handlery, nebezpečné tagy.
+ */
+function sanitizeEmailHtml(string $html): string
+{
+    // Odstranit <script>, <style>, <iframe>, <object>, <embed>, <form>, <link> tagy i s obsahem
+    $html = preg_replace('#<(script|style|iframe|object|embed|form|link)\b[^>]*>.*?</\\1>#si', '', $html);
+    $html = preg_replace('#<(script|style|iframe|object|embed|form|link)\b[^>]*/?\s*>#si', '', $html);
+
+    // Odstranit všechny on* event handlery (onclick, onerror, onload, ...)
+    $html = preg_replace('#\s+on\w+\s*=\s*"[^"]*"#si', '', $html);
+    $html = preg_replace("#\s+on\w+\s*=\s*'[^']*'#si", '', $html);
+    $html = preg_replace('#\s+on\w+\s*=\s*\S+#si', '', $html);
+
+    // Odstranit javascript: a data: URL v href/src/action atributech
+    $html = preg_replace('#(href|src|action)\s*=\s*"[^"]*javascript:[^"]*"#si', '$1=""', $html);
+    $html = preg_replace("#(href|src|action)\s*=\s*'[^']*javascript:[^']*'#si", "$1=''", $html);
+    $html = preg_replace('#(href|src|action)\s*=\s*"[^"]*data:[^"]*"#si', '$1=""', $html);
+    $html = preg_replace("#(href|src|action)\s*=\s*'[^']*data:[^']*'#si", "$1=''", $html);
+
+    return $html;
 }

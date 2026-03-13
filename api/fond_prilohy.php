@@ -88,11 +88,7 @@ function handlePrilohaDownload(): void
 
     $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
     $mimes = ['pdf' => 'application/pdf', 'jpg' => 'image/jpeg', 'png' => 'image/png'];
-    header('Content-Type: ' . ($mimes[$ext] ?? 'application/octet-stream'));
-    header('Content-Disposition: attachment; filename="' . rawurlencode($row['soubor_nazev']) . '"');
-    header('Content-Length: ' . filesize($path));
-    readfile($path);
-    exit;
+    serveFile($path, $row['soubor_nazev'], $mimes[$ext] ?? 'application/octet-stream');
 }
 
 function handlePrilohaDelete(): void

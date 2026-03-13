@@ -66,17 +66,7 @@ function handleUpload(): void
     }
 
     $file = $_FILES['soubor'];
-    if ($file['error'] !== UPLOAD_ERR_OK) {
-        jsonError('Chyba při nahrávání souboru', 400, 'UPLOAD_ERROR');
-    }
-    if ($file['size'] > UPLOAD_MAX_DOCUMENT) {
-        jsonError('Soubor je příliš velký (max 20 MB)', 413, 'FILE_TOO_LARGE');
-    }
-
-    $finfo = new finfo(FILEINFO_MIME_TYPE);
-    $mime  = $finfo->file($file['tmp_name']);
-
-    $allowed = [
+    $allowedMime = [
         'application/pdf'                                                        => 'pdf',
         'application/msword'                                                     => 'doc',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
@@ -84,29 +74,13 @@ function handleUpload(): void
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'     => 'xlsx',
         'image/jpeg'                                                             => 'jpg',
         'image/png'                                                              => 'png',
+        'text/plain'                                                             => ['md' => 'md', 'txt' => 'txt'],
+        'text/markdown'                                                          => ['md' => 'md', 'markdown' => 'md'],
     ];
-
-    // Textové soubory — finfo vrací text/plain pro .md i .txt; ověříme přes příponu
-    $textExt = ['md' => 'md', 'txt' => 'txt', 'markdown' => 'md'];
-    $origExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-
-    if (isset($allowed[$mime])) {
-        $ext = $allowed[$mime];
-    } elseif (($mime === 'text/plain' || $mime === 'text/markdown') && isset($textExt[$origExt])) {
-        $ext = $textExt[$origExt];
-    } else {
-        jsonError('Nepodporovaný formát. Povoleny: PDF, Word, Excel, JPEG, PNG, Markdown, TXT', 415, 'INVALID_MIME');
-    }
-
-    // Double extension attack prevence (shell.php.pdf)
-    $extParts = explode('.', $file['name']);
-    if (count($extParts) > 2) {
-        $innerExt = strtolower($extParts[count($extParts) - 2]);
-        $dangerous = ['php', 'phtml', 'phar', 'php3', 'php4', 'php5', 'php7', 'phps'];
-        if (in_array($innerExt, $dangerous, true)) {
-            jsonError('Soubor s podezřelou příponou odmítnut', 415, 'SUSPICIOUS_EXT');
-        }
-    }
+    $ext = validateUpload(
+        $file, $allowedMime, UPLOAD_MAX_DOCUMENT,
+        'Nepodporovaný formát. Povoleny: PDF, Word, Excel, JPEG, PNG, Markdown, TXT'
+    );
 
     $filename = $user['svj_id'] . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
     $storage = storageUpload((int) $user['svj_id'], 'dokumenty', $file, $filename, $file['name']);

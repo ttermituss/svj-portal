@@ -21,8 +21,6 @@ function handleEvents(): void
     requireMethod('GET');
     $user = requireAuth();
     $svjId = requireSvj($user);
-
-    $svjId = $user['svj_id'];
     $isPriv = in_array($user['role'], ['admin', 'vybor'], true);
 
     $rok   = (int) getParam('rok', date('Y'));

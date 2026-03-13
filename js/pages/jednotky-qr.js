@@ -18,16 +18,14 @@ function jednotkyQrUrl(text, size) {
 
 function jednotkyShowQrModal(j, svj) {
   var text = jednotkyQrText(j, svj);
-  var overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:1000;display:flex;align-items:center;justify-content:center;';
-
-  var modal = document.createElement('div');
-  modal.style.cssText = 'background:var(--bg-card);border-radius:12px;padding:28px 32px;max-width:340px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.25);';
-
-  var title = document.createElement('h3');
-  title.style.cssText = 'margin:0 0 4px;font-size:1.1rem;';
-  title.textContent = 'QR k\u00f3d \u2014 jednotka \u010d. ' + (j.cislo_jednotky || '');
-  modal.appendChild(title);
+  var m = createModal({
+    title: 'QR k\u00f3d \u2014 jednotka \u010d. ' + (j.cislo_jednotky || ''),
+    width: '340px',
+  });
+  var overlay = m.overlay;
+  var modal = m.modal;
+  var closeModal = m.close;
+  modal.style.textAlign = 'center';
 
   var sub = document.createElement('div');
   sub.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-bottom:16px;';
@@ -58,13 +56,10 @@ function jednotkyShowQrModal(j, svj) {
   var closeBtn = document.createElement('button');
   closeBtn.className = 'btn btn-secondary';
   closeBtn.textContent = 'Zav\u0159\u00edt';
-  closeBtn.addEventListener('click', function() { document.body.removeChild(overlay); });
+  closeBtn.addEventListener('click', closeModal);
   btns.appendChild(closeBtn);
 
   modal.appendChild(btns);
-  overlay.appendChild(modal);
-  overlay.addEventListener('click', function(e) { if (e.target === overlay) document.body.removeChild(overlay); });
-  document.body.appendChild(overlay);
 }
 
 function jednotkyPrintQr(jednotky, svj) {

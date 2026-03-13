@@ -198,7 +198,7 @@ function merShowModal(existing, user, onSaved) {
 /* ── Modal: odečty měřidla ────────────────────────── */
 function merOdectyModal(meridlo, user, onClose) {
   var info = merTypInfo(meridlo.typ);
-  var isPriv = user.role === 'admin' || user.role === 'vybor';
+  var isPriv = isPrivileged(user);
   var canAdd = isPriv || (meridlo.umisteni_typ === 'jednotka'
     && String(meridlo.jednotka_id) === String(user.jednotka_id));
 
@@ -316,7 +316,7 @@ function merOdectyReload(wrap, meridlo, user) {
 }
 
 function merRenderOdectyTable(wrap, items, meridlo, user) {
-  var isPriv = user.role === 'admin' || user.role === 'vybor';
+  var isPriv = isPrivileged(user);
   var unit = meridlo.jednotka_mereni || '';
 
   var tbl = document.createElement('table');

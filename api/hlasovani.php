@@ -10,27 +10,25 @@ require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/middleware.php';
 
 $user   = requireAuth();
-$svjId  = (int)($user['svj_id'] ?? 0);
-if (!$svjId) jsonError('SVJ není přiřazeno', 403);
+$svjId  = requireSvj($user);
 
-$action = $_GET['action'] ?? '';
+$action = getParam('action', '');
 
 match ($action) {
-    'list'   => handleList(),
-    'get'    => handleGet(),
-    'create' => handleCreate(),
-    'vote'   => handleVote(),
-    'close'       => handleClose(),
-    'delete'      => handleDelete(),
-    'setExterni'  => handleSetExterni(),
+    'list'   => handleList($user, $svjId),
+    'get'    => handleGet($user, $svjId),
+    'create' => handleCreate($user, $svjId),
+    'vote'   => handleVote($user, $svjId),
+    'close'       => handleClose($svjId),
+    'delete'      => handleDelete($svjId),
+    'setExterni'  => handleSetExterni($svjId),
     default       => jsonError('Neznámá akce', 400),
 };
 
 /* ===== LIST ===== */
 
-function handleList(): void
+function handleList(array $user, int $svjId): void
 {
-    global $user, $svjId;
     $db = getDb();
 
     $cStmt = $db->prepare('SELECT COUNT(*) FROM users WHERE svj_id = :id');
@@ -62,10 +60,9 @@ function handleList(): void
 
 /* ===== GET (detail + výsledky) ===== */
 
-function handleGet(): void
+function handleGet(array $user, int $svjId): void
 {
-    global $user, $svjId;
-    $id = (int)($_GET['id'] ?? 0);
+    $id = (int)(getParam('id', '0'));
     if (!$id) jsonError('Chybí ID hlasování', 400);
 
     $db   = getDb();
@@ -96,16 +93,6 @@ function handleGet(): void
     $vahovane = null;
     if ($h['vaha_hlasu'] === 'podil') {
         $vahovane = array_fill(0, count($h['moznosti']), ['citatel' => 0, 'jmenovatel' => 0]);
-        $vStmt = $db->prepare(
-            'SELECT hl.moznost_index, j.podil_citatel, j.podil_jmenovatel
-             FROM hlasy hl
-             JOIN jednotky j ON j.svj_id = :svj_id AND j.svj_id = (
-                 SELECT svj_id FROM users WHERE id = hl.user_id
-             )
-             WHERE hl.hlasovani_id = :id'
-        );
-        // Zjednodušení: sečíst podíly hlasujících dle jejich záznamu v jednotkách
-        // (jeden user může mít víc jednotek — bereme první)
         $vStmt2 = $db->prepare(
             'SELECT hl.moznost_index,
                     COALESCE(j.podil_citatel, 1)    AS pc,
@@ -141,14 +128,11 @@ function handleGet(): void
 
 /* ===== CREATE ===== */
 
-function handleCreate(): void
+function handleCreate(array $user, int $svjId): void
 {
-    global $user, $svjId;
-    if ($user['role'] !== 'admin' && $user['role'] !== 'vybor') {
-        jsonError('Nemáte oprávnění vytvářet hlasování', 403);
-    }
+    requireRole('admin', 'vybor');
 
-    $input   = json_decode(file_get_contents('php://input'), true) ?? [];
+    $input   = getJsonBody();
     $nazev   = trim(strip_tags($input['nazev']   ?? ''));
     $popis   = trim(strip_tags($input['popis']   ?? ''));
     $moznosti = $input['moznosti'] ?? [];
@@ -189,10 +173,9 @@ function handleCreate(): void
 
 /* ===== VOTE ===== */
 
-function handleVote(): void
+function handleVote(array $user, int $svjId): void
 {
-    global $user, $svjId;
-    $input = json_decode(file_get_contents('php://input'), true) ?? [];
+    $input = getJsonBody();
     $hid   = (int)($input['hlasovani_id'] ?? 0);
     $idx   = $input['moznost_index'] ?? null;
 
@@ -223,13 +206,10 @@ function handleVote(): void
 
 /* ===== CLOSE ===== */
 
-function handleClose(): void
+function handleClose(int $svjId): void
 {
-    global $user, $svjId;
-    if ($user['role'] !== 'admin' && $user['role'] !== 'vybor') {
-        jsonError('Nemáte oprávnění', 403);
-    }
-    $input = json_decode(file_get_contents('php://input'), true) ?? [];
+    requireRole('admin', 'vybor');
+    $input = getJsonBody();
     $id    = (int)($input['id'] ?? 0);
     if (!$id) jsonError('Chybí ID', 400);
 
@@ -242,12 +222,10 @@ function handleClose(): void
 
 /* ===== DELETE ===== */
 
-function handleDelete(): void
+function handleDelete(int $svjId): void
 {
-    global $user, $svjId;
-    if ($user['role'] !== 'admin') jsonError('Pouze administrátor může mazat hlasování', 403);
-
-    $input = json_decode(file_get_contents('php://input'), true) ?? [];
+    requireRole('admin');
+    $input = getJsonBody();
     $id    = (int)($input['id'] ?? 0);
     if (!$id) jsonError('Chybí ID', 400);
 
@@ -260,14 +238,11 @@ function handleDelete(): void
 
 /* ===== SET EXTERNI HLASY ===== */
 
-function handleSetExterni(): void
+function handleSetExterni(int $svjId): void
 {
-    global $user, $svjId;
-    if ($user['role'] !== 'admin' && $user['role'] !== 'vybor') {
-        jsonError('Nemáte oprávnění', 403);
-    }
+    requireRole('admin', 'vybor');
 
-    $input = json_decode(file_get_contents('php://input'), true) ?? [];
+    $input = getJsonBody();
     $id    = (int)($input['id']             ?? 0);
     $ext   = $input['externi_hlasy']         ?? [];
 

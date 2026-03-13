@@ -13,7 +13,7 @@ require_once __DIR__ . '/svj_helper.php';
 
 requireRole('admin', 'vybor');
 
-$action = $_GET['action'] ?? '';
+$action = getParam('action', '');
 
 match ($action) {
     'status'       => handleStatus(),

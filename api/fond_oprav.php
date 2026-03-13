@@ -31,7 +31,7 @@ function handleList(): void
     $user = requireAuth();
     $svjId = requireSvj($user);
 
-    $limit     = max(1, min(200, (int) getParam('limit', 50)));
+    $limit     = max(1, min(MAX_LIST_LIMIT, (int) getParam('limit', DEFAULT_LIST_LIMIT)));
     $offset    = max(0, (int) getParam('offset', 0));
     $typ       = getParam('typ', '');
     $rok       = getParam('rok', '');
@@ -74,7 +74,6 @@ function handleStats(): void
     $svjId = requireSvj($user);
 
     $db = getDb();
-    $svjId = $user['svj_id'];
 
     $sumStmt = $db->prepare(
         'SELECT typ, SUM(castka) AS suma FROM fond_oprav WHERE svj_id = :sid GROUP BY typ'
@@ -120,7 +119,7 @@ function handleStatsRocni(): void
          FROM fond_oprav WHERE svj_id = :sid
          GROUP BY rok, typ ORDER BY rok ASC"
     );
-    $stmt->execute([':sid' => $user['svj_id']]);
+    $stmt->execute([':sid' => $svjId]);
 
     $roky = [];
     foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
@@ -149,7 +148,7 @@ function handleStatsRocni(): void
          FROM fond_oprav WHERE svj_id = :sid AND datum >= DATE_SUB(CURDATE(), INTERVAL 24 MONTH)
          GROUP BY mesic, typ ORDER BY mesic ASC"
     );
-    $trendStmt->execute([':sid' => $user['svj_id']]);
+    $trendStmt->execute([':sid' => $svjId]);
     $mesice = [];
     foreach ($trendStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
         $m = $row['mesic'];
@@ -163,7 +162,7 @@ function handleStatsRocni(): void
          WHERE svj_id = :sid AND datum < DATE_SUB(CURDATE(), INTERVAL 24 MONTH)
          GROUP BY typ'
     );
-    $beforeStmt->execute([':sid' => $user['svj_id']]);
+    $beforeStmt->execute([':sid' => $svjId]);
     $beforeSums = ['prijem' => 0.0, 'vydaj' => 0.0];
     foreach ($beforeStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
         $beforeSums[$row['typ']] = (float) $row['suma'];
@@ -194,7 +193,7 @@ function handleStatsKat(): void
          WHERE svj_id = :sid AND typ = "vydaj"
          GROUP BY kategorie ORDER BY suma DESC LIMIT 10'
     );
-    $stmt->execute([':sid' => $user['svj_id']]);
+    $stmt->execute([':sid' => $svjId]);
     $vydaje = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $stmt2 = $db->prepare(
@@ -202,7 +201,7 @@ function handleStatsKat(): void
          WHERE svj_id = :sid AND typ = "prijem"
          GROUP BY kategorie ORDER BY suma DESC LIMIT 10'
     );
-    $stmt2->execute([':sid' => $user['svj_id']]);
+    $stmt2->execute([':sid' => $svjId]);
     $prijmy = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
     // Monthly averages
@@ -213,7 +212,7 @@ function handleStatsKat(): void
             GROUP BY typ, m
          ) sub GROUP BY typ"
     );
-    $avgStmt->execute([':sid' => $user['svj_id']]);
+    $avgStmt->execute([':sid' => $svjId]);
     $prumery = ['prijem' => 0.0, 'vydaj' => 0.0];
     foreach ($avgStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
         $prumery[$row['typ']] = round((float) $row['prumer'], 2);
@@ -242,7 +241,7 @@ function handleAdd(): void
         'INSERT INTO fond_oprav (svj_id, typ, kategorie, popis, castka, datum, poznamka)
          VALUES (:svj_id, :typ, :kat, :popis, :castka, :datum, :poz)'
     )->execute([
-        ':svj_id' => $user['svj_id'],
+        ':svj_id' => $svjId,
         ':typ'    => $data['typ'],
         ':kat'    => $data['kategorie'],
         ':popis'  => $data['popis'],
@@ -255,9 +254,9 @@ function handleAdd(): void
 
     // Fond notifikace
     if ($data['typ'] === 'vydaj') {
-        fondNotifyHighExpense(getDb(), $user['svj_id'], $data['castka'], $data['popis']);
+        fondNotifyHighExpense(getDb(), $svjId, $data['castka'], $data['popis']);
     }
-    fondNotifyLowBalance(getDb(), $user['svj_id']);
+    fondNotifyLowBalance(getDb(), $svjId);
 
     jsonOk(['message' => 'Záznam přidán', 'id' => $newId]);
 }
@@ -276,7 +275,7 @@ function handleUpdate(): void
 
     $db = getDb();
     $stmt = $db->prepare('SELECT id FROM fond_oprav WHERE id = :id AND svj_id = :svj_id');
-    $stmt->execute([':id' => $id, ':svj_id' => $user['svj_id']]);
+    $stmt->execute([':id' => $id, ':svj_id' => $svjId]);
     if (!$stmt->fetch()) jsonError('Záznam nenalezen', 404, 'NOT_FOUND');
 
     $data = fondValidateRecord($body);
@@ -293,7 +292,7 @@ function handleUpdate(): void
         ':datum'  => $data['datum'],
         ':poz'    => $data['poznamka'],
         ':id'     => $id,
-        ':svj_id' => $user['svj_id'],
+        ':svj_id' => $svjId,
     ]);
 
     jsonOk(['message' => 'Záznam upraven']);
@@ -338,15 +337,15 @@ function handleDelete(): void
 
     $db = getDb();
     $stmt = $db->prepare('SELECT id FROM fond_oprav WHERE id = :id AND svj_id = :svj_id');
-    $stmt->execute([':id' => $id, ':svj_id' => $user['svj_id']]);
+    $stmt->execute([':id' => $id, ':svj_id' => $svjId]);
     if (!$stmt->fetch()) jsonError('Záznam nenalezen', 404, 'NOT_FOUND');
 
     // Delete attachment files before DB cascade removes records
-    fondDeleteAttachmentFiles($db, $id, $user['svj_id']);
+    fondDeleteAttachmentFiles($db, $id, $svjId);
 
     $db->prepare('DELETE FROM fond_oprav WHERE id = :id')->execute([':id' => $id]);
 
-    fondNotifyLowBalance($db, $user['svj_id']);
+    fondNotifyLowBalance($db, $svjId);
 
     jsonOk();
 }

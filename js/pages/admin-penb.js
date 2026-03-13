@@ -56,7 +56,7 @@ function penbRenderStatus(statusWrap, formWrap, penb, user) {
   statusWrap.replaceChildren();
   formWrap.style.display = 'none';
 
-  var isPriv = user.role === 'admin' || user.role === 'vybor';
+  var isPriv = isPrivileged(user);
 
   if (!penb) {
     var emptyRow = document.createElement('div');
@@ -91,10 +91,7 @@ function penbRenderStatus(statusWrap, formWrap, penb, user) {
   row.appendChild(badge);
 
   var meta = document.createElement('div');
-  var platnostDatum = new Date(penb.datum_platnosti);
-  var dnes = new Date();
-  dnes.setHours(0, 0, 0, 0);
-  var dniDo = Math.floor((platnostDatum - dnes) / 86400000);
+  var dniDo = daysUntil(penb.datum_platnosti);
 
   var nazevEl = document.createElement('div');
   nazevEl.style.cssText = 'font-weight:600;font-size:0.95rem;';

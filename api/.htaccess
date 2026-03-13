@@ -1,5 +1,5 @@
 # Blokovat interní soubory
-<FilesMatch "^(config|db|helpers|session|middleware|proxy|ratelimit)\.php$">
+<FilesMatch "^(config|db|helpers|session|middleware|proxy|ratelimit|settings_crypto|svj_helper|fond_notif_helper|storage_helper|xlsx_helper|pdf_helper|zfo_parser|google_helper|bootstrap)\.php$">
     Require all denied
 </FilesMatch>
 

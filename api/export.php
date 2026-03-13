@@ -6,7 +6,7 @@ require_once __DIR__ . '/xlsx_helper.php';
 require_once __DIR__ . '/pdf_helper.php';
 
 $user   = requireAuth();
-$svjId  = $user['svj_id'];
+$svjId  = requireSvj($user);
 $type   = $_GET['type']   ?? '';
 $format = $_GET['format'] ?? 'csv';
 
@@ -118,6 +118,7 @@ switch ($type) {
         break;
 
     case 'parkovani':
+        requireRole('admin', 'vybor');
         $stmt = $db->prepare(
             'SELECT cislo, typ, cislo_jednotky, najemce, poznamka FROM parkovani WHERE svj_id = ? ORDER BY typ, cislo'
         );

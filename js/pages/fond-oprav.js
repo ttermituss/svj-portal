@@ -23,7 +23,7 @@ Router.register('fond-oprav', function(el) {
   var user = Auth.getUser();
   if (!user) { Router.navigate('login'); return; }
   if (!user.svj_id) { Router.navigate('home'); return; }
-  var isPriv = user.role === 'admin' || user.role === 'vybor';
+  var isPriv = isPrivileged(user);
   if (!isPriv) { Router.navigate('home'); return; }
 
   fondFilters = { rok: '', typ: '', kategorie: '', q: '' };

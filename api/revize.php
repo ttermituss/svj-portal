@@ -352,12 +352,7 @@ function servePdf(string $cesta, ?string $nazev, int $svjId = 0): never
     $path = $svjId > 0 ? storageDownload($svjId, $relPath) : (__DIR__ . '/../' . $relPath);
     if (!file_exists($path)) jsonError('Soubor nenalezen na disku', 404);
 
-    $nazev = $nazev ?: 'revize.pdf';
-    header('Content-Type: application/pdf');
-    header('Content-Disposition: attachment; filename="' . rawurlencode($nazev) . '"');
-    header('Content-Length: ' . filesize($path));
-    readfile($path);
-    exit;
+    serveFile($path, $nazev ?: 'revize.pdf', 'application/pdf');
 }
 
 function revizeScheduleNotif(PDO $db, int $svjId, string $nazev, string $datumPristi, int $dni): void

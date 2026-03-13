@@ -110,7 +110,7 @@ function revizeLoad(listWrap, formWrap, user) {
 
 function revizeRenderList(listWrap, formWrap, items, user) {
   listWrap.replaceChildren();
-  var isPriv = user.role === 'admin' || user.role === 'vybor';
+  var isPriv = isPrivileged(user);
 
   if (!items.length) {
     var empty = document.createElement('p');
@@ -270,11 +270,8 @@ function revizeMakeRow(rev, isPriv, listWrap, formWrap, user) {
 
 // status: 'ok' | 'warning' (< 60 dní) | 'expired'
 function revizeStatus(datumPristi) {
-  if (!datumPristi) return 'ok';
-  var dt   = new Date(datumPristi);
-  var dnes = new Date();
-  dnes.setHours(0, 0, 0, 0);
-  var dni  = Math.floor((dt - dnes) / 86400000);
+  var dni = daysUntil(datumPristi);
+  if (dni === null) return 'ok';
   if (dni < 0)   return 'expired';
   if (dni <= 60) return 'warning';
   return 'ok';

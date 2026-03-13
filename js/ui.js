@@ -3,6 +3,11 @@
  * Dostupné globálně — načítáno před všemi page skripty.
  */
 
+/* ---- Privilege check ---- */
+function isPrivileged(user) {
+  return user && (user.role === 'admin' || user.role === 'vybor');
+}
+
 /* ---- Toast notifikace ---- */
 function showToast(message, type) {
   var existing = document.getElementById('svj-toast');
@@ -294,4 +299,75 @@ function makeAvatarEl(user, size) {
     'user-select:none',
   ].join(';');
   return div;
+}
+
+/* ---- Formátování měny (CZK) ---- */
+function formatCzk(val) {
+  var n = parseFloat(val) || 0;
+  return n.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+}
+
+/* ---- Počet dní do data ---- */
+function daysUntil(dateStr) {
+  if (!dateStr) return null;
+  var target = new Date(dateStr);
+  var now = new Date();
+  now.setHours(0, 0, 0, 0);
+  target.setHours(0, 0, 0, 0);
+  return Math.floor((target - now) / 86400000);
+}
+
+/* ---- Formátování data (cs-CZ) ---- */
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  return new Date(dateStr).toLocaleDateString('cs-CZ');
+}
+
+/* ---- Univerzální modal factory ---- */
+
+/**
+ * Vytvoří modal overlay + kontejner. Vrací {overlay, modal, close}.
+ * @param {Object} opts
+ * @param {string} [opts.title] - Nadpis modalu
+ * @param {string} [opts.width='480px'] - Max šířka
+ * @param {boolean} [opts.closeOnOverlay=true] - Zavřít klikem na overlay
+ * @param {boolean} [opts.closeOnEsc=true] - Zavřít klávesou Escape
+ */
+function createModal(opts) {
+  opts = opts || {};
+  var width = opts.width || '480px';
+
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+
+  var modal = document.createElement('div');
+  modal.style.cssText = 'background:var(--bg-card);border-radius:12px;padding:24px;max-width:' + width + ';width:95%;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 8px 32px rgba(0,0,0,0.25);';
+
+  function close() {
+    overlay.remove();
+    document.removeEventListener('keydown', escHandler);
+  }
+
+  function escHandler(e) {
+    if (e.key === 'Escape') close();
+  }
+  if (opts.closeOnEsc !== false) document.addEventListener('keydown', escHandler);
+
+  if (opts.closeOnOverlay !== false) {
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) close(); });
+  }
+
+  if (opts.title) {
+    var h = document.createElement('h3');
+    h.style.cssText = 'margin:0 0 16px 0;';
+    h.textContent = opts.title;
+    modal.appendChild(h);
+  }
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  return { overlay: overlay, modal: modal, close: close };
 }

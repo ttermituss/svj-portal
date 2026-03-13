@@ -150,9 +150,5 @@ function handleDownload(): void
     if (!file_exists($path)) jsonError('Soubor nenalezen na disku', 404, 'FILE_MISSING');
 
     $nazev = $row['soubor_nazev'] ?: 'penb.pdf';
-    header('Content-Type: application/pdf');
-    header('Content-Disposition: attachment; filename="' . rawurlencode($nazev) . '"');
-    header('Content-Length: ' . filesize($path));
-    readfile($path);
-    exit;
+    serveFile($path, $nazev, 'application/pdf');
 }

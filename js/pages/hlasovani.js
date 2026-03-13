@@ -2,7 +2,7 @@
 
 Router.register('hlasovani', function(el) {
   var user   = Auth.getUser();
-  var isPriv = user && (user.role === 'admin' || user.role === 'vybor');
+  var isPriv = isPrivileged(user);
 
   var title = document.createElement('div');
   title.className = 'page-title';

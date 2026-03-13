@@ -406,7 +406,7 @@ function storageSync(int $svjId, string $module, int $limit = 10): array
 
     $db = getDb();
     $qb = new WhereBuilder('svj_id', $svjId);
-    $qb->addRaw('gdrive_file_id IS NULL');
+    $qb->addRawUnsafe('gdrive_file_id IS NULL');
     if ($module !== 'all') $qb->addWhereAlways('module = ?', $module);
 
     $stmt = $db->prepare("SELECT id, module, local_path, gdrive_name, mime_type FROM gdrive_files WHERE " . $qb->sql() . " LIMIT ?");

@@ -28,7 +28,7 @@ function renderParkovaniCard(el, user) {
   hint.textContent = 'Evidence parkovac\xedch m\xedst — gar\xe1\u017ee, gar\xe1\u017eov\xe1 a venkovn\xed st\xe1n\xed. P\u0159i\u0159azen\xed k jednotce nebo n\xe1jemci.';
   body.appendChild(hint);
 
-  var isPriv = user.role === 'admin' || user.role === 'vybor';
+  var isPriv = isPrivileged(user);
 
   var listWrap = document.createElement('div');
   body.appendChild(listWrap);
@@ -73,7 +73,7 @@ function parkLoad(listWrap, formWrap, user) {
 
 function parkRenderList(listWrap, formWrap, items, user) {
   listWrap.replaceChildren();
-  var isPriv = user.role === 'admin' || user.role === 'vybor';
+  var isPriv = isPrivileged(user);
 
   if (!items.length) {
     var empty = document.createElement('p');

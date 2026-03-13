@@ -1,7 +1,7 @@
 /* ===== ZÁVADY — DETAIL MODAL ===== */
 
 function zavadyShowDetail(zavadaId, user, onRefresh) {
-  var isPriv = user && (user.role === 'admin' || user.role === 'vybor');
+  var isPriv = isPrivileged(user);
 
   var overlay = document.createElement('div');
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;'

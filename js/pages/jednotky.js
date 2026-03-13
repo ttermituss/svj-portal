@@ -24,7 +24,7 @@ Router.register('jednotky', function(el) {
   body.appendChild(loading);
 
   var user   = Auth.getUser();
-  var isPriv = user && (user.role === 'admin' || user.role === 'vybor');
+  var isPriv = isPrivileged(user);
 
   function load() {
     body.replaceChildren(loading);

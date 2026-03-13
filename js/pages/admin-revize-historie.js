@@ -13,7 +13,7 @@ function revVysledekInfo(val) {
 
 /* ── Modal s historií revize ──────────────────────── */
 function revHistShowModal(rev, user, onClose) {
-  var isPriv = user.role === 'admin' || user.role === 'vybor';
+  var isPriv = isPrivileged(user);
 
   var overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
@@ -106,7 +106,7 @@ function revHistReload(listWrap, rev, user) {
 }
 
 function revHistMakeRow(h, rev, user, listWrap) {
-  var isPriv = user.role === 'admin' || user.role === 'vybor';
+  var isPriv = isPrivileged(user);
   var vysl = revVysledekInfo(h.vysledek);
 
   var row = document.createElement('div');

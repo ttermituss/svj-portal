@@ -10,8 +10,7 @@ require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/middleware.php';
 
 $user  = requireAuth();
-$svjId = (int)($user['svj_id'] ?? 0);
-if (!$svjId) jsonError('SVJ není přiřazeno', 403);
+$svjId = requireSvj($user);
 
 $db  = getDb();
 $row = $db->prepare('SELECT lat, lon, adresa_plna FROM svj WHERE id = :id');

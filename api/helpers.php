@@ -1,4 +1,7 @@
 <?php
+const DEFAULT_LIST_LIMIT = 50;
+const MAX_LIST_LIMIT = 200;
+
 function jsonOk(array $data = []): never
 {
     jsonResponse(array_merge(['ok' => true], $data));
@@ -103,6 +106,19 @@ function validateUpload(array $file, array $allowedMime, int $maxSize, string $e
     return is_array($expectedExt) ? ($expectedExt[$origExt] ?? reset($expectedExt)) : $expectedExt;
 }
 
+/**
+ * Odešle soubor klientovi s příslušnými hlavičkami.
+ */
+function serveFile(string $path, string $filename, string $mimeType, string $disposition = 'attachment'): never
+{
+    header('Content-Type: ' . $mimeType);
+    header('Content-Disposition: ' . $disposition . '; filename="' . rawurlencode($filename) . '"');
+    header('Content-Length: ' . filesize($path));
+    header('X-Content-Type-Options: nosniff');
+    readfile($path);
+    exit;
+}
+
 class WhereBuilder
 {
     private array $conditions = [];
@@ -132,8 +148,11 @@ class WhereBuilder
         return $this;
     }
 
-    /** Přidá podmínku BEZ parametru (např. IS NULL, IS NOT NULL). */
-    public function addRaw(string $condition): self
+    /**
+     * Přidá podmínku BEZ parametru (např. IS NULL, IS NOT NULL).
+     * @internal Používat POUZE s hardcoded stringy, NIKDY s user inputem!
+     */
+    public function addRawUnsafe(string $condition): self
     {
         $this->conditions[] = $condition;
         return $this;

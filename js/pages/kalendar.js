@@ -74,7 +74,7 @@ Router.register('kalendar', function(el) {
   navBar.appendChild(nextBtn);
   navBar.appendChild(todayBtn);
 
-  var isPriv = user && (user.role === 'admin' || user.role === 'vybor');
+  var isPriv = isPrivileged(user);
   if (isPriv) {
     var rightBtns = document.createElement('div');
     rightBtns.style.cssText = 'display:flex;gap:8px;margin-left:auto;';
@@ -353,7 +353,7 @@ function kalShowDayDetail(wrap, rok, mesic, day, events, onRefresh) {
 
       // Vlastní události — edit/delete pro admin/výbor
       var curUser = Auth.getUser();
-      var isPriv = curUser && (curUser.role === 'admin' || curUser.role === 'vybor');
+      var isPriv = isPrivileged(curUser);
       if (ev.typ === 'vlastni' && isPriv) {
         var actRow = document.createElement('div');
         actRow.style.cssText = 'display:flex;gap:6px;flex-shrink:0;';

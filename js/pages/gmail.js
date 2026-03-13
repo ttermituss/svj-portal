@@ -5,7 +5,7 @@ var GMAIL_PAGE_SIZE = 15;
 Router.register('gmail', function(el) {
   var user = Auth.getUser();
   if (!user) { Router.navigate('login'); return; }
-  var isPriv = user.role === 'admin' || user.role === 'vybor';
+  var isPriv = isPrivileged(user);
 
   var title = document.createElement('div');
   title.className = 'page-title';

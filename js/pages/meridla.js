@@ -14,10 +14,8 @@ function merTypInfo(typ) {
 }
 
 function merCejchStatus(datumPristi) {
-  if (!datumPristi) return 'ok';
-  var dt = new Date(datumPristi);
-  var dnes = new Date(); dnes.setHours(0,0,0,0);
-  var dni = Math.floor((dt - dnes) / 86400000);
+  var dni = daysUntil(datumPristi);
+  if (dni === null) return 'ok';
   if (dni < 0) return 'expired';
   if (dni <= 90) return 'warning';
   return 'ok';
@@ -28,7 +26,7 @@ Router.register('meridla', function(el) {
   if (!user) { Router.navigate('login'); return; }
   if (!user.svj_id) { el.textContent = 'Nen\xed p\u0159i\u0159azeno SVJ.'; return; }
 
-  var isPriv = user.role === 'admin' || user.role === 'vybor';
+  var isPriv = isPrivileged(user);
 
   var header = document.createElement('div');
   header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;';
@@ -100,7 +98,7 @@ function merLoadList(listWrap, user) {
 
 function merRenderList(listWrap, items, user) {
   listWrap.replaceChildren();
-  var isPriv = user.role === 'admin' || user.role === 'vybor';
+  var isPriv = isPrivileged(user);
 
   if (!items.length) {
     var empty = document.createElement('div');

@@ -18,7 +18,7 @@ Router.register('zavady', function(el) {
   var user   = Auth.getUser();
   if (!user) { Router.navigate('login'); return; }
   if (!user.svj_id) { Router.navigate('home'); return; }
-  var isPriv = user.role === 'admin' || user.role === 'vybor';
+  var isPriv = isPrivileged(user);
 
   var title = document.createElement('div');
   title.className = 'page-title';
@@ -171,7 +171,7 @@ function zavadyLoadList(wrap, countsBar, user, filterStav) {
 /* ===== CARD ===== */
 
 function zavadyMakeCard(z, user, onRefresh) {
-  var isPriv = user && (user.role === 'admin' || user.role === 'vybor');
+  var isPriv = isPrivileged(user);
   var stavInfo = ZAVADY_STAVY[z.stav] || { label: z.stav, cls: '' };
   var prioInfo = ZAVADY_PRIORITY[z.priorita] || { label: z.priorita, cls: '' };
 

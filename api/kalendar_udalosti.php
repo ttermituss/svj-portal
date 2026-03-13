@@ -25,7 +25,6 @@ function handleList(): void
     $user = requireAuth();
     $svjId = requireSvj($user);
 
-    $svjId = $user['svj_id'];
     $rok   = (int) getParam('rok', date('Y'));
     $mesic = (int) getParam('mesic', date('n'));
     if ($rok < 2000 || $rok > 2100) $rok = (int) date('Y');
@@ -57,7 +56,6 @@ function handleSave(): void
     $svjId = requireSvj($user);
 
     $body = getJsonBody();
-    $svjId = $user['svj_id'];
 
     $id             = (int) ($body['id'] ?? 0);
     $nazev          = sanitize($body['nazev'] ?? '');
@@ -140,13 +138,13 @@ function handleDelete(): void
 
     $db = getDb();
     $stmt = $db->prepare('DELETE FROM kalendar_udalosti WHERE id = :id AND svj_id = :sid');
-    $stmt->execute([':id' => $id, ':sid' => $user['svj_id']]);
+    $stmt->execute([':id' => $id, ':sid' => $svjId]);
 
     if ($stmt->rowCount() === 0) jsonError('Událost nenalezena', 404, 'NOT_FOUND');
 
     // Smazat i notifikace k této události
     $db->prepare('DELETE FROM notifikace WHERE svj_id = :sid AND typ = "udalost" AND odkaz_hash = :hash')
-       ->execute([':sid' => $user['svj_id'], ':hash' => 'kalendar#' . $id]);
+       ->execute([':sid' => $svjId, ':hash' => 'kalendar#' . $id]);
 
     jsonOk(['deleted' => true]);
 }

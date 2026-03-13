@@ -22,34 +22,17 @@ var KAL_OPAKOVANI = {
  * @param {function} onSaved — callback po uložení
  */
 function kalOpenEventModal(existing, defaultDate, onSaved) {
-  var overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;'
-    + 'display:flex;align-items:center;justify-content:center;padding:16px;';
-
-  var modal = document.createElement('div');
-  modal.style.cssText = 'background:var(--bg-card);border-radius:12px;width:100%;max-width:520px;'
-    + 'max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);';
-
-  // Header
-  var hdr = document.createElement('div');
-  hdr.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;';
-  var title = document.createElement('h2');
-  title.style.cssText = 'margin:0;font-size:1.15rem;';
-  title.textContent = existing ? 'Upravit ud\u00e1lost' : 'Nov\u00e1 ud\u00e1lost';
-  var closeBtn = document.createElement('button');
-  closeBtn.type = 'button';
-  closeBtn.className = 'btn btn-secondary btn-sm';
-  closeBtn.textContent = '\u2715';
-  closeBtn.style.cssText = 'min-width:36px;min-height:36px;font-size:1.1rem;padding:0;';
-  closeBtn.addEventListener('click', function() { document.body.removeChild(overlay); });
-  hdr.appendChild(title);
-  hdr.appendChild(closeBtn);
-  modal.appendChild(hdr);
+  var m = createModal({
+    title: existing ? 'Upravit ud\u00e1lost' : 'Nov\u00e1 ud\u00e1lost',
+    width: '520px',
+  });
+  var overlay = m.overlay;
+  var modal = m.modal;
+  var closeModal = m.close;
 
   // Form
   var form = document.createElement('form');
-  form.style.cssText = 'padding:16px 24px 24px;display:flex;flex-direction:column;gap:14px;';
+  form.style.cssText = 'display:flex;flex-direction:column;gap:14px;';
 
   // Název
   var nazevF = kalMakeField('N\u00e1zev *', 'text', 'kal-nazev', existing ? existing.nazev : '');
@@ -134,7 +117,7 @@ function kalOpenEventModal(existing, defaultDate, onSaved) {
   cancelBtn.type = 'button';
   cancelBtn.className = 'btn btn-secondary';
   cancelBtn.textContent = 'Zru\u0161it';
-  cancelBtn.addEventListener('click', function() { document.body.removeChild(overlay); });
+  cancelBtn.addEventListener('click', closeModal);
 
   var saveBtn = document.createElement('button');
   saveBtn.type = 'submit';
@@ -172,7 +155,7 @@ function kalOpenEventModal(existing, defaultDate, onSaved) {
     saveBtn.disabled = true;
     Api.apiPost('api/kalendar_udalosti.php?action=save', payload)
       .then(function() {
-        document.body.removeChild(overlay);
+        closeModal();
         showToast(existing ? 'Ud\u00e1lost byla upravena.' : 'Ud\u00e1lost byla vytvo\u0159ena.', 'success');
         if (onSaved) onSaved();
       })
@@ -184,13 +167,6 @@ function kalOpenEventModal(existing, defaultDate, onSaved) {
   });
 
   modal.appendChild(form);
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-
-  // Close on overlay click
-  overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) document.body.removeChild(overlay);
-  });
 
   nazevF.input.focus();
 }

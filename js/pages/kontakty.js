@@ -32,7 +32,7 @@ Router.register('kontakty', function(el) {
     return;
   }
 
-  var isPriv = user.role === 'admin' || user.role === 'vybor';
+  var isPriv = isPrivileged(user);
 
   // Header
   var header = document.createElement('div');
@@ -86,7 +86,7 @@ function kontLoad(listWrap, user) {
 
 function kontRenderList(listWrap, items, user) {
   listWrap.replaceChildren();
-  var isPriv = user.role === 'admin' || user.role === 'vybor';
+  var isPriv = isPrivileged(user);
 
   if (!items.length) {
     var empty = document.createElement('div');
@@ -225,19 +225,13 @@ function kontAddDetail(parent, icon, text, href) {
 
 /* ── Modal pro přidání / úpravu kontaktu ──────────── */
 function kontShowModal(existing, onSaved) {
-  var overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;' +
-    'display:flex;align-items:center;justify-content:center;padding:16px;';
-
-  var modal = document.createElement('div');
-  modal.style.cssText = 'background:var(--bg-card);border-radius:12px;padding:24px;' +
-    'max-width:480px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.25);';
-
-  var title = document.createElement('h2');
-  title.style.cssText = 'margin:0 0 20px;font-size:1.15rem;';
-  title.textContent = existing ? 'Upravit kontakt' : 'Nov\xfd kontakt';
-  modal.appendChild(title);
+  var m = createModal({
+    title: existing ? 'Upravit kontakt' : 'Nov\xfd kontakt',
+    width: '480px',
+  });
+  var overlay = m.overlay;
+  var modal = m.modal;
+  var closeModal = m.close;
 
   var fields = {};
 
@@ -293,7 +287,7 @@ function kontShowModal(existing, onSaved) {
   var cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn btn-secondary';
   cancelBtn.textContent = 'Zru\u0161it';
-  cancelBtn.addEventListener('click', function() { overlay.remove(); });
+  cancelBtn.addEventListener('click', closeModal);
 
   var saveBtn = document.createElement('button');
   saveBtn.className = 'btn btn-primary';
@@ -317,7 +311,7 @@ function kontShowModal(existing, onSaved) {
       poznamka: pozInput.value.trim(),
     }).then(function() {
       showToast('Kontakt ulo\u017een');
-      overlay.remove();
+      closeModal();
       if (onSaved) onSaved();
     }).catch(function(e) {
       showToast(e.message || 'Chyba.', 'error');
@@ -330,13 +324,6 @@ function kontShowModal(existing, onSaved) {
   btnRow.appendChild(saveBtn);
   modal.appendChild(btnRow);
 
-  // Close on overlay click
-  overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) overlay.remove();
-  });
-
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
   fields.nazev.focus();
 }
 

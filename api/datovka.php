@@ -133,10 +133,11 @@ function handleUpload(): void
     );
 
     foreach ($files as $f) {
-        $destPath = $baseDir . '/' . $f['name'];
+        $safeName = basename($f['name']);
+        $destPath = $baseDir . '/' . $safeName;
         // Ošetřit kolizi názvů
         if (file_exists($destPath)) {
-            $destPath = $baseDir . '/' . uniqid() . '_' . $f['name'];
+            $destPath = $baseDir . '/' . uniqid() . '_' . $safeName;
         }
         file_put_contents($destPath, $f['data']);
         $relPath = 'uploads/datovka/' . $svjId . '/' . $zpravaId . '/' . basename($destPath);

@@ -24,7 +24,7 @@ function handleList(): void
     $svjId = requireSvj($user);
 
     $stav   = sanitize(getParam('stav', ''));
-    $limit  = min((int) getParam('limit', 50), 200);
+    $limit  = min((int) getParam('limit', DEFAULT_LIST_LIMIT), MAX_LIST_LIMIT);
     $offset = (int) getParam('offset', 0);
 
     $qb = new WhereBuilder('z.svj_id', $svjId);

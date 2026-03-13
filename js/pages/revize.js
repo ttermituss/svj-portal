@@ -19,7 +19,7 @@ Router.register('revize', function(el) {
   title.textContent = '\uD83D\uDD27 Evidence reviz\xed';
   header.appendChild(title);
 
-  var isPriv = user.role === 'admin' || user.role === 'vybor';
+  var isPriv = isPrivileged(user);
 
   // Přidat + export tlačítka
   if (isPriv) {

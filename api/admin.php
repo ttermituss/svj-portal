@@ -32,8 +32,7 @@ function handleListUsers(): void
 {
     requireMethod('GET');
     $currentUser = requireRole('admin', 'vybor');
-    $svjId = (int) ($currentUser['svj_id'] ?? 0);
-    if (!$svjId) jsonError('SVJ není přiřazeno', 403, 'NO_SVJ');
+    $svjId = requireSvj($currentUser);
 
     $db   = getDb();
     $stmt = $db->prepare(
@@ -62,8 +61,7 @@ function handleUpdateUserUnit(): void
 {
     requireMethod('POST');
     $currentUser = requireRole('admin', 'vybor');
-    $svjId       = (int)($currentUser['svj_id'] ?? 0);
-    if (!$svjId) jsonError('SVJ není přiřazeno', 403);
+    $svjId       = requireSvj($currentUser);
 
     $body       = getJsonBody();
     $userId     = isset($body['user_id']) ? (int)$body['user_id'] : 0;
@@ -96,8 +94,7 @@ function handleUpdateRole(): void
 {
     requireMethod('POST');
     $currentUser = requireRole('admin');
-    $svjId = (int) ($currentUser['svj_id'] ?? 0);
-    if (!$svjId) jsonError('SVJ není přiřazeno', 403, 'NO_SVJ');
+    $svjId = requireSvj($currentUser);
 
     $body = getJsonBody();
 
@@ -134,8 +131,7 @@ function handleDeleteUser(): void
 {
     requireMethod('POST');
     $currentUser = requireRole('admin');
-    $svjId = (int) ($currentUser['svj_id'] ?? 0);
-    if (!$svjId) jsonError('SVJ není přiřazeno', 403, 'NO_SVJ');
+    $svjId = requireSvj($currentUser);
 
     $body = getJsonBody();
 

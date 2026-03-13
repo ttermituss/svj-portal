@@ -38,7 +38,7 @@ Router.register('dokumenty', function(el) {
   title.appendChild(sub);
   el.appendChild(title);
 
-  var isPriv = user.role === 'admin' || user.role === 'vybor';
+  var isPriv = isPrivileged(user);
   var listWrap = document.createElement('div');
 
   if (isPriv) dokRenderUploadCard(el, function() { dokLoadList(listWrap, user); });
@@ -78,7 +78,7 @@ function dokLoadList(wrap, user) {
 
 function dokRenderList(wrap, docs, user) {
   wrap.replaceChildren();
-  var isPriv = user.role === 'admin' || user.role === 'vybor';
+  var isPriv = isPrivileged(user);
 
   if (!docs.length) {
     var empty = document.createElement('div');
@@ -135,13 +135,8 @@ function dokMakeCard(doc, isPriv, dnes, user) {
   var ext = (doc.soubor_nazev || '').split('.').pop().toLowerCase();
   var fm  = DOK_FILE_META[ext] || { ext: ext.toUpperCase(), bg: '#f5f5f5', fg: '#666', preview: false };
 
-  var dniDo = null;
-  var isExpired = false;
-  if (doc.datum_platnosti) {
-    var platnost = new Date(doc.datum_platnosti);
-    dniDo = Math.floor((platnost - dnes) / 86400000);
-    isExpired = dniDo < 0;
-  }
+  var dniDo = doc.datum_platnosti ? daysUntil(doc.datum_platnosti) : null;
+  var isExpired = dniDo !== null && dniDo < 0;
 
   var card = document.createElement('div');
   card.style.cssText = 'display:flex;align-items:center;gap:16px;padding:16px;' +
