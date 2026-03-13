@@ -24,6 +24,19 @@ if (!$svj || !$svj['lat'] || !$svj['lon']) {
 $lat = (float)$svj['lat'];
 $lon = (float)$svj['lon'];
 
+// File-based cache (30 min TTL)
+$cacheFile = sys_get_temp_dir() . '/svj_weather_' . $svjId . '.json';
+$cacheTtl  = 1800;
+
+if (is_file($cacheFile) && (time() - filemtime($cacheFile)) < $cacheTtl) {
+    $cached = json_decode(file_get_contents($cacheFile), true);
+    if ($cached) {
+        header('Cache-Control: private, max-age=' . $cacheTtl);
+        header('X-Cache: HIT');
+        jsonOk($cached);
+    }
+}
+
 $url = 'https://api.open-meteo.com/v1/forecast'
      . '?latitude='  . $lat
      . '&longitude=' . $lon
@@ -52,8 +65,12 @@ if ($curlErr || $httpCode !== 200) {
 $data = json_decode($response, true);
 if (!is_array($data)) jsonError('Neplatná odpověď ze služby počasí.', 502);
 
-jsonOk([
+$result = [
     'adresa'  => $svj['adresa_plna'] ?? '',
     'current' => $data['current'] ?? null,
     'daily'   => $data['daily']   ?? null,
-]);
+];
+file_put_contents($cacheFile, json_encode($result));
+header('Cache-Control: private, max-age=' . $cacheTtl);
+header('X-Cache: MISS');
+jsonOk($result);

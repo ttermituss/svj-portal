@@ -15,6 +15,8 @@ Router.register('odom', function(el) {
   title.appendChild(sub);
   el.appendChild(title);
 
+  // Karty se renderují paralelně: každá funkce synchronně vytvoří DOM
+  // a interně spustí async fetch — všechny API požadavky běží souběžně
   renderBudovaInfoCard(el, user);
   renderPenbCard(el, user);
   renderRevizeMiniCard(el, user);

@@ -110,9 +110,22 @@ Router.register('home', function(el) {
 /* ===== WEATHER CARD ===== */
 
 function renderWeatherCard(wrap) {
+  var weatherKey = 'svj_weather_cache';
+  var cached = sessionStorage.getItem(weatherKey);
+  if (cached) {
+    try {
+      var c = JSON.parse(cached);
+      if (c.ts && (Date.now() - c.ts) < 1800000) {
+        if (c.data && c.data.current) wrap.appendChild(buildWeatherCard(c.data));
+        return;
+      }
+    } catch(e) { /* invalid cache — refetch */ }
+  }
+
   Api.apiGet('api/weather.php')
     .then(function(d) {
       if (!d.current) return;
+      sessionStorage.setItem(weatherKey, JSON.stringify({ts: Date.now(), data: d}));
       wrap.appendChild(buildWeatherCard(d));
     })
     .catch(function() { /* GPS nemáme nebo API nedostupné — tichý fail */ });

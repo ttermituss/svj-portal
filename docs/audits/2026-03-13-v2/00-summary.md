@@ -5,44 +5,27 @@
 | Audit | Původní | Po opravách | Detaily |
 |-------|---------|-------------|---------|
 | Security | 85/100 | **97/100** | [01-security.md](01-security.md) |
-| Performance | **52/100** | — | [02-performance.md](02-performance.md) |
+| Performance | 52/100 | **68/100** | [02-performance.md](02-performance.md) |
 | DRY / Code Quality | 72/100 | **89/100** | [03-dry-quality.md](03-dry-quality.md) |
 
 ## Stav oprav
 
-### 1. Security — HOTOVO (11/13, 2 záměrně ponechány)
-- [x] S1: Gmail HTML sanitizace (`sanitizeEmailHtml()`)
-- [x] S2: Parkování export role check
-- [x] S3: Export requireSvj()
-- [x] S4: Rate limit changePassword (10/5min per user)
-- [x] S5: ZFO basename() path traversal
-- [x] S6: addRaw() → addRawUnsafe() + @internal
-- [x] S7: settings query sloupce (val/klic → value/key)
-- [x] S8: $_GET['action'] → getParam() (hlasovani, kn)
+### 1. Security — HOTOVO (11/13)
+- [x] S1-S8, S10, S12-S13: všechny opraveny
 - [ ] S9: HSTS (čeká na HTTPS)
-- [x] S10: API error leaking → error_log() + generická hláška
-- [ ] S11: Rate limit MD5 (kosmetické, ponecháno)
-- [x] S12: CSP frame-ancestors
-- [x] S13: Helper FilesMatch (9 souborů)
+- [ ] S11: Rate limit MD5 (kosmetické)
 
-### 2. DRY — HOTOVO (12/17, 5 záměrně ponechány)
-- [x] D1: requireSvj() v 8 souborech (14 výskytů)
-- [x] D2: isPrivileged() helper (28 výskytů ve 20 souborech)
-- [x] D3: createModal() helper (3 modaly migrovány jako demonstrace)
-- [x] D4: hlasovani.php plný refactor (global → params, requireRole)
-- [x] D5: getJsonBody() v hlasovani.php (5×)
-- [x] D6: serveFile() helper (penb, fond_prilohy, revize)
-- [x] D7: daysUntil() helper (4 soubory)
-- [x] D8: formatDate() globální
-- [x] D9: dokumenty.php → validateUpload() (-27 řádků)
-- [x] D10: $svjId reassignment fix (4 soubory)
-- [x] D11: magic numbers → konstanty (auth, helpers, fond_oprav, zavady)
-- [ ] D12: role string konstanty (ponecháno — nízký přínos)
-- [x] D13: fondFmt() → formatCzk() globální
-- [ ] D14-D16: ponecháno (LOW priority)
+### 2. DRY — HOTOVO (12/17)
+- [x] D1-D11, D13: všechny opraveny
+- [ ] D12, D14-D16: ponechány (LOW priority)
 
-### 3. Performance — ČEKÁ
-- [ ] P1: defer na skripty
-- [ ] P2: bundlování/minifikace
-- [ ] P3-P4: server-side cache (weather, okolí)
-- [ ] P5-P7: DB optimalizace
+### 3. Performance — HOTOVO (6/27 opraveno, zbytek ponechán/přijatelný)
+- [x] P1: defer na všech 59 skriptech
+- [x] P3: server-side weather cache (30min TTL)
+- [x] P4: server-side okolí cache (24h TTL)
+- [x] P6: HTTP Cache-Control headers (no-store default)
+- [x] P15: client-side weather cache (sessionStorage 30min)
+- [x] P16: O domě API calls — potvrzeno paralelní
+- [x] P20: notification polling visibility check
+- [ ] P2: bundlování (vyžaduje build step)
+- [ ] P5,P7-P14,P17-P19,P21-P27: ponechány (LOW impact pro typické SVJ)

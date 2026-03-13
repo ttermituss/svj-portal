@@ -23,6 +23,19 @@ if (!$svj || !$svj['lat'] || !$svj['lon']) {
 $lat = (float) $svj['lat'];
 $lon = (float) $svj['lon'];
 
+// File-based cache (24h TTL)
+$cacheFile = sys_get_temp_dir() . '/svj_okoli_' . $svjId . '.json';
+$cacheTtl  = 86400;
+
+if (is_file($cacheFile) && (time() - filemtime($cacheFile)) < $cacheTtl) {
+    $cached = json_decode(file_get_contents($cacheFile), true);
+    if ($cached) {
+        header('Cache-Control: private, max-age=' . $cacheTtl);
+        header('X-Cache: HIT');
+        jsonOk($cached);
+    }
+}
+
 $query = <<<EOQ
 [out:json][timeout:12];
 (
@@ -75,4 +88,8 @@ $elements = array_map(function ($el) {
     ];
 }, $data['elements']);
 
-jsonOk(['lat' => $lat, 'lon' => $lon, 'elements' => $elements]);
+$result = ['lat' => $lat, 'lon' => $lon, 'elements' => $elements];
+file_put_contents($cacheFile, json_encode($result));
+header('Cache-Control: private, max-age=' . $cacheTtl);
+header('X-Cache: MISS');
+jsonOk($result);

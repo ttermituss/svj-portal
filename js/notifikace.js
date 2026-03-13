@@ -65,6 +65,7 @@ var NotifBadge = (function() {
   }
 
   function refreshCount() {
+    if (document.hidden) return;
     if (!Auth.isLoggedIn()) return;
     Api.apiGet('api/notifikace.php?action=count')
       .then(function(data) {

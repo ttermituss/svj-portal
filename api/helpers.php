@@ -11,6 +11,13 @@ function jsonResponse($data, int $status = 200): never
 {
     http_response_code($status);
     header('Content-Type: application/json; charset=utf-8');
+    // Default no-store pro mutable API; endpointy jako weather/okoli
+    // mohou nastavit vlastní Cache-Control PŘED voláním jsonOk()
+    $hasCache = false;
+    foreach (headers_list() as $h) {
+        if (stripos($h, 'Cache-Control:') === 0) { $hasCache = true; break; }
+    }
+    if (!$hasCache) header('Cache-Control: no-store');
     echo json_encode($data, JSON_UNESCAPED_UNICODE);
     exit;
 }
