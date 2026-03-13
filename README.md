@@ -1,4 +1,4 @@
-# SVJ Portál v2.6.0
+# SVJ Portál v2.7.0
 
 Univerzální multi-tenant webový portál pro správu **Společenství vlastníků jednotek (SVJ)** v ČR.
 
@@ -127,7 +127,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 4. **Spusť migrace**
    ```bash
    for f in api/migrations/*.sql; do sudo mysql svj_portal < "$f"; done
-   # Aktuálně: 001–035
+   # Aktuálně: 001–037
    ```
 
 4. **Nastav Apache virtualhost**
@@ -152,7 +152,7 @@ SPA (index.html)
 ├── js/router.js            # hash router (#page)
 ├── js/auth.js              # session management
 ├── js/api.js               # HTTP wrapper
-├── js/ui.js                # showToast, showConfirmModal, makeAvatarEl
+├── js/ui.js                # showToast, showConfirmModal, createModal, makeAvatarEl, isPrivileged, formatCzk, daysUntil, makeFormField
 └── js/pages/
     ├── home.js             # dashboard
     ├── nastenka.js         # nástěnka
@@ -222,6 +222,8 @@ sudo mysql svj_portal < api/migrations/00X_nazev.sql
 | 033 | Google Drive storage (gdrive_folders, gdrive_files, svj.gdrive_*) |
 | 034 | Calendar webhooky (google_calendar_watch, webhook URL setting) |
 | 035 | Revize závady (revize_zavady — závady z revizní zprávy) |
+| 036 | Cizí klíče pro datovka tabulky (svj_id, uploaded_by) |
+| 037 | Chybějící indexy: penb(svj_id), dokumenty(svj_id, kategorie, created_at) |
 
 Nikdy neupravuj stávající migraci — vždy přidej novou.
 

@@ -5,6 +5,67 @@ Formát: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [2.7.0] — 2026-03-13
+
+### Audit v2 — kompletní reaudit (6 oblastí, 60+ oprav, průměr 74→90/100)
+
+#### Security (85→97)
+- **Gmail HTML sanitizace** — `sanitizeEmailHtml()` stripuje scripty, event handlery, javascript: URL
+- **Rate limit changePassword** — 10 pokusů/5min per user
+- **ZFO path traversal** — `basename()` na přílohách z ZFO parseru
+- **Export** — přidán `requireSvj()` + `requireRole()` na parkování
+- **CSP** — `frame-ancestors 'self'`, rozšířený `FilesMatch` deny list
+- **API error leaking** — `$e->getMessage()` → `error_log()` + generická hláška
+- **WhereBuilder** — `addRaw()` → `addRawUnsafe()` s `@internal` varováním
+
+#### UX & Accessibility (68→93)
+- **Font sizes** — 65+ výskytů 0.78/0.8rem → 0.82rem (42 JS + 2 CSS souborů)
+- **Focus trap** — nová `trapFocus()` utilita, aplikována na `createModal()` i `showConfirmModal()`
+- **makeFormField()** adoptován v login, registrace, nastavení (16 polí s label/for, aria-required)
+- **createModal()** — `aria-labelledby` propojení s nadpisem, auto-focus
+- **btn-sm** min-height 44px pro všechny themes (WCAG touch targets)
+- **Hardcoded barvy** → CSS variables: dokumenty file types (10 vars), kalendář events (7 vars), btn-danger-hover
+- **Senior theme** — contrast boost (`--text-light:#374151`, `--text-muted:#6b7280`)
+- **Skip-to-content** link pro keyboard navigaci
+- **Sidebar focus-visible** styl
+- **Toggle switches** — `role="switch"`, `aria-checked`, keyboard support
+
+#### DRY / Code Quality (72→89)
+- **requireSvj()** — 14 výskytů v 8 PHP souborech nahrazeno
+- **isPrivileged()** — 28 výskytů ve 20 JS souborech nahrazeno
+- **createModal()** — nový helper + 3 modaly migrovány
+- **hlasovani.php** — kompletní refactor (no globals, requireRole, getJsonBody)
+- **serveFile()** — nový helper pro download pattern (penb, fond_prilohy, revize)
+- **daysUntil()**, **formatDate()**, **formatCzk()** — globální JS helpery
+- **dokumenty.php** → `validateUpload()` (−27 řádků duplicitního kódu)
+- **Magic numbers** → konstanty (`MIN_PASSWORD_LENGTH`, `MAX_LIST_LIMIT` atd.)
+
+#### Performance (52→68)
+- **`defer`** na všech 59 script tagů — HTML parsing neblokován
+- **Server-side cache** — weather (30min TTL), okolí (24h TTL) v /tmp
+- **HTTP Cache-Control** — `no-store` default v `jsonResponse()`, `private, max-age` pro cache endpointy
+- **Client-side cache** — weather v sessionStorage (30min TTL)
+- **Notification polling** — skip v hidden tabu (Page Visibility API)
+
+#### Best Practices (82→95)
+- **CRITICAL** — `revize.php` notifikace: opravený sloupec `zprava` → `nazev`+`detail` (fix runtime crash)
+- **Globální exception handler** — `set_exception_handler()` pro JSON 500 místo raw stack trace
+- **in_array() strict** — 11 výskytů doplněno o `true`
+- **DateTime::createFromFormat()** — 6 validačních bodů (fond_oprav, meridla, dokumenty, hlasovani, revize)
+- **jsonError()** konzistence — 13 výskytů v admin.php + user.php
+- **export.php** — `$_GET` → `getParam()`
+- **Cache write** error handling
+
+#### Architecture (87→96)
+- **FK migrace 036** — cizí klíče na datovka_zpravy (svj_id, uploaded_by) + datovka_prilohy (svj_id)
+- **Index migrace 037** — penb(svj_id), dokumenty(svj_id, kategorie, created_at)
+- **$svjId konzistence** — 65 výskytů `$user['svj_id']` → `$svjId` v 8 souborech
+- **CSS** — odstraněny duplikátní `--radius` vars, `--danger-hover` variable
+- **.gitignore** — přidáno uploads/, source/, .idea/, .vscode/
+- **CLAUDE.md** — doplněno 6 chybějících souborů + migrace 036-037
+
+---
+
 ## [2.6.0] — 2026-03-13
 
 ### Opraveno (z 5 auditů — P0 až P3)
