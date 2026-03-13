@@ -130,7 +130,7 @@ function renderMap(lat, lon, label) {
   link.target = '_blank';
   link.rel    = 'noopener noreferrer';
   link.textContent = 'Otevřít v Mapy.cz \u2197';
-  link.style.cssText = 'font-size:0.78rem;color:var(--text-light);display:inline-block;margin-top:4px;';
+  link.style.cssText = 'font-size:0.82rem;color:var(--text-light);display:inline-block;margin-top:4px;';
   wrap.appendChild(link);
 
   return wrap;
@@ -230,7 +230,7 @@ function renderBuildingResult(wrap, data, errBox, okBox, statusWrap, findBtn, re
   wrap.appendChild(importBtn);
 
   var note = document.createElement('div');
-  note.style.cssText = 'margin-top:8px;font-size:0.78rem;color:var(--text-light);';
+  note.style.cssText = 'margin-top:8px;font-size:0.82rem;color:var(--text-light);';
   note.textContent = 'Import načte typy, způsoby využití, spoluvlastnické podíly a zkontroluje plomby/zástavy na každé jednotce. Existující záznamy se přepíší.';
   wrap.appendChild(note);
 

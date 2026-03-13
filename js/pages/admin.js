@@ -174,7 +174,7 @@ function renderOrResult(wrap, or, errBox) {
           });
           // Zobrazit link inline
           var linkRow = document.createElement('div');
-          linkRow.style.cssText = 'margin-top:4px;font-size:0.78rem;font-family:monospace;' +
+          linkRow.style.cssText = 'margin-top:4px;font-size:0.82rem;font-family:monospace;' +
             'color:var(--text-light);word-break:break-all;';
           linkRow.textContent = url;
           tdAkce.appendChild(linkRow);
@@ -194,7 +194,7 @@ function renderOrResult(wrap, or, errBox) {
   wrap.appendChild(table);
 
   var note = document.createElement('div');
-  note.style.cssText = 'font-size:0.78rem;color:var(--text-light);';
+  note.style.cssText = 'font-size:0.82rem;color:var(--text-light);';
   note.textContent = 'Zdroj: ARES / Obchodní rejstřík \u00b7 Data mohou být zpožděná o 1\u20132 dny.';
   wrap.appendChild(note);
 }

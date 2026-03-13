@@ -112,7 +112,7 @@ function cenovaMapaRender(wrap, adresa) {
   });
 
   var note = document.createElement('div');
-  note.style.cssText = 'font-size:0.78rem;color:var(--text-muted);margin-top:4px;';
+  note.style.cssText = 'font-size:0.82rem;color:var(--text-muted);margin-top:4px;';
   note.textContent = '\uD83D\uDCA1 Cenov\xe9 \xfadaje slou\u017e\xed jako orientační informace pro ú\u010dely pojistn\xe9 hodnoty a spr\xe1vy SVJ.';
   wrap.appendChild(note);
 }
