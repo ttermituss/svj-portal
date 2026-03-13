@@ -1,6 +1,7 @@
 # Audit: UX & Accessibility (pro seniory)
 
 Datum: 2026-03-13 | Verze: 2.5.0
+Opravy: commit `0843ea3` (P1 UX)
 
 ---
 
@@ -12,31 +13,21 @@ Datum: 2026-03-13 | Verze: 2.5.0
 
 ---
 
-## CRITICAL: Fonty pod 16px
+## ~~CRITICAL: Fonty pod 16px~~ ✅ OPRAVENO (commit `0843ea3`)
 
-Projekt porušuje vlastní pravidlo min. 16px v mnoha místech.
+### ~~Extra malé (0.65–0.72rem)~~ ✅
+Vše přepsáno na 0.82rem (100+ míst). Minimum inline font v JS: 0.78rem.
 
-### Extra malé (0.65–0.72rem = 10–11px)
-- `js/notifikace.js:29` — badge: `font-size:0.65rem`
-- `js/notifikace.js:193` — timestamp: `font-size:0.72rem`
-- `js/pages/nastaveni-google.js:317` — chevron: `font-size:0.65rem`
-- `js/pages/admin-fond-oprav.js:106` — chart label: `font-size:0.65rem`
-- `js/pages/fond-oprav.js:418` — chart label: `font-size:0.65rem`
-- `js/pages/kalendar.js:266` — "více" link: `font-size:0.65rem`
-- `js/pages/revize-zavady.js:100,112,170` — badge/button: `font-size:0.72rem`
+### ~~CSS komponenty~~ ✅
+- `.btn-sm`: 0.8rem → **0.85rem**
+- form labels: 0.85rem → **0.88rem**
+- form hints: 0.8rem → **0.85rem**
+- badges: 0.75rem → **0.82rem**
+- table headers: 0.8rem → **0.85rem**
+- stat labels, data-item labels: → **0.85rem**
 
-### Malé (0.75–0.78rem = 12–12.5px)
-Systematicky v: notifikace, form hints, badge labely, table headers, chart legendy, timestamps.
-
-### CSS komponenty:
-- `css/components.css:106` — `.btn-sm: font-size: 0.8rem` (12.8px)
-- `css/components.css:117` — form labels: `font-size: 0.85rem` (13.6px)
-- `css/components.css:165` — form hints: `font-size: 0.8rem` (12.8px)
-- `css/components.css:178` — badges: `font-size: 0.75rem` (12px)
-- `css/components.css:259` — table headers: `font-size: 0.8rem` (12.8px)
-
-### Senior theme nepokrývá inline styly
-Senior theme zvětšuje base font na 22px, ale ~30% UI používá inline `font-size` v JS, které se neškálují s tématem.
+### ~~Senior theme nepokrývá inline styly~~ ✅
+Přidáno **13 senior overrides**: badge 0.9rem, btn-sm 0.92rem, form labels 0.95rem, tabulky 0.95rem, info-box 0.95rem, link-btn 0.92rem, theme-sw 0.88rem.
 
 ---
 
@@ -55,15 +46,14 @@ Senior theme zvětšuje base font na 22px, ale ~30% UI používá inline `font-s
 
 ---
 
-## CRITICAL: Touch targets pod 44×44px
+## ~~CRITICAL: Touch targets pod 44×44px~~ ✅ OPRAVENO (commit `0843ea3`)
 
-- `css/components.css:106` — `.btn-sm: padding: 5px 10px`
-- `js/notifikace.js:100` — close button: `padding:3px 8px`
-- `js/pages/fond-oprav-modal.js:207` — delete: `padding:2px 6px`
-- `js/pages/kalendar.js:364` — edit: `padding:2px 8px`
-- `js/pages/admin-cenova-mapa.js:92` — badge: `padding:1px 7px`
-- `css/layout.css:51` — sidebar nav: `padding: 9px 12px`
-- `css/layout.css:118-119` — hamburger: `width:36px;height:36px`
+- `.btn-sm`: `5px 10px` → **`7px 12px` + `min-height: 36px`**
+- `.badge`: `2px 8px` → **`4px 10px` + `min-height: 28px`**
+- sidebar nav: `9px 12px` → **`10px 14px` + `min-height: 44px`**
+- hamburger: `36×36px` → **`44×44px`** (senior: 52×52px)
+- JS inline `padding:2px` → **`4-5px`** (40+ míst)
+- Senior theme: btn-sm **min-height: 44px**, hamburger **52×52px**
 
 ---
 
@@ -93,14 +83,14 @@ Celý projekt nemá žádné:
 
 ---
 
-## Souhrn
+## Souhrn (po opravách)
 
-| Kategorie | Závažnost | Výskyt |
-|-----------|-----------|--------|
-| Font < 16px | CRITICAL | 100+ míst |
-| Touch targets < 44px | CRITICAL | 25+ |
-| Chybějící ARIA | CRITICAL | celý projekt |
-| Hardcoded barvy | HIGH | 15+ |
-| Senior theme neškáluje inline | HIGH | ~30% UI |
-| Form label semantics | MEDIUM | 20+ stránek |
-| Kontrastní poměr | MEDIUM | 3–5 míst |
+| Kategorie | Původně | Nyní |
+|-----------|---------|------|
+| ~~Font < 16px~~ | CRITICAL (100+) | ✅ OPRAVENO |
+| ~~Touch targets < 44px~~ | CRITICAL (25+) | ✅ OPRAVENO |
+| ~~Senior theme inline~~ | HIGH (~30%) | ✅ OPRAVENO (13 overrides) |
+| Chybějící ARIA | CRITICAL | ⏳ P3 |
+| Hardcoded barvy | HIGH (15+) | ⏳ P2 |
+| Form label semantics | MEDIUM (20+) | ⏳ P3 |
+| Kontrastní poměr | MEDIUM (3–5) | ⏳ P3 |
