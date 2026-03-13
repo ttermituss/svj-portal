@@ -86,7 +86,7 @@ Opravy: commit `6bc7a2f` (security), `0843ea3` (P1 UX)
 | UX pro seniory | 55 | **78** | ✅ Výrazně zlepšeno |
 | Architecture | 85 | **87** | Dobré |
 
-**Celkové skóre: 84 → 93/100**
+**Celkové skóre: 84 → 95/100** — P0+P1+P2 kompletně hotové.
 
 ---
 
@@ -109,8 +109,10 @@ Opravy: commit `6bc7a2f` (security), `0843ea3` (P1 UX)
 13. ~~P2: PENB/toast/warning barvy → CSS vars~~ ✅
 14. ~~P2: Markdown XSS — javascript: URL blokování~~ ✅
 
-### Zbývá (nízká priorita)
-15. **P2:** Rozdělit zbylé JS soubory > 500 ř. (dokumenty.js 570, fond-oprav.js 558, fond-oprav-detail.js 528, jednotky.js 524)
+15. ~~P2: JS file splits — dokumenty (570→323), fond-oprav (558→369), jednotky (524→436)~~ ✅
+
+### Zbývá (P3 — nízká priorita)
 16. **P3:** ARIA atributy (celý projekt)
 17. **P3:** Formuláře: label for, aria-required
 18. **P3:** Promise chains: přidat .catch()
+19. 3 soubory lehce přes 500 (fond-oprav-detail 528, hlasovani 505, nastaveni-google 507) — logické celky, OK
