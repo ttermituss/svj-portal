@@ -115,7 +115,7 @@ Router.register('kalendar', function(el) {
 
   // Legend
   var legend = document.createElement('div');
-  legend.style.cssText = 'display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;font-size:0.8rem;';
+  legend.style.cssText = 'display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;font-size:0.82rem;';
   [
     ['danger', 'Revize / PENB'], ['blue', 'Hlasov\u00e1n\u00ed / Dokumenty'],
     ['orange', 'Z\u00e1vady'], ['success', 'Vy\u0159e\u0161eno'], ['purple', 'Ud\u00e1losti'], ['muted', 'Fond oprav'],
@@ -338,7 +338,7 @@ function kalShowDayDetail(wrap, rok, mesic, day, events, onRefresh) {
 
       if (ev.detail) {
         var detail = document.createElement('div');
-        detail.style.cssText = 'font-size:0.8rem;color:var(--text-light);';
+        detail.style.cssText = 'font-size:0.82rem;color:var(--text-light);';
         detail.textContent = ev.detail;
         textWrap.appendChild(detail);
       }

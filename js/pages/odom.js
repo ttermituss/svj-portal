@@ -63,7 +63,7 @@ function renderBudovaInfoCard(el, user) {
         var item = document.createElement('div');
         item.style.cssText = 'font-size:0.88rem;';
         var lbl = document.createElement('span');
-        lbl.style.cssText = 'color:var(--text-light);display:block;font-size:0.78rem;';
+        lbl.style.cssText = 'color:var(--text-light);display:block;font-size:0.82rem;';
         lbl.textContent = row[0];
         var val = document.createElement('span');
         val.style.fontWeight = '500';

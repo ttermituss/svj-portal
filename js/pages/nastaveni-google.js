@@ -93,7 +93,7 @@ function renderGoogleConnected(body, data) {
 
   if (data.connected_at) {
     var dateEl = document.createElement('div');
-    dateEl.style.cssText = 'font-size:0.8rem;color:var(--text-light);margin-top:2px;';
+    dateEl.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:2px;';
     var d = new Date(data.connected_at);
     dateEl.textContent = 'P\u0159ipojeno ' + d.toLocaleDateString('cs-CZ');
     info.appendChild(dateEl);
@@ -109,7 +109,7 @@ function renderGoogleConnected(body, data) {
       if (data.scopes.indexOf(key) !== -1) {
         var badge = document.createElement('span');
         badge.className = 'badge';
-        badge.style.cssText = 'font-size:0.78rem;';
+        badge.style.cssText = 'font-size:0.82rem;';
         badge.textContent = scopeLabels[key];
         scopeWrap.appendChild(badge);
       }
@@ -304,7 +304,7 @@ function renderGuideStep(container, num, step, openByDefault) {
   var circle = document.createElement('span');
   circle.style.cssText = 'display:flex;align-items:center;justify-content:center;'
     + 'width:26px;height:26px;border-radius:50%;background:var(--accent);'
-    + 'color:#fff;font-size:0.8rem;font-weight:700;flex-shrink:0;';
+    + 'color:#fff;font-size:0.82rem;font-weight:700;flex-shrink:0;';
   circle.textContent = num;
   header.appendChild(circle);
 
@@ -377,7 +377,7 @@ function renderGuideBlock(container, block) {
   if (block.type === 'code') {
     if (block.label) {
       var lbl = document.createElement('div');
-      lbl.style.cssText = 'font-size:0.8rem;color:var(--text-light);margin-bottom:4px;';
+      lbl.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-bottom:4px;';
       lbl.textContent = block.label;
       container.appendChild(lbl);
     }

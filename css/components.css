@@ -345,7 +345,7 @@ tbody tr:hover {
   border-radius: 4px;
   background: transparent;
   color: var(--text-muted);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   cursor: pointer;
   transition: all var(--transition);
   font-family: inherit;

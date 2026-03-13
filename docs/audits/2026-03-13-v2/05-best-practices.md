@@ -1,15 +1,13 @@
 # Best Practices Audit — 2026-03-13
 
-**Skóre: 82/100**
+**Skóre: 82/100 → 90/100 (po opravách)**
 
 ---
 
 ## CRITICAL
 
-- [ ] **B1 — Špatný sloupec `zprava` v revize notifikaci** — `revize.php:376-383`
-  - `revizeScheduleNotif()` používá sloupec `zprava` ale tabulka `notifikace` má `nazev`
-  - Runtime crash (PDOException) při každém uložení revize s připomenutím
-  - Fix: `zprava` → `nazev`, přidat `detail` sloupec
+- [x] **B1 — Špatný sloupec `zprava` v revize notifikaci** — `revize.php`
+  - **OPRAVENO:** `zprava` → `nazev` + `detail`; duplikát check i INSERT opraveny; vzor z fond_notif_helper.php
 
 ## MEDIUM
 

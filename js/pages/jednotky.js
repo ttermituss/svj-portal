@@ -216,7 +216,7 @@ function renderTable(body, jednotky, isPriv, reloadFn) {
   body.appendChild(tbl);
 
   var note = document.createElement('div');
-  note.style.cssText = 'margin-top:10px;font-size:0.78rem;color:var(--text-light);';
+  note.style.cssText = 'margin-top:10px;font-size:0.82rem;color:var(--text-light);';
   note.textContent = 'Zdroj: Katastr nemovitostí (ČÚZK API KN) \u00b7 ' + jednotky.length + ' jednotek';
   body.appendChild(note);
 }

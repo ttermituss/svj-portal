@@ -184,7 +184,7 @@ function fondZalohyRenderPredpisy(wrap, predpisy, rok, onReload) {
       tr.appendChild(tdVlast);
 
       var tdPodil = document.createElement('td');
-      tdPodil.style.cssText = 'padding:8px 10px;color:var(--text-light);font-size:0.8rem;';
+      tdPodil.style.cssText = 'padding:8px 10px;color:var(--text-light);font-size:0.82rem;';
       tdPodil.textContent = (p.podil_citatel && p.podil_jmenovatel)
         ? p.podil_citatel + '/' + p.podil_jmenovatel
         : '\u2014';
@@ -350,7 +350,7 @@ function fondZalohyRenderZalohy(wrap, zalohy, rok, mesic, onReload) {
     var tdStav = document.createElement('td');
     tdStav.style.cssText = 'padding:8px 10px;';
     var badge = document.createElement('span');
-    badge.style.cssText = 'font-size:0.78rem;padding:5px 10px;border-radius:6px;background:' + stavBg + ';color:' + stavColor + ';font-weight:600;';
+    badge.style.cssText = 'font-size:0.82rem;padding:5px 10px;border-radius:6px;background:' + stavBg + ';color:' + stavColor + ';font-weight:600;';
     badge.textContent = stav;
     tdStav.appendChild(badge);
     tr.appendChild(tdStav);
@@ -390,14 +390,14 @@ function fondZalohyRenderZalohy(wrap, zalohy, rok, mesic, onReload) {
   barBg.appendChild(barFill);
   progressWrap.appendChild(barBg);
   var pctText = document.createElement('div');
-  pctText.style.cssText = 'font-size:0.78rem;color:var(--text-light);margin-top:2px;';
+  pctText.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:2px;';
   pctText.textContent = 'Zaplaceno ' + fondFmt(totalZap) + ' z ' + fondFmt(totalPred) + ' K\u010d (' + pctPaid + ' %)';
   progressWrap.appendChild(pctText);
   summaryBar.appendChild(progressWrap);
 
   // Counts
   var counts = document.createElement('div');
-  counts.style.cssText = 'display:flex;gap:10px;font-size:0.8rem;';
+  counts.style.cssText = 'display:flex;gap:10px;font-size:0.82rem;';
   [
     { label: '\u2705 ' + countPaid, color: 'var(--accent)' },
     { label: '\u26A0\uFE0F ' + countPartial, color: '#f6993f' },

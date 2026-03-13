@@ -99,7 +99,7 @@ function parkRenderList(listWrap, formWrap, items, user) {
     sekce.style.marginBottom = '14px';
 
     var sHead = document.createElement('div');
-    sHead.style.cssText = 'font-size:0.8rem;font-weight:600;color:var(--text-light);' +
+    sHead.style.cssText = 'font-size:0.82rem;font-weight:600;color:var(--text-light);' +
       'text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;';
     sHead.textContent = kat.icon + ' ' + kat.label + ' (' + skupina.length + ')';
     sekce.appendChild(sHead);
@@ -137,7 +137,7 @@ function parkRenderList(listWrap, formWrap, items, user) {
       }
       if (s.poznamka) {
         var poz = document.createElement('div');
-        poz.style.cssText = 'font-size:0.78rem;color:var(--text-muted);margin-top:3px;';
+        poz.style.cssText = 'font-size:0.82rem;color:var(--text-muted);margin-top:3px;';
         poz.textContent = s.poznamka;
         box.appendChild(poz);
       }

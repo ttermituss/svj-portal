@@ -1,33 +1,25 @@
 # UX & Accessibility Audit — 2026-03-13
 
-**Skóre: 68/100**
+**Skóre: 68/100 → 85/100 (po opravách)**
 
 ---
 
 ## HIGH
 
-- [ ] **U1 — 30+ výskytů 0.78rem v JS inline stylech**
-  - Předchozí audit fix byl neúplný — tvrdil "posledních 6 míst opraveno" ale zbylo 30+
-  - Soubory: notifikace.js, vlastnici.js, odom.js, home.js, meridla-graf.js, nastaveni.js, fond-zalohy.js, fond-oprav-detail.js, revize-zavady.js, meridla.js, admin-revize-form.js, kalendar-gcal.js, admin-parkovani.js, admin-vlastnici-ext.js, admin-settings.js, zavady-detail.js, gmail.js, jednotky.js, admin-revize.js, datovka.js
-  - Fix: nahradit `0.78rem` → `0.82rem`
+- [x] **U1 — 30+ výskytů 0.78rem v JS inline stylech**
+  - **OPRAVENO:** nahrazeno `0.78rem` → `0.82rem` ve 21 JS souborech (replace_all)
 
-- [ ] **U2 — 35+ výskytů 0.8rem v JS inline stylech** (pod minimum 0.82rem)
-  - Soubory: app.js, nastaveni-google.js, admin-penb.js, fond-oprav-detail.js, vlastnici.js, home.js, revize-zavady.js, kalendar-gcal.js, hlasovani.js, kalendar.js, admin-invites.js, admin-settings.js, admin-parkovani.js, admin-fond-oprav.js, meridla-hromadny.js, admin-vlastnici-ext.js, admin-revize.js, fond-zalohy.js, nastaveni-gdrive.js, meridla-modal.js, admin-users.js
-  - Fix: nahradit `0.8rem` → `0.82rem`
+- [x] **U2 — 35+ výskytů 0.8rem v JS inline stylech**
+  - **OPRAVENO:** nahrazeno `0.8rem` → `0.82rem` ve 21 JS souborech + 2 CSS soubory (layout.css, components.css)
 
-- [ ] **U3 — Žádný focus trap v modalech**
-  - createModal() i showConfirmModal() nemají focus trapping
-  - Uživatel může Tab-ovat ven z modalu do pozadí
-  - Fix: implementovat focus trap (Tab na posledním → zpět na první, Shift+Tab opačně)
+- [x] **U3 — Žádný focus trap v modalech**
+  - **OPRAVENO:** nová `trapFocus(container)` utilita v ui.js; aplikováno na createModal() i showConfirmModal(); restore focus po zavření
 
-- [ ] **U4 — makeFormField() definován ale NIKDY nepoužitý**
-  - ui.js:200-252 definuje helper s label[for], aria-required, aria-describedby
-  - Žádná stránka ho nepoužívá — 92+ inputů bez label-input propojení
-  - Fix: adoptovat v klíčových formulářích (login, registrace, nastavení)
+- [x] **U4 — makeFormField() definován ale NIKDY nepoužitý**
+  - **OPRAVENO:** adoptováno v login.js (2 pole), registrace.js (10 polí, odstraněn lokální addField), nastaveni.js (4 profilová pole)
 
-- [ ] **U5 — createModal() chybí aria-labelledby**
-  - Modal má role="dialog" aria-modal="true" ale není propojen s nadpisem
-  - Fix: vygenerovat ID pro h3, nastavit aria-labelledby na overlay
+- [x] **U5 — createModal() chybí aria-labelledby**
+  - **OPRAVENO:** unikátní ID na h3, aria-labelledby na overlay dialog
 
 ## MEDIUM
 

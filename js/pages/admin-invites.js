@@ -97,7 +97,7 @@ function renderInvitesCard(el, currentUser) {
         var urlInput = document.createElement('input');
         urlInput.type = 'text'; urlInput.readOnly = true;
         urlInput.className = 'form-input';
-        urlInput.style.cssText = 'font-family:monospace;font-size:0.8rem;flex:1;min-width:0;';
+        urlInput.style.cssText = 'font-family:monospace;font-size:0.82rem;flex:1;min-width:0;';
         urlInput.value = inviteUrl;
         var copyBtn = document.createElement('button');
         copyBtn.className = 'btn btn-secondary';
@@ -114,7 +114,7 @@ function renderInvitesCard(el, currentUser) {
         linkBox.appendChild(urlBox);
 
         var expNote = document.createElement('div');
-        expNote.style.cssText = 'font-size:0.8rem;color:var(--text-light);margin-top:6px;';
+        expNote.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:6px;';
         expNote.textContent = 'Platnost do: ' + new Date(data.expires_at).toLocaleDateString('cs-CZ');
         linkBox.appendChild(expNote);
 

@@ -91,7 +91,7 @@ function merHromadnyRender(body, meridla, user, overlay, onDone) {
   var headRow = document.createElement('tr');
   ['Typ', 'Jednotka', 'M\u00edsto', 'Posledn\u00ed', 'Nov\u00fd ode\u010det'].forEach(function(h) {
     var th = document.createElement('th');
-    th.style.cssText = 'text-align:left;padding:8px 6px;border-bottom:2px solid var(--border);font-size:0.8rem;color:var(--text-light);';
+    th.style.cssText = 'text-align:left;padding:8px 6px;border-bottom:2px solid var(--border);font-size:0.82rem;color:var(--text-light);';
     th.textContent = h;
     headRow.appendChild(th);
   });
@@ -115,11 +115,11 @@ function merHromadnyRender(body, meridla, user, overlay, onDone) {
     tdJed.textContent = m.umisteni_typ === 'spolecne' ? 'Spole\u010dn\u00e9' : (m.cislo_jednotky || '');
 
     var tdMisto = document.createElement('td');
-    tdMisto.style.cssText = 'padding:6px;border-bottom:1px solid var(--border-light);font-size:0.8rem;color:var(--text-light);';
+    tdMisto.style.cssText = 'padding:6px;border-bottom:1px solid var(--border-light);font-size:0.82rem;color:var(--text-light);';
     tdMisto.textContent = m.misto || '';
 
     var tdLast = document.createElement('td');
-    tdLast.style.cssText = 'padding:6px;border-bottom:1px solid var(--border-light);font-size:0.8rem;';
+    tdLast.style.cssText = 'padding:6px;border-bottom:1px solid var(--border-light);font-size:0.82rem;';
     if (m.posledni_hodnota !== null && m.posledni_hodnota !== undefined) {
       tdLast.textContent = parseFloat(m.posledni_hodnota).toLocaleString('cs-CZ') + ' ' + (m.jednotka_mereni || '');
     } else {

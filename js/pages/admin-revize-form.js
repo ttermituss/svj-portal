@@ -53,7 +53,7 @@ function revizeShowForm(formWrap, rev, listWrap, user, addBtn) {
   intervalInput.style.maxWidth = '120px'; intervalInput.min = '1'; intervalInput.placeholder = '36';
   intervalInput.value = rev && rev.interval_mesice ? rev.interval_mesice : '';
   var intervalHint = document.createElement('div');
-  intervalHint.style.cssText = 'font-size:0.78rem;color:var(--text-light);margin-top:4px;';
+  intervalHint.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:4px;';
   intervalHint.textContent = 'P\u0159i vypln\u011bn\xed se datum p\u0159\xed\u0161t\xed revize vypo\u010d\xedt\xe1 automaticky.';
   intervalWrap.appendChild(intervalLabel);
   intervalWrap.appendChild(intervalInput);
@@ -110,7 +110,7 @@ function revizeShowForm(formWrap, rev, listWrap, user, addBtn) {
   pripInput.style.maxWidth = '120px'; pripInput.min = '1'; pripInput.placeholder = '30';
   pripInput.value = rev && rev.pripomenout_dni ? rev.pripomenout_dni : '';
   var pripHint = document.createElement('div');
-  pripHint.style.cssText = 'font-size:0.78rem;color:var(--text-light);margin-top:4px;';
+  pripHint.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:4px;';
   pripHint.textContent = 'Vytvo\u0159\xed notifikaci X dn\xed p\u0159ed vypr\u0161en\xedm.';
   pripWrap.appendChild(pripLabel);
   pripWrap.appendChild(pripInput);

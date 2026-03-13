@@ -113,7 +113,7 @@ function penbRenderStatus(statusWrap, formWrap, penb, user) {
   meta.appendChild(expiryEl);
 
   var vystavEl = document.createElement('div');
-  vystavEl.style.cssText = 'font-size:0.8rem;color:var(--text-light);margin-top:2px;';
+  vystavEl.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:2px;';
   vystavEl.textContent = 'Vystaveno: ' + formatDatum(penb.datum_vystaveni);
   meta.appendChild(vystavEl);
 

@@ -100,7 +100,7 @@ function renderExtTable(wrap, list, reloadFn, loadJednotky) {
 
     var editBtn = document.createElement('button');
     editBtn.className = 'btn btn-secondary';
-    editBtn.style.cssText = 'font-size:0.8rem;padding:4px 10px;margin-right:6px;';
+    editBtn.style.cssText = 'font-size:0.82rem;padding:4px 10px;margin-right:6px;';
     editBtn.textContent = 'Upravit';
     editBtn.addEventListener('click', function() {
       loadJednotky(function(j) { showExtModal(v, j, reloadFn); });
@@ -108,7 +108,7 @@ function renderExtTable(wrap, list, reloadFn, loadJednotky) {
 
     var delBtn = document.createElement('button');
     delBtn.className = 'btn btn-danger';
-    delBtn.style.cssText = 'font-size:0.8rem;padding:4px 10px;';
+    delBtn.style.cssText = 'font-size:0.82rem;padding:4px 10px;';
     delBtn.textContent = 'Smazat';
     delBtn.addEventListener('click', function() {
       showConfirmModal('Smazat vlastníka?', fullName, function() {
@@ -128,7 +128,7 @@ function renderExtTable(wrap, list, reloadFn, loadJednotky) {
   wrap.appendChild(tbl);
 
   var note = document.createElement('div');
-  note.style.cssText = 'margin-top:8px;font-size:0.78rem;color:var(--text-light);';
+  note.style.cssText = 'margin-top:8px;font-size:0.82rem;color:var(--text-light);';
   note.textContent = list.length + ' záznam\u016f';
   wrap.appendChild(note);
 }

@@ -368,18 +368,18 @@ function revizeScheduleNotif(PDO $db, int $svjId, string $nazev, string $datumPr
     $st->execute([$svjId]);
     $users = $st->fetchAll(PDO::FETCH_COLUMN);
 
-    $msg = "Revize \"{$nazev}\" vyprší " . date('j.n.Y', strtotime($datumPristi))
-         . " (za {$dni} dní)";
+    $notifNazev = "Revize: {$nazev}";
+    $notifDetail = "Vyprší " . date('j.n.Y', strtotime($datumPristi)) . " (za {$dni} dní)";
 
     foreach ($users as $userId) {
         // Zkontroluj duplicitu
-        $dup = $db->prepare('SELECT id FROM notifikace WHERE user_id=? AND zprava=? AND typ=?');
-        $dup->execute([$userId, $msg, 'revize']);
+        $dup = $db->prepare('SELECT id FROM notifikace WHERE user_id=? AND nazev=? AND typ=?');
+        $dup->execute([$userId, $notifNazev, 'revize']);
         if ($dup->fetch()) continue;
 
         $db->prepare('
-            INSERT INTO notifikace (user_id, svj_id, typ, zprava, odkaz_hash)
-            VALUES (?, ?, ?, ?, ?)
-        ')->execute([$userId, $svjId, 'revize', $msg, '#admin']);
+            INSERT INTO notifikace (user_id, svj_id, typ, nazev, detail, odkaz_hash)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ')->execute([$userId, $svjId, 'revize', $notifNazev, $notifDetail, '#admin']);
     }
 }

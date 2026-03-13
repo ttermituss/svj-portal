@@ -80,11 +80,10 @@ function renderProfileCard(container, user) {
 
   var form = document.createElement('form');
 
-  var jmenoGrp    = makeField('Jméno *',   'text',  'p-jmeno',    user.jmeno    || '');
-  var prijmeniGrp = makeField('Příjmení',  'text',  'p-prijmeni', user.prijmeni || '');
-  var emailGrp    = makeField('E-mail *',  'email', 'p-email',    user.email    || '');
-  var telefonGrp  = makeField('Telefon',   'tel',   'p-telefon',  user.telefon  || '');
-  telefonGrp.input.placeholder = 'např. +420 777 123 456';
+  var jmenoGrp    = makeFormField('Jméno *',   'text',  user.jmeno    || '', { required: true });
+  var prijmeniGrp = makeFormField('Příjmení',  'text',  user.prijmeni || '');
+  var emailGrp    = makeFormField('E-mail *',  'email', user.email    || '', { required: true });
+  var telefonGrp  = makeFormField('Telefon',   'tel',   user.telefon  || '', { placeholder: 'např. +420 777 123 456' });
 
   var btn = makeSubmitBtn('Uložit profil');
 
@@ -378,7 +377,7 @@ function renderAvatarWidget(body, user) {
   wrap.appendChild(btnRow);
 
   var hint = document.createElement('div');
-  hint.style.cssText = 'font-size:0.78rem;color:var(--text-light);';
+  hint.style.cssText = 'font-size:0.82rem;color:var(--text-light);';
   hint.textContent = 'Max 2 MB \u00b7 JPEG, PNG, GIF, WebP';
   wrap.appendChild(hint);
 

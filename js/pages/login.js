@@ -38,39 +38,25 @@ Router.register('login', function(el) {
   body.appendChild(errorBox);
 
   // Email
-  var emailLabel = document.createElement('label');
-  emailLabel.textContent = 'E-mail';
-  emailLabel.style.display = 'block';
-  emailLabel.style.marginBottom = '4px';
-  emailLabel.style.fontWeight = '500';
-  body.appendChild(emailLabel);
-
-  var emailInput = document.createElement('input');
-  emailInput.type = 'email';
-  emailInput.className = 'form-input';
-  emailInput.placeholder = 'vas@email.cz';
-  emailInput.autocomplete = 'email';
-  emailInput.required = true;
-  emailInput.style.marginBottom = '16px';
-  body.appendChild(emailInput);
+  var emailField = makeFormField('E-mail', 'email', '', {
+    required: true,
+    placeholder: 'vas@email.cz'
+  });
+  emailField.input.autocomplete = 'email';
+  emailField.input.style.marginBottom = '16px';
+  body.appendChild(emailField.el);
+  var emailInput = emailField.input;
 
   // Password
-  var passLabel = document.createElement('label');
-  passLabel.textContent = 'Heslo';
-  passLabel.style.display = 'block';
-  passLabel.style.marginBottom = '4px';
-  passLabel.style.fontWeight = '500';
-  body.appendChild(passLabel);
-
-  var passInput = document.createElement('input');
-  passInput.type = 'password';
-  passInput.className = 'form-input';
-  passInput.placeholder = 'Zadejte heslo';
-  passInput.autocomplete = 'current-password';
-  passInput.required = true;
-  passInput.minLength = 8;
-  passInput.style.marginBottom = '20px';
-  body.appendChild(passInput);
+  var passField = makeFormField('Heslo', 'password', '', {
+    required: true,
+    placeholder: 'Zadejte heslo'
+  });
+  passField.input.autocomplete = 'current-password';
+  passField.input.minLength = 8;
+  passField.input.style.marginBottom = '20px';
+  body.appendChild(passField.el);
+  var passInput = passField.input;
 
   // Submit button
   var btn = document.createElement('button');

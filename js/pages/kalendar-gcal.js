@@ -141,7 +141,7 @@ function renderGcalSyncContent(body, rok, mesic, overlay, onDone) {
 
           var dateStr = formatGcalDate(ev.start, ev.allDay);
           var dateEl = document.createElement('span');
-          dateEl.style.cssText = 'color:var(--text-light);min-width:70px;flex-shrink:0;font-size:0.8rem;';
+          dateEl.style.cssText = 'color:var(--text-light);min-width:70px;flex-shrink:0;font-size:0.82rem;';
           dateEl.textContent = dateStr;
           row.appendChild(dateEl);
 
@@ -155,7 +155,7 @@ function renderGcalSyncContent(body, rok, mesic, overlay, onDone) {
             link.href = ev.htmlLink;
             link.target = '_blank';
             link.rel = 'noopener';
-            link.style.cssText = 'font-size:0.78rem;color:var(--info);text-decoration:none;flex-shrink:0;';
+            link.style.cssText = 'font-size:0.82rem;color:var(--info);text-decoration:none;flex-shrink:0;';
             link.textContent = 'Otev\u0159\u00edt';
             row.appendChild(link);
           }

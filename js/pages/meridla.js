@@ -178,7 +178,7 @@ function merRenderCard(m, isPriv, user, listWrap) {
   nameEl.appendChild(typEl);
   if (m.vyrobni_cislo) {
     var vcEl = document.createElement('div');
-    vcEl.style.cssText = 'font-size:0.78rem;color:var(--text-light);';
+    vcEl.style.cssText = 'font-size:0.82rem;color:var(--text-light);';
     vcEl.textContent = 'V\u010d: ' + m.vyrobni_cislo;
     nameEl.appendChild(vcEl);
   }

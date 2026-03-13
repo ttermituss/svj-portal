@@ -187,7 +187,7 @@ function renderGmailRow(msg) {
   top.appendChild(from);
 
   var dateEl = document.createElement('div');
-  dateEl.style.cssText = 'font-size:0.78rem;color:var(--text-light);white-space:nowrap;flex-shrink:0;';
+  dateEl.style.cssText = 'font-size:0.82rem;color:var(--text-light);white-space:nowrap;flex-shrink:0;';
   dateEl.textContent = formatGmailDate(msg.date);
   top.appendChild(dateEl);
 

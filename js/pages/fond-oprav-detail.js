@@ -145,7 +145,7 @@ function fondRenderKategorie(wrap, data) {
       row.style.cssText = 'margin-bottom:6px;';
 
       var labelRow = document.createElement('div');
-      labelRow.style.cssText = 'display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:2px;';
+      labelRow.style.cssText = 'display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:2px;';
       var lbl = document.createElement('span');
       lbl.textContent = k.kategorie;
       var val = document.createElement('span');
@@ -225,7 +225,7 @@ function fondRenderUcty(wrap, ucty, onReload) {
 
       if (u.cislo_uctu) {
         var cislo = document.createElement('div');
-        cislo.style.cssText = 'font-size:0.8rem;color:var(--text-light);font-family:monospace;';
+        cislo.style.cssText = 'font-size:0.82rem;color:var(--text-light);font-family:monospace;';
         cislo.textContent = u.cislo_uctu + (u.banka ? ' \u00b7 ' + u.banka : '');
         tile.appendChild(cislo);
       }
@@ -238,7 +238,7 @@ function fondRenderUcty(wrap, ucty, onReload) {
 
       if (u.urokova_sazba) {
         var sazba = document.createElement('div');
-        sazba.style.cssText = 'font-size:0.78rem;color:var(--text-light);margin-top:2px;';
+        sazba.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:2px;';
         sazba.textContent = '\xdarok: ' + parseFloat(u.urokova_sazba).toFixed(2) + ' % p.a.';
         tile.appendChild(sazba);
       }
@@ -409,7 +409,7 @@ function fondRenderZaznamy(wrap, items, total, user, onReload, loadRecords) {
   hdr.appendChild(h2);
 
   var countBadge = document.createElement('span');
-  countBadge.style.cssText = 'font-size:0.8rem;color:var(--text-light);';
+  countBadge.style.cssText = 'font-size:0.82rem;color:var(--text-light);';
   countBadge.textContent = total + ' celkem';
   hdr.appendChild(countBadge);
   card.appendChild(hdr);
@@ -441,7 +441,7 @@ function fondRenderZaznamy(wrap, items, total, user, onReload, loadRecords) {
       // Attachment indicator
       if (parseInt(z.pocet_priloh) > 0) {
         var clip = document.createElement('span');
-        clip.style.cssText = 'margin-left:6px;font-size:0.8rem;';
+        clip.style.cssText = 'margin-left:6px;font-size:0.82rem;';
         clip.title = z.pocet_priloh + ' p\u0159\xedloh';
         clip.textContent = '\uD83D\uDCCE' + z.pocet_priloh;
         popis.appendChild(clip);
@@ -449,7 +449,7 @@ function fondRenderZaznamy(wrap, items, total, user, onReload, loadRecords) {
 
       info.appendChild(popis);
       var meta = document.createElement('div');
-      meta.style.cssText = 'font-size:0.78rem;color:var(--text-light);margin-top:1px;';
+      meta.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:1px;';
       meta.textContent = z.kategorie + ' \xb7 ' + formatDatum(z.datum);
       info.appendChild(meta);
       row.appendChild(info);

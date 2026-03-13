@@ -168,7 +168,7 @@ function renderTableReg(body, vlastnici, isPriv) {
         link.rel    = 'noopener noreferrer';
         link.textContent = '\u2696\uFE0F ISIR';
         link.title  = 'Ověřit v Insolvenčním rejstříku (justice.cz)';
-        link.style.cssText = 'font-size:0.8rem;color:var(--text-light);text-decoration:none;' +
+        link.style.cssText = 'font-size:0.82rem;color:var(--text-light);text-decoration:none;' +
           'border:1px solid var(--border);border-radius:4px;padding:5px 10px;white-space:nowrap;';
         tdIsir.appendChild(link);
       }
@@ -182,13 +182,13 @@ function renderTableReg(body, vlastnici, isPriv) {
 
   if (isPriv) {
     var note = document.createElement('div');
-    note.style.cssText = 'margin-top:10px;font-size:0.78rem;color:var(--text-light);';
+    note.style.cssText = 'margin-top:10px;font-size:0.82rem;color:var(--text-light);';
     note.textContent = '\u2696\uFE0F ISIR — odkaz otevře Insolvenční rejstřík se předvyplněným jménem. Pouze pro interní potřebu výboru.';
     body.appendChild(note);
   }
 
   var count = document.createElement('div');
-  count.style.cssText = 'margin-top:' + (isPriv ? '4px' : '10px') + ';font-size:0.78rem;color:var(--text-light);';
+  count.style.cssText = 'margin-top:' + (isPriv ? '4px' : '10px') + ';font-size:0.82rem;color:var(--text-light);';
   count.textContent = vlastnici.length + ' registrovaných členů SVJ';
   body.appendChild(count);
 }
@@ -236,7 +236,7 @@ function renderTableExt(body, list, isPriv) {
   body.appendChild(tbl);
 
   var note = document.createElement('div');
-  note.style.cssText = 'margin-top:10px;font-size:0.78rem;color:var(--text-light);';
+  note.style.cssText = 'margin-top:10px;font-size:0.82rem;color:var(--text-light);';
   note.textContent = list.length + ' evidovaných vlastníků \u00b7 Správa ve Správě portálu';
   body.appendChild(note);
 }

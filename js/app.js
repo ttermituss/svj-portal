@@ -108,7 +108,7 @@ function buildNavWithUser() {
   textBlock.appendChild(userName);
 
   var userEmail = document.createElement('div');
-  userEmail.style.cssText = 'font-size:0.8rem;color:var(--text-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+  userEmail.style.cssText = 'font-size:0.82rem;color:var(--text-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
   userEmail.textContent = user.email;
   textBlock.appendChild(userEmail);
 

@@ -78,6 +78,8 @@ function showToast(message, type) {
 
 /* ---- Confirm modal (náhrada za window.confirm) ---- */
 function showConfirmModal(title, detail, onConfirm) {
+  var prevFocus = document.activeElement;
+
   var overlay = document.createElement('div');
   overlay.style.cssText = [
     'position:fixed', 'inset:0', 'z-index:10000',
@@ -125,6 +127,7 @@ function showConfirmModal(title, detail, onConfirm) {
   modal.appendChild(btns);
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
+  var removeTrap = trapFocus(overlay);
 
   // Animate in
   requestAnimationFrame(function() {
@@ -135,9 +138,11 @@ function showConfirmModal(title, detail, onConfirm) {
   });
 
   function close() {
+    removeTrap();
     modal.style.transform = 'scale(0.95)';
     modal.style.opacity = '0';
     setTimeout(function() { if (overlay.parentNode) overlay.remove(); }, 150);
+    if (prevFocus) prevFocus.focus();
   }
 
   cancelBtn.addEventListener('click', close);
@@ -323,6 +328,31 @@ function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString('cs-CZ');
 }
 
+/* ---- Focus trap pro modaly ---- */
+function trapFocus(container) {
+  var focusable = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+
+  function handler(e) {
+    if (e.key !== 'Tab') return;
+    var els = Array.from(container.querySelectorAll(focusable)).filter(function(el) {
+      return el.offsetParent !== null;
+    });
+    if (!els.length) return;
+    var first = els[0];
+    var last = els[els.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
+  container.addEventListener('keydown', handler);
+  return function() { container.removeEventListener('keydown', handler); };
+}
+
 /* ---- Univerzální modal factory ---- */
 
 /**
@@ -345,7 +375,10 @@ function createModal(opts) {
   var modal = document.createElement('div');
   modal.style.cssText = 'background:var(--bg-card);border-radius:12px;padding:24px;max-width:' + width + ';width:95%;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 8px 32px rgba(0,0,0,0.25);';
 
+  var removeTrap;
+
   function close() {
+    if (removeTrap) removeTrap();
     overlay.remove();
     document.removeEventListener('keydown', escHandler);
   }
@@ -360,14 +393,27 @@ function createModal(opts) {
   }
 
   if (opts.title) {
+    var titleId = 'modal-title-' + (createModal._seq = (createModal._seq || 0) + 1);
     var h = document.createElement('h3');
+    h.id = titleId;
     h.style.cssText = 'margin:0 0 16px 0;';
     h.textContent = opts.title;
+    overlay.setAttribute('aria-labelledby', titleId);
     modal.appendChild(h);
   }
 
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
+  removeTrap = trapFocus(overlay);
+
+  // Auto-focus first input or the modal itself
+  var firstFocusable = modal.querySelector('input,select,textarea,button');
+  if (firstFocusable) {
+    requestAnimationFrame(function() { firstFocusable.focus(); });
+  } else {
+    modal.setAttribute('tabindex', '-1');
+    modal.focus();
+  }
 
   return { overlay: overlay, modal: modal, close: close };
 }

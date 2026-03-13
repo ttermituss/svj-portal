@@ -156,7 +156,7 @@ function renderUsersTable(wrap, users, me, reloadFn, loadJednotky) {
       var delBtn = document.createElement('button');
       delBtn.className = 'btn btn-danger';
       delBtn.textContent = 'Smazat';
-      delBtn.style.cssText = 'padding:4px 10px;font-size:0.8rem;';
+      delBtn.style.cssText = 'padding:4px 10px;font-size:0.82rem;';
       delBtn.addEventListener('click', function() {
         var label = tdName.textContent.replace('J\u00e1', '').trim() + ' (' + u.email + ')';
         showConfirmModal('Smazat uživatele?', label, function() {

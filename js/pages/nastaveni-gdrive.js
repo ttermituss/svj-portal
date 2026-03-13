@@ -219,7 +219,7 @@ function renderGdriveSyncPanel(wrap, data) {
     bar.appendChild(fill);
 
     var label = document.createElement('span');
-    label.style.cssText = 'font-size:0.8rem;color:var(--text-light);white-space:nowrap;';
+    label.style.cssText = 'font-size:0.82rem;color:var(--text-light);white-space:nowrap;';
     label.textContent = synced + '/' + total;
     if (remaining === 0) label.textContent += ' \u2705';
 

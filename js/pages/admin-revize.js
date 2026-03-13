@@ -148,7 +148,7 @@ function revizeMakeRow(rev, isPriv, listWrap, formWrap, user) {
   info.appendChild(nameEl);
 
   var typEl = document.createElement('div');
-  typEl.style.cssText = 'font-size:0.8rem;color:var(--text-light);margin-top:1px;';
+  typEl.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:1px;';
   typEl.textContent = revizeTypLabel(rev.typ);
   info.appendChild(typEl);
 
@@ -178,7 +178,7 @@ function revizeMakeRow(rev, isPriv, listWrap, formWrap, user) {
 
   if (rev.poznamka) {
     var pozEl = document.createElement('div');
-    pozEl.style.cssText = 'font-size:0.8rem;color:var(--text-light);margin-top:3px;';
+    pozEl.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:3px;';
     pozEl.textContent = rev.poznamka;
     info.appendChild(pozEl);
   }
@@ -192,7 +192,7 @@ function revizeMakeRow(rev, isPriv, listWrap, formWrap, user) {
   if (rev.datum_pristi) {
     var badge = document.createElement('span');
     badge.style.cssText = 'display:inline-block;padding:3px 10px;border-radius:20px;' +
-      'font-size:0.78rem;font-weight:600;white-space:nowrap;';
+      'font-size:0.82rem;font-weight:600;white-space:nowrap;';
     if (status === 'expired') {
       badge.style.background = 'var(--danger)'; badge.style.color = '#fff';
       badge.textContent = '\u26A0 Prohl\xe1\u0161l\xe1!';
@@ -206,7 +206,7 @@ function revizeMakeRow(rev, isPriv, listWrap, formWrap, user) {
     rightCol.appendChild(badge);
 
     var pristiEl = document.createElement('div');
-    pristiEl.style.cssText = 'font-size:0.8rem;color:var(--text-light);text-align:right;';
+    pristiEl.style.cssText = 'font-size:0.82rem;color:var(--text-light);text-align:right;';
     pristiEl.textContent = 'P\u0159\xed\u0161t\xed: ' + formatDatum(rev.datum_pristi);
     rightCol.appendChild(pristiEl);
   }

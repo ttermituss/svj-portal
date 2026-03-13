@@ -114,11 +114,30 @@ Router.register('registrace', function(el) {
     var currentSvjId = null;
     var currentIco   = null;
 
-    var jmenoInput    = addField(body, 'Jméno *',       'text',     'Jan',             { autocomplete: 'given-name',   required: true,  maxLength: 100 });
-    var prijmeniInput = addField(body, 'Příjmení',       'text',     'Novák',           { autocomplete: 'family-name',  maxLength: 100 });
-    var emailInput    = addField(body, 'E-mail *',       'email',    'vas@email.cz',    { autocomplete: 'email',        required: true,  maxLength: 255 });
-    var passInput     = addField(body, 'Heslo *',        'password', 'Alespoň 8 znaků', { autocomplete: 'new-password', required: true,  minLength: 8,  maxLength: 128 });
-    var pass2Input    = addField(body, 'Heslo znovu *',  'password', 'Zopakujte heslo', { autocomplete: 'new-password', required: true,  minLength: 8,  maxLength: 128 });
+    var jmenoField    = makeFormField('Jméno *',       'text',     '', { placeholder: 'Jan',             required: true });
+    jmenoField.input.autocomplete = 'given-name';  jmenoField.input.maxLength = 100;
+    body.appendChild(jmenoField.el);
+    var jmenoInput = jmenoField.input;
+
+    var prijmeniField = makeFormField('Příjmení',       'text',     '', { placeholder: 'Novák' });
+    prijmeniField.input.autocomplete = 'family-name'; prijmeniField.input.maxLength = 100;
+    body.appendChild(prijmeniField.el);
+    var prijmeniInput = prijmeniField.input;
+
+    var emailField    = makeFormField('E-mail *',       'email',    '', { placeholder: 'vas@email.cz',    required: true });
+    emailField.input.autocomplete = 'email';        emailField.input.maxLength = 255;
+    body.appendChild(emailField.el);
+    var emailInput = emailField.input;
+
+    var passField     = makeFormField('Heslo *',        'password', '', { placeholder: 'Alespoň 8 znaků', required: true });
+    passField.input.autocomplete = 'new-password';  passField.input.minLength = 8; passField.input.maxLength = 128;
+    body.appendChild(passField.el);
+    var passInput = passField.input;
+
+    var pass2Field    = makeFormField('Heslo znovu *',  'password', '', { placeholder: 'Zopakujte heslo', required: true });
+    pass2Field.input.autocomplete = 'new-password'; pass2Field.input.minLength = 8; pass2Field.input.maxLength = 128;
+    body.appendChild(pass2Field.el);
+    var pass2Input = pass2Field.input;
 
     var regBtn = makeSubmitBtn('Zaregistrovat SVJ portál');
     body.appendChild(regBtn);
@@ -242,11 +261,30 @@ Router.register('registrace', function(el) {
     /* Formulář — skrytý do ověření tokenu */
     var formWrap = document.createElement('div');
     formWrap.style.display = 'none';
-    var jmenoInput    = addField(formWrap, 'Jméno *',       'text',     'Jan',             { autocomplete: 'given-name',   required: true,  maxLength: 100 });
-    var prijmeniInput = addField(formWrap, 'Příjmení',       'text',     'Novák',           { autocomplete: 'family-name',  maxLength: 100 });
-    var emailInput    = addField(formWrap, 'E-mail *',       'email',    'vas@email.cz',    { autocomplete: 'email',        required: true,  maxLength: 255 });
-    var passInput     = addField(formWrap, 'Heslo *',        'password', 'Alespoň 8 znaků', { autocomplete: 'new-password', required: true,  minLength: 8,  maxLength: 128 });
-    var pass2Input    = addField(formWrap, 'Heslo znovu *',  'password', 'Zopakujte heslo', { autocomplete: 'new-password', required: true,  minLength: 8,  maxLength: 128 });
+    var jmenoField2    = makeFormField('Jméno *',       'text',     '', { placeholder: 'Jan',             required: true });
+    jmenoField2.input.autocomplete = 'given-name';  jmenoField2.input.maxLength = 100;
+    formWrap.appendChild(jmenoField2.el);
+    var jmenoInput = jmenoField2.input;
+
+    var prijmeniField2 = makeFormField('Příjmení',       'text',     '', { placeholder: 'Novák' });
+    prijmeniField2.input.autocomplete = 'family-name'; prijmeniField2.input.maxLength = 100;
+    formWrap.appendChild(prijmeniField2.el);
+    var prijmeniInput = prijmeniField2.input;
+
+    var emailField2    = makeFormField('E-mail *',       'email',    '', { placeholder: 'vas@email.cz',    required: true });
+    emailField2.input.autocomplete = 'email';        emailField2.input.maxLength = 255;
+    formWrap.appendChild(emailField2.el);
+    var emailInput = emailField2.input;
+
+    var passField2     = makeFormField('Heslo *',        'password', '', { placeholder: 'Alespoň 8 znaků', required: true });
+    passField2.input.autocomplete = 'new-password';  passField2.input.minLength = 8; passField2.input.maxLength = 128;
+    formWrap.appendChild(passField2.el);
+    var passInput = passField2.input;
+
+    var pass2Field2    = makeFormField('Heslo znovu *',  'password', '', { placeholder: 'Zopakujte heslo', required: true });
+    pass2Field2.input.autocomplete = 'new-password'; pass2Field2.input.minLength = 8; pass2Field2.input.maxLength = 128;
+    formWrap.appendChild(pass2Field2.el);
+    var pass2Input = pass2Field2.input;
     body.appendChild(formWrap);
 
     var regBtn = makeSubmitBtn('Dokončit registraci');
@@ -316,21 +354,6 @@ Router.register('registrace', function(el) {
   }
 
   /* ---- Sdílené helpery ---- */
-  function addField(container, labelText, type, placeholder, opts) {
-    var w = document.createElement('div');
-    w.style.marginBottom = '12px';
-    var lbl = document.createElement('label');
-    lbl.textContent = labelText;
-    lbl.style.cssText = 'display:block;margin-bottom:4px;font-weight:500;';
-    w.appendChild(lbl);
-    var inp = document.createElement('input');
-    inp.type = type; inp.className = 'form-input'; inp.placeholder = placeholder;
-    if (opts) Object.keys(opts).forEach(function(k) { inp[k] = opts[k]; });
-    w.appendChild(inp);
-    container.appendChild(w);
-    return inp;
-  }
-
   function makeDesc(text) {
     var p = document.createElement('p');
     p.style.cssText = 'color:var(--text-light);font-size:0.88rem;margin-bottom:16px;';

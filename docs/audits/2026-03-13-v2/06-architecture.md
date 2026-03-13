@@ -1,20 +1,16 @@
 # Architecture Audit — 2026-03-13
 
-**Skóre: 87/100**
+**Skóre: 87/100 → 92/100 (po opravách)**
 
 ---
 
 ## HIGH
 
-- [ ] **A1 — Chybí FK na datovka tabulkách** — `migrations/020_datovka.sql`
-  - `datovka_zpravy.svj_id` — žádný FK na svj(id)
-  - `datovka_zpravy.uploaded_by` — žádný FK na users(id)
-  - `datovka_prilohy.svj_id` — žádný FK na svj(id)
-  - Fix: ALTER TABLE ADD FOREIGN KEY
+- [x] **A1 — Chybí FK na datovka tabulkách**
+  - **OPRAVENO:** migrace `036_datovka_fk.sql` — FK na svj(id) + users(id) s CASCADE delete
 
-- [ ] **A2 — .gitignore nekompletní**
-  - Chybí: `source/`, `tests/`, `uploads/`, IDE soubory (`.idea/`, `.vscode/`)
-  - Fix: doplnit .gitignore
+- [x] **A2 — .gitignore nekompletní**
+  - **OPRAVENO:** přidáno `uploads/`, `source/`, `.idea/`, `.vscode/`
 
 ## MEDIUM
 

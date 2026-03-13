@@ -237,7 +237,7 @@ function renderDetail(modal, z, historie, user, isPriv, closeFn, onRefresh) {
       item.appendChild(dot);
 
       var meta = document.createElement('div');
-      meta.style.cssText = 'font-size:0.78rem;color:var(--text-light);margin-bottom:2px;';
+      meta.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-bottom:2px;';
       var who = ((h.jmeno || '') + ' ' + (h.prijmeni || '')).trim();
       meta.textContent = who + ' \u00b7 ' + new Date(h.created_at).toLocaleString('cs-CZ');
       item.appendChild(meta);

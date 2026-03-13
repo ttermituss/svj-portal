@@ -1,12 +1,21 @@
 # PHP config s hesly
 api/config.php
 
-# DB migrations jsou OK, ale ne credentials
 # Logs
 *.log
 
 # Composer
 api/vendor/
+
+# Runtime uploads (avatary, dokumenty, datovka)
+uploads/
+
+# Sample/test data
+source/
+
+# IDE
+.idea/
+.vscode/
 
 # OS
 .DS_Store

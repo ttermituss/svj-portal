@@ -56,7 +56,7 @@ function renderSettingsForm(wrap, settings, errBox, okBox) {
       var toggle = document.createElement('button');
       toggle.type = 'button';
       toggle.textContent = 'Zobrazit';
-      toggle.style.cssText = 'margin-top:3px;font-size:0.8rem;background:none;border:none;' +
+      toggle.style.cssText = 'margin-top:3px;font-size:0.82rem;background:none;border:none;' +
                              'color:var(--primary);cursor:pointer;padding:0;';
       toggle.addEventListener('click', function() {
         grp.input.type = grp.input.type === 'password' ? 'text' : 'password';
@@ -72,7 +72,7 @@ function renderSettingsForm(wrap, settings, errBox, okBox) {
       grp.input.readOnly = true;
       grp.input.style.color = 'var(--text-light)';
       var uriHint = document.createElement('div');
-      uriHint.style.cssText = 'font-size:0.78rem;color:var(--text-light);margin-top:3px;';
+      uriHint.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:3px;';
       uriHint.textContent = 'Generov\u00e1no automaticky \u2014 tuto adresu zadejte v Google Cloud Console jako Redirect URI.';
       grp.el.appendChild(uriHint);
     }
@@ -80,7 +80,7 @@ function renderSettingsForm(wrap, settings, errBox, okBox) {
     // Webhook URL — hint with example
     if (s.key === 'google_calendar_webhook_url') {
       var whHint = document.createElement('div');
-      whHint.style.cssText = 'font-size:0.78rem;color:var(--text-light);margin-top:3px;line-height:1.5;';
+      whHint.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:3px;line-height:1.5;';
       whHint.textContent = 'HTTPS URL pro automatick\u00e9 notifikace z Google Calendar. '
         + 'P\u0159\u00edklad: https://svj.example.com/api/google_calendar_webhook.php \u2014 '
         + 'mus\u00ed b\u00fdt ve\u0159ejn\u011b dostupn\u00e1 s platn\u00fdm SSL certifik\u00e1tem.';

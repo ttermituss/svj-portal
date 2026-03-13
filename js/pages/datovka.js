@@ -245,7 +245,7 @@ function datovkaRenderList(wrap, zpravy, user) {
     }
 
     var cnt = document.createElement('span');
-    cnt.style.cssText = 'font-size:0.78rem;color:var(--text-light);';
+    cnt.style.cssText = 'font-size:0.82rem;color:var(--text-light);';
     cnt.textContent = '\uD83D\uDCCE ' + z.prilohy_count + ' příloh';
     row3.appendChild(cnt);
 

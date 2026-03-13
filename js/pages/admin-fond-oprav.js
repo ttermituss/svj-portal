@@ -60,7 +60,7 @@ function fondMiniStats(wrap, data) {
     val.textContent = fondMiniFormat(item.value) + '\xa0K\u010d';
     box.appendChild(val);
     var lbl = document.createElement('div');
-    lbl.style.cssText = 'font-size:0.8rem;color:var(--text-light);margin-top:3px;';
+    lbl.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:3px;';
     lbl.textContent = item.label;
     box.appendChild(lbl);
     grid.appendChild(box);

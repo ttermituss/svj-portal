@@ -189,7 +189,7 @@ var NotifBadge = (function() {
 
     if (n.detail) {
       var detailEl = document.createElement('div');
-      detailEl.style.cssText = 'font-size:0.78rem;color:var(--text-light);margin-top:2px;';
+      detailEl.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-top:2px;';
       detailEl.textContent = n.detail;
       content.appendChild(detailEl);
     }

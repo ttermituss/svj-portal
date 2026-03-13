@@ -143,7 +143,7 @@ function buildWeatherCard(d) {
   header.appendChild(hTitle);
   if (d.adresa) {
     var hSub = document.createElement('span');
-    hSub.style.cssText = 'font-size:0.8rem;color:var(--text-light);margin-left:8px;';
+    hSub.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-left:8px;';
     hSub.textContent = d.adresa;
     header.appendChild(hSub);
   }
@@ -222,7 +222,7 @@ function buildWeatherCard(d) {
       dayMax.textContent = Math.round(maxTemps[i]) + '\u00b0';
 
       var dayMin = document.createElement('div');
-      dayMin.style.cssText = 'font-size:0.78rem;color:var(--text-light);';
+      dayMin.style.cssText = 'font-size:0.82rem;color:var(--text-light);';
       dayMin.textContent = Math.round(minTemps[i]) + '\u00b0';
 
       dayCard.appendChild(dayName);

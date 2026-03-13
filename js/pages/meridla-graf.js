@@ -114,7 +114,7 @@ function merGrafRender(body, spotreba, typInfo, odecty) {
     row.style.cssText = 'display:flex;align-items:center;gap:8px;';
 
     var label = document.createElement('div');
-    label.style.cssText = 'min-width:130px;font-size:0.78rem;color:var(--text-light);flex-shrink:0;text-align:right;';
+    label.style.cssText = 'min-width:130px;font-size:0.82rem;color:var(--text-light);flex-shrink:0;text-align:right;';
     var dOd = new Date(item.od + 'T00:00:00');
     var dDo = new Date(item.do + 'T00:00:00');
     label.textContent = dOd.toLocaleDateString('cs-CZ', { month: 'short', year: 'numeric' })
@@ -156,7 +156,7 @@ function merGrafRender(body, spotreba, typInfo, odecty) {
     var headRow = document.createElement('tr');
     ['Datum', 'Stav (' + unit + ')'].forEach(function(h) {
       var th = document.createElement('th');
-      th.style.cssText = 'text-align:left;padding:6px 8px;border-bottom:2px solid var(--border);font-size:0.78rem;color:var(--text-light);';
+      th.style.cssText = 'text-align:left;padding:6px 8px;border-bottom:2px solid var(--border);font-size:0.82rem;color:var(--text-light);';
       th.textContent = h;
       headRow.appendChild(th);
     });

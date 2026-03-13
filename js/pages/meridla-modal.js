@@ -328,7 +328,7 @@ function merRenderOdectyTable(wrap, items, meridlo, user) {
     var th = document.createElement('th');
     th.textContent = col;
     th.style.cssText = 'text-align:left;padding:6px 8px;border-bottom:2px solid var(--border);' +
-      'font-weight:600;color:var(--text-light);font-size:0.8rem;white-space:nowrap;';
+      'font-weight:600;color:var(--text-light);font-size:0.82rem;white-space:nowrap;';
     hrow.appendChild(th);
   });
   thead.appendChild(hrow);

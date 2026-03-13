@@ -109,7 +109,7 @@ function buildHlasovaniCard(h, isPriv, pocetClenu, onRefresh) {
   }
 
   var meta = document.createElement('div');
-  meta.style.cssText = 'font-size:0.8rem;color:var(--text-light);margin-bottom:14px;';
+  meta.style.cssText = 'font-size:0.82rem;color:var(--text-light);margin-bottom:14px;';
   var extrTotal = h.externi_hlasy ? h.externi_hlasy.reduce(function(a, b) { return a + b; }, 0) : 0;
   var totalVotes = h.pocet_hlasu + extrTotal;
   var quorumPct  = pocetClenu > 0 ? Math.round((totalVotes / pocetClenu) * 100) : null;

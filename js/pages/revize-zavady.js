@@ -62,7 +62,7 @@ function rzRenderSection(parent, historieRecord, isPriv) {
 function rzReload(listWrap, historieId, isPriv) {
   listWrap.replaceChildren();
   var loading = document.createElement('div');
-  loading.style.cssText = 'font-size:0.8rem;color:var(--text-light);';
+  loading.style.cssText = 'font-size:0.82rem;color:var(--text-light);';
   loading.textContent = 'Na\u010d\u00edt\u00e1m\u2026';
   listWrap.appendChild(loading);
 
@@ -72,7 +72,7 @@ function rzReload(listWrap, historieId, isPriv) {
       var items = data.zavady || [];
       if (!items.length) {
         var empty = document.createElement('div');
-        empty.style.cssText = 'font-size:0.8rem;color:var(--text-light);font-style:italic;';
+        empty.style.cssText = 'font-size:0.82rem;color:var(--text-light);font-style:italic;';
         empty.textContent = '\u017d\u00e1dn\u00e9 z\u00e1vady.';
         listWrap.appendChild(empty);
         return;
@@ -117,7 +117,7 @@ function rzRenderRow(parent, zavada, historieId, isPriv) {
 
   // Line 2: deadline + actions
   var line2 = document.createElement('div');
-  line2.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:4px;font-size:0.78rem;color:var(--text-light);';
+  line2.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:4px;font-size:0.82rem;color:var(--text-light);';
 
   if (zavada.termin_odstraneni) {
     var deadline = document.createElement('span');
@@ -184,7 +184,7 @@ function rzRenderRow(parent, zavada, historieId, isPriv) {
 
   if (zavada.poznamka) {
     var note = document.createElement('div');
-    note.style.cssText = 'font-size:0.78rem;color:var(--text-light);font-style:italic;margin-top:2px;';
+    note.style.cssText = 'font-size:0.82rem;color:var(--text-light);font-style:italic;margin-top:2px;';
     note.textContent = zavada.poznamka;
     row.appendChild(note);
   }
@@ -255,7 +255,7 @@ function rzFormField(parent, label, type, value) {
   var wrap = document.createElement('div');
   wrap.style.cssText = 'margin-bottom:8px;';
   var lbl = document.createElement('label');
-  lbl.style.cssText = 'display:block;font-size:0.78rem;color:var(--text-light);margin-bottom:3px;';
+  lbl.style.cssText = 'display:block;font-size:0.82rem;color:var(--text-light);margin-bottom:3px;';
   lbl.textContent = label;
   wrap.appendChild(lbl);
   var inp = document.createElement('input');
@@ -272,7 +272,7 @@ function rzFormSelect(parent, label, options, selected) {
   var wrap = document.createElement('div');
   wrap.style.cssText = 'margin-bottom:8px;';
   var lbl = document.createElement('label');
-  lbl.style.cssText = 'display:block;font-size:0.78rem;color:var(--text-light);margin-bottom:3px;';
+  lbl.style.cssText = 'display:block;font-size:0.82rem;color:var(--text-light);margin-bottom:3px;';
   lbl.textContent = label;
   wrap.appendChild(lbl);
   var sel = document.createElement('select');
