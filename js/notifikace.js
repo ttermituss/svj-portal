@@ -156,6 +156,7 @@ var NotifBadge = (function() {
     hlasovani:'\uD83D\uDDF3\uFE0F',
     revize:   '\uD83D\uDD27',
     dokument: '\uD83D\uDCC4',
+    fond:     '\uD83D\uDCB0',
   };
 
   function renderNotifItem(n) {

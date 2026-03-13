@@ -6,6 +6,7 @@
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/middleware.php';
+require_once __DIR__ . '/fond_notif_helper.php';
 
 $action = getParam('action', '');
 
@@ -265,7 +266,15 @@ function handleAdd(): void
         ':poz'    => $data['poznamka'],
     ]);
 
-    jsonOk(['message' => 'Záznam přidán', 'id' => (int) getDb()->lastInsertId()]);
+    $newId = (int) getDb()->lastInsertId();
+
+    // Fond notifikace
+    if ($data['typ'] === 'vydaj') {
+        fondNotifyHighExpense(getDb(), $user['svj_id'], $data['castka'], $data['popis']);
+    }
+    fondNotifyLowBalance(getDb(), $user['svj_id']);
+
+    jsonOk(['message' => 'Záznam přidán', 'id' => $newId]);
 }
 
 /* ===== EDITACE ZÁZNAMU ===== */
@@ -351,6 +360,9 @@ function handleDelete(): void
     fondDeleteAttachmentFiles($db, $id, $user['svj_id']);
 
     $db->prepare('DELETE FROM fond_oprav WHERE id = :id')->execute([':id' => $id]);
+
+    fondNotifyLowBalance($db, $user['svj_id']);
+
     jsonOk();
 }
 

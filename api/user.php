@@ -120,7 +120,7 @@ function handleGetNotifPrefs(): void
 
     $db = getDb();
     $stmt = $db->prepare(
-        'SELECT notif_udalosti, notif_zavady, notif_hlasovani, notif_revize FROM users WHERE id = :id'
+        'SELECT notif_udalosti, notif_zavady, notif_hlasovani, notif_revize, notif_fond FROM users WHERE id = :id'
     );
     $stmt->execute([':id' => $user['id']]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -130,6 +130,7 @@ function handleGetNotifPrefs(): void
         'notif_zavady'    => (int) $row['notif_zavady'],
         'notif_hlasovani' => (int) $row['notif_hlasovani'],
         'notif_revize'    => (int) $row['notif_revize'],
+        'notif_fond'      => (int) $row['notif_fond'],
     ]);
 }
 
@@ -139,7 +140,7 @@ function handleUpdateNotifPrefs(): void
     $user = requireAuth();
     $body = getJsonBody();
 
-    $fields = ['notif_udalosti', 'notif_zavady', 'notif_hlasovani', 'notif_revize'];
+    $fields = ['notif_udalosti', 'notif_zavady', 'notif_hlasovani', 'notif_revize', 'notif_fond'];
     $updates = [];
     $params = [':id' => $user['id']];
 

@@ -182,6 +182,7 @@ function renderNotifPrefsCard(container) {
     { key: 'notif_zavady',    label: 'Hl\u00e1\u0161en\u00ed z\u00e1vad',     icon: '\u26A0\uFE0F' },
     { key: 'notif_hlasovani', label: 'Nov\u00e1 hlasov\u00e1n\u00ed',          icon: '\uD83D\uDDF3\uFE0F' },
     { key: 'notif_revize',    label: 'Bl\u00ed\u017e\u00edc\u00ed se revize',  icon: '\uD83D\uDD27' },
+    { key: 'notif_fond',      label: 'Fond oprav',                           icon: '\uD83D\uDCB0' },
   ];
 
   var toggles = {};

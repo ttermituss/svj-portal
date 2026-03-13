@@ -38,15 +38,75 @@ Router.register('fond-oprav', function(el) {
   title.appendChild(h1); title.appendChild(sub);
   el.appendChild(title);
 
+  // Tab bar
+  var tabBar = document.createElement('div');
+  tabBar.style.cssText = 'display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid var(--border);';
+  var tabs = [
+    { id: 'prehled', label: 'P\u0159ehled' },
+    { id: 'rozpocet', label: 'Rozpo\u010det' },
+    { id: 'zalohy', label: 'Z\xe1lohy' },
+  ];
+  var tabPanels = {};
+  var activeTab = 'prehled';
+
+  tabs.forEach(function(t) {
+    var btn = document.createElement('button');
+    btn.className = 'btn';
+    btn.dataset.tab = t.id;
+    btn.textContent = t.label;
+    btn.style.cssText = 'border:none;border-bottom:3px solid transparent;border-radius:0;'
+      + 'padding:10px 20px;font-size:0.95rem;font-weight:500;color:var(--text-light);'
+      + 'background:none;cursor:pointer;margin-bottom:-2px;transition:all 0.15s;min-width:44px;min-height:44px;';
+    btn.addEventListener('click', function() { switchTab(t.id); });
+    tabBar.appendChild(btn);
+  });
+  el.appendChild(tabBar);
+
+  function switchTab(id) {
+    activeTab = id;
+    tabBar.querySelectorAll('button').forEach(function(b) {
+      var isActive = b.dataset.tab === id;
+      b.style.borderBottomColor = isActive ? 'var(--accent)' : 'transparent';
+      b.style.color = isActive ? 'var(--text)' : 'var(--text-light)';
+      b.style.fontWeight = isActive ? '700' : '500';
+    });
+    Object.keys(tabPanels).forEach(function(k) {
+      tabPanels[k].style.display = k === id ? '' : 'none';
+    });
+    // Lazy-load tab content
+    if (id === 'rozpocet' && !tabPanels.rozpocet.dataset.loaded) {
+      tabPanels.rozpocet.dataset.loaded = '1';
+      fondRozpocetInit(tabPanels.rozpocet);
+    }
+    if (id === 'zalohy' && !tabPanels.zalohy.dataset.loaded) {
+      tabPanels.zalohy.dataset.loaded = '1';
+      fondZalohyInit(tabPanels.zalohy);
+    }
+  }
+
+  // Tab panels
+  tabs.forEach(function(t) {
+    var panel = document.createElement('div');
+    panel.style.display = t.id === 'prehled' ? '' : 'none';
+    el.appendChild(panel);
+    tabPanels[t.id] = panel;
+  });
+
+  // Activate first tab visually
+  switchTab('prehled');
+
+  // Přehled panel content
+  var prehledEl = tabPanels.prehled;
+
   var statsWrap = document.createElement('div');
-  el.appendChild(statsWrap);
+  prehledEl.appendChild(statsWrap);
 
   var uctyWrap = document.createElement('div');
-  el.appendChild(uctyWrap);
+  prehledEl.appendChild(uctyWrap);
 
   var chartsRow = document.createElement('div');
   chartsRow.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;';
-  el.appendChild(chartsRow);
+  prehledEl.appendChild(chartsRow);
   var chartWrap = document.createElement('div');
   var trendWrap = document.createElement('div');
   chartsRow.appendChild(chartWrap);
@@ -54,7 +114,7 @@ Router.register('fond-oprav', function(el) {
 
   var statsRow = document.createElement('div');
   statsRow.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;';
-  el.appendChild(statsRow);
+  prehledEl.appendChild(statsRow);
   var rocniWrap = document.createElement('div');
   var katWrap = document.createElement('div');
   statsRow.appendChild(rocniWrap);
@@ -82,15 +142,15 @@ Router.register('fond-oprav', function(el) {
     });
     actionBar.appendChild(btn);
   });
-  el.appendChild(actionBar);
+  prehledEl.appendChild(actionBar);
 
   // Filter bar
   var filterWrap = document.createElement('div');
-  el.appendChild(filterWrap);
+  prehledEl.appendChild(filterWrap);
 
   // Records list
   var listWrap = document.createElement('div');
-  el.appendChild(listWrap);
+  prehledEl.appendChild(listWrap);
 
   // Responsive
   var mq = window.matchMedia('(max-width: 768px)');
