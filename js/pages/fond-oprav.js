@@ -15,12 +15,19 @@ var FOND_UCTY_TYP = {
   terminovany: 'Term\xednovan\xfd', jiny: 'Jin\xfd',
 };
 
+var fondFilters = { rok: '', typ: '', kategorie: '', q: '' };
+var fondListOffset = 0;
+var fondListLimit = 30;
+
 Router.register('fond-oprav', function(el) {
   var user = Auth.getUser();
   if (!user) { Router.navigate('login'); return; }
   if (!user.svj_id) { Router.navigate('home'); return; }
   var isPriv = user.role === 'admin' || user.role === 'vybor';
   if (!isPriv) { Router.navigate('home'); return; }
+
+  fondFilters = { rok: '', typ: '', kategorie: '', q: '' };
+  fondListOffset = 0;
 
   var title = document.createElement('div');
   title.className = 'page-title';
@@ -31,15 +38,12 @@ Router.register('fond-oprav', function(el) {
   title.appendChild(h1); title.appendChild(sub);
   el.appendChild(title);
 
-  // Stats summary boxes
   var statsWrap = document.createElement('div');
   el.appendChild(statsWrap);
 
-  // Accounts section
   var uctyWrap = document.createElement('div');
   el.appendChild(uctyWrap);
 
-  // Charts row: monthly + trend
   var chartsRow = document.createElement('div');
   chartsRow.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;';
   el.appendChild(chartsRow);
@@ -48,7 +52,6 @@ Router.register('fond-oprav', function(el) {
   chartsRow.appendChild(chartWrap);
   chartsRow.appendChild(trendWrap);
 
-  // Stats row: yearly table + top categories
   var statsRow = document.createElement('div');
   statsRow.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;';
   el.appendChild(statsRow);
@@ -57,19 +60,15 @@ Router.register('fond-oprav', function(el) {
   statsRow.appendChild(rocniWrap);
   statsRow.appendChild(katWrap);
 
-  // Records list
-  var listWrap = document.createElement('div');
-  el.appendChild(listWrap);
-
-  // Add + Export buttons
+  // Action bar: Add + Export
   var actionBar = document.createElement('div');
-  actionBar.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;';
+  actionBar.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;';
 
   var addBtn = document.createElement('button');
   addBtn.className = 'btn btn-primary';
   addBtn.textContent = '+ P\u0159idat z\xe1znam';
   addBtn.addEventListener('click', function() {
-    fondShowAddModal(function() { loadAll(); });
+    fondShowRecordModal(null, function() { loadAll(); });
   });
   actionBar.appendChild(addBtn);
 
@@ -85,6 +84,14 @@ Router.register('fond-oprav', function(el) {
   });
   el.appendChild(actionBar);
 
+  // Filter bar
+  var filterWrap = document.createElement('div');
+  el.appendChild(filterWrap);
+
+  // Records list
+  var listWrap = document.createElement('div');
+  el.appendChild(listWrap);
+
   // Responsive
   var mq = window.matchMedia('(max-width: 768px)');
   function applyMq(e) {
@@ -95,12 +102,13 @@ Router.register('fond-oprav', function(el) {
   mq.addEventListener('change', applyMq);
 
   function loadAll() {
+    var qs = fondBuildFilterQs();
     Promise.all([
       Api.apiGet('api/fond_oprav.php?action=stats'),
       Api.apiGet('api/fond_oprav.php?action=statsRocni'),
       Api.apiGet('api/fond_oprav.php?action=statsKat'),
       Api.apiGet('api/fond_oprav.php?action=uctyList'),
-      Api.apiGet('api/fond_oprav.php?action=list&limit=50'),
+      Api.apiGet('api/fond_oprav.php?action=list&limit=' + fondListLimit + '&offset=' + fondListOffset + qs),
     ]).then(function(res) {
       fondRenderSummary(statsWrap, res[0]);
       fondRenderMonthChart(chartWrap, res[0].mesice || {});
@@ -108,7 +116,11 @@ Router.register('fond-oprav', function(el) {
       fondRenderRocniTable(rocniWrap, res[1].roky || []);
       fondRenderKategorie(katWrap, res[2]);
       fondRenderUcty(uctyWrap, res[3].ucty || [], loadAll);
-      fondRenderZaznamy(listWrap, res[4].zaznamy || [], user, loadAll);
+      fondRenderFilterBar(filterWrap, res[1].roky || [], function() {
+        fondListOffset = 0;
+        loadRecords();
+      });
+      fondRenderZaznamy(listWrap, res[4].zaznamy || [], res[4].total || 0, user, loadAll, loadRecords);
     }).catch(function(e) {
       statsWrap.replaceChildren();
       var err = document.createElement('div');
@@ -118,8 +130,147 @@ Router.register('fond-oprav', function(el) {
     });
   }
 
+  function loadRecords() {
+    var qs = fondBuildFilterQs();
+    Api.apiGet('api/fond_oprav.php?action=list&limit=' + fondListLimit + '&offset=' + fondListOffset + qs)
+      .then(function(res) {
+        fondRenderZaznamy(listWrap, res.zaznamy || [], res.total || 0, user, loadAll, loadRecords);
+      });
+  }
+
   loadAll();
 });
+
+function fondBuildFilterQs() {
+  var qs = '';
+  if (fondFilters.rok) qs += '&rok=' + encodeURIComponent(fondFilters.rok);
+  if (fondFilters.typ) qs += '&typ=' + encodeURIComponent(fondFilters.typ);
+  if (fondFilters.kategorie) qs += '&kategorie=' + encodeURIComponent(fondFilters.kategorie);
+  if (fondFilters.q) qs += '&q=' + encodeURIComponent(fondFilters.q);
+  return qs;
+}
+
+/* ===== FILTER BAR ===== */
+
+function fondRenderFilterBar(wrap, roky, onChange) {
+  // Only rebuild if not yet rendered (avoid flicker)
+  if (wrap.dataset.rendered) {
+    fondUpdateKatOptions();
+    return;
+  }
+  wrap.dataset.rendered = '1';
+  wrap.replaceChildren();
+
+  var bar = document.createElement('div');
+  bar.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px;'
+    + 'padding:12px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:10px;';
+
+  // Rok select
+  var rokSel = document.createElement('select');
+  rokSel.className = 'form-input';
+  rokSel.style.cssText = 'width:auto;min-width:90px;';
+  var rokDef = document.createElement('option');
+  rokDef.value = ''; rokDef.textContent = 'V\u0161echny roky';
+  rokSel.appendChild(rokDef);
+  var years = roky.map(function(r) { return r.rok; }).sort(function(a, b) { return b - a; });
+  years.forEach(function(y) {
+    var opt = document.createElement('option');
+    opt.value = y; opt.textContent = y;
+    if (String(y) === fondFilters.rok) opt.selected = true;
+    rokSel.appendChild(opt);
+  });
+  rokSel.addEventListener('change', function() { fondFilters.rok = rokSel.value; onChange(); });
+  bar.appendChild(rokSel);
+
+  // Typ select
+  var typSel = document.createElement('select');
+  typSel.className = 'form-input';
+  typSel.style.cssText = 'width:auto;min-width:100px;';
+  [{ v: '', l: 'V\u0161echny typy' }, { v: 'prijem', l: '\u2191 P\u0159\xedjjem' }, { v: 'vydaj', l: '\u2193 V\xfddaj' }]
+    .forEach(function(t) {
+      var opt = document.createElement('option');
+      opt.value = t.v; opt.textContent = t.l;
+      if (t.v === fondFilters.typ) opt.selected = true;
+      typSel.appendChild(opt);
+    });
+  typSel.addEventListener('change', function() {
+    fondFilters.typ = typSel.value;
+    fondFilters.kategorie = '';
+    fondUpdateKatOptions();
+    onChange();
+  });
+  bar.appendChild(typSel);
+
+  // Kategorie select
+  var katSel = document.createElement('select');
+  katSel.className = 'form-input';
+  katSel.id = 'fond-filter-kat';
+  katSel.style.cssText = 'width:auto;min-width:140px;';
+  bar.appendChild(katSel);
+  window._fondFilterKatSel = katSel;
+  window._fondFilterKatOnChange = onChange;
+  fondUpdateKatOptions();
+
+  // Search input
+  var searchInp = document.createElement('input');
+  searchInp.type = 'text';
+  searchInp.className = 'form-input';
+  searchInp.placeholder = 'Hledat v popisu\u2026';
+  searchInp.style.cssText = 'width:auto;min-width:160px;flex:1;';
+  searchInp.value = fondFilters.q;
+  var searchTimer = null;
+  searchInp.addEventListener('input', function() {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(function() {
+      fondFilters.q = searchInp.value.trim();
+      onChange();
+    }, 300);
+  });
+  bar.appendChild(searchInp);
+
+  // Reset button
+  var resetBtn = document.createElement('button');
+  resetBtn.className = 'btn btn-secondary btn-sm';
+  resetBtn.textContent = 'Reset';
+  resetBtn.addEventListener('click', function() {
+    fondFilters = { rok: '', typ: '', kategorie: '', q: '' };
+    rokSel.value = '';
+    typSel.value = '';
+    searchInp.value = '';
+    fondUpdateKatOptions();
+    onChange();
+  });
+  bar.appendChild(resetBtn);
+
+  wrap.appendChild(bar);
+}
+
+function fondUpdateKatOptions() {
+  var katSel = window._fondFilterKatSel;
+  if (!katSel) return;
+  var onChange = window._fondFilterKatOnChange;
+  katSel.replaceChildren();
+  var defOpt = document.createElement('option');
+  defOpt.value = ''; defOpt.textContent = 'V\u0161echny kategorie';
+  katSel.appendChild(defOpt);
+
+  var cats = [];
+  if (fondFilters.typ === 'prijem') cats = FOND_KAT_PRIJEM;
+  else if (fondFilters.typ === 'vydaj') cats = FOND_KAT_VYDAJ;
+  else cats = FOND_KAT_PRIJEM.concat(FOND_KAT_VYDAJ);
+
+  cats.forEach(function(k) {
+    var opt = document.createElement('option');
+    opt.value = k; opt.textContent = k;
+    if (k === fondFilters.kategorie) opt.selected = true;
+    katSel.appendChild(opt);
+  });
+
+  katSel.onchange = function() {
+    fondFilters.kategorie = katSel.value;
+    if (onChange) onChange();
+  };
+}
 
 /* ===== SUMMARY BOXES ===== */
 
@@ -193,7 +344,7 @@ function fondRenderMonthChart(wrap, mesice) {
     var barP = document.createElement('div');
     barP.style.cssText = 'width:12px;background:var(--accent);border-radius:3px 3px 0 0;opacity:0.85;';
     barP.style.height = Math.round(((m.prijem || 0) / maxVal) * 95) + 'px';
-    barP.title = 'P\u0159\xedjjem: ' + fondFmt(m.prijem || 0) + ' K\u010d';
+    barP.title = 'P\u0159\xedjem: ' + fondFmt(m.prijem || 0) + ' K\u010d';
 
     var barV = document.createElement('div');
     barV.style.cssText = 'width:12px;background:var(--danger);border-radius:3px 3px 0 0;opacity:0.85;';
@@ -249,7 +400,6 @@ function fondRenderTrendChart(wrap, trend) {
   var body = document.createElement('div');
   body.className = 'card-body';
 
-  // SVG line chart
   var W = 400, H = 140, PAD = 30;
   var vals = trend.map(function(t) { return t.zustatek; });
   var minV = Math.min.apply(null, vals);
@@ -260,7 +410,6 @@ function fondRenderTrendChart(wrap, trend) {
   svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
   svg.style.cssText = 'width:100%;height:auto;';
 
-  // Grid lines
   for (var g = 0; g <= 4; g++) {
     var gy = PAD + (H - 2 * PAD) * (1 - g / 4);
     var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -278,7 +427,6 @@ function fondRenderTrendChart(wrap, trend) {
     svg.appendChild(label);
   }
 
-  // Line path
   var points = [];
   trend.forEach(function(t, i) {
     var x = PAD + (W - PAD - 10) * (i / (trend.length - 1 || 1));
@@ -294,7 +442,6 @@ function fondRenderTrendChart(wrap, trend) {
   polyline.setAttribute('stroke-linejoin', 'round');
   svg.appendChild(polyline);
 
-  // Dots on first/last
   [0, trend.length - 1].forEach(function(idx) {
     var t = trend[idx];
     var x = PAD + (W - PAD - 10) * (idx / (trend.length - 1 || 1));
@@ -348,115 +495,4 @@ function fondEmptyCard(wrap, titleText, msg) {
   wrap.appendChild(card);
 }
 
-/* ===== ADD RECORD MODAL ===== */
-
-function fondShowAddModal(onSaved) {
-  var overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;'
-    + 'display:flex;align-items:center;justify-content:center;padding:16px;';
-  var modal = document.createElement('div');
-  modal.style.cssText = 'background:var(--bg-card);border-radius:12px;width:100%;max-width:440px;'
-    + 'max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:24px;';
-  var title = document.createElement('h2');
-  title.style.cssText = 'margin:0 0 16px;font-size:1.1rem;';
-  title.textContent = 'P\u0159idat z\xe1znam';
-  modal.appendChild(title);
-
-  var typWrap = document.createElement('div');
-  typWrap.style.marginBottom = '12px';
-  var typLbl = document.createElement('label');
-  typLbl.textContent = 'Typ *';
-  typLbl.style.cssText = 'display:block;margin-bottom:4px;font-weight:500;font-size:0.85rem;color:var(--text-light);';
-  var typSel = document.createElement('select');
-  typSel.className = 'form-input';
-  [{ v: 'prijem', l: '\u2191 P\u0159\xedjem' }, { v: 'vydaj', l: '\u2193 V\xfddaj' }].forEach(function(t) {
-    var opt = document.createElement('option');
-    opt.value = t.v; opt.textContent = t.l;
-    typSel.appendChild(opt);
-  });
-  typWrap.appendChild(typLbl); typWrap.appendChild(typSel);
-  modal.appendChild(typWrap);
-
-  var katWrap = document.createElement('div');
-  katWrap.style.marginBottom = '12px';
-  var katLbl = document.createElement('label');
-  katLbl.textContent = 'Kategorie *';
-  katLbl.style.cssText = 'display:block;margin-bottom:4px;font-weight:500;font-size:0.85rem;color:var(--text-light);';
-  var katSel = document.createElement('select');
-  katSel.className = 'form-input';
-  function updateKat() {
-    katSel.replaceChildren();
-    (typSel.value === 'prijem' ? FOND_KAT_PRIJEM : FOND_KAT_VYDAJ).forEach(function(k) {
-      var opt = document.createElement('option');
-      opt.value = k; opt.textContent = k;
-      katSel.appendChild(opt);
-    });
-  }
-  updateKat();
-  typSel.addEventListener('change', updateKat);
-  katWrap.appendChild(katLbl); katWrap.appendChild(katSel);
-  modal.appendChild(katWrap);
-
-  var fPopis = fondModalField('Popis *', 'text', 'nap\u0159. Revize v\xfdtahu 2026');
-  var fDatum = fondModalField('Datum *', 'date', '');
-  fDatum.input.value = new Date().toISOString().slice(0, 10);
-  var fCastka = fondModalField('\u010c\xe1stka (K\u010d) *', 'number', '15000');
-  fCastka.input.min = '0.01'; fCastka.input.step = '0.01';
-  var fPoz = fondModalField('Pozn\xe1mka', 'text', '');
-  modal.appendChild(fPopis.el); modal.appendChild(fDatum.el);
-  modal.appendChild(fCastka.el); modal.appendChild(fPoz.el);
-
-  var errBox = document.createElement('div');
-  errBox.className = 'info-box info-box-danger';
-  errBox.style.display = 'none';
-  modal.appendChild(errBox);
-
-  var btnRow = document.createElement('div');
-  btnRow.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;margin-top:8px;';
-  var cancelBtn = document.createElement('button');
-  cancelBtn.className = 'btn btn-secondary';
-  cancelBtn.textContent = 'Zru\u0161it';
-  cancelBtn.addEventListener('click', function() { document.body.removeChild(overlay); });
-  var saveBtn = document.createElement('button');
-  saveBtn.className = 'btn btn-primary';
-  saveBtn.textContent = 'P\u0159idat';
-  btnRow.appendChild(cancelBtn); btnRow.appendChild(saveBtn);
-  modal.appendChild(btnRow);
-
-  saveBtn.addEventListener('click', function() {
-    errBox.style.display = 'none';
-    var popis = fPopis.input.value.trim();
-    var datum = fDatum.input.value;
-    var castka = fCastka.input.value;
-    if (!popis) { errBox.textContent = 'Popis je povinn\xfd.'; errBox.style.display = ''; return; }
-    if (!datum) { errBox.textContent = 'Datum je povinn\xe9.'; errBox.style.display = ''; return; }
-    if (!castka || parseFloat(castka) <= 0) { errBox.textContent = 'Zadejte platnou \u010d\xe1stku.'; errBox.style.display = ''; return; }
-    saveBtn.disabled = true;
-    Api.apiPost('api/fond_oprav.php?action=add', {
-      typ: typSel.value, kategorie: katSel.value,
-      popis: popis, datum: datum, castka: castka, poznamka: fPoz.input.value.trim(),
-    }).then(function() {
-      document.body.removeChild(overlay);
-      showToast('Z\xe1znam p\u0159id\xe1n.', 'success');
-      if (onSaved) onSaved();
-    }).catch(function(e) { errBox.textContent = e.message || 'Chyba.'; errBox.style.display = ''; })
-      .finally(function() { saveBtn.disabled = false; });
-  });
-
-  overlay.appendChild(modal);
-  overlay.addEventListener('click', function(e) { if (e.target === overlay) document.body.removeChild(overlay); });
-  document.body.appendChild(overlay);
-  fPopis.input.focus();
-}
-
-function fondModalField(label, type, ph) {
-  var wrap = document.createElement('div');
-  wrap.style.marginBottom = '12px';
-  var lbl = document.createElement('label');
-  lbl.textContent = label;
-  lbl.style.cssText = 'display:block;margin-bottom:4px;font-weight:500;font-size:0.85rem;color:var(--text-light);';
-  var inp = document.createElement('input');
-  inp.type = type; inp.className = 'form-input'; inp.placeholder = ph || '';
-  wrap.appendChild(lbl); wrap.appendChild(inp);
-  return { el: wrap, input: inp };
-}
+/* Modal functions in fond-oprav-modal.js */

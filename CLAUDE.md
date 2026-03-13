@@ -49,8 +49,9 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
 │       ├── admin-revize-form.js  # formulář přidání/úpravy revize (kontakt, náklady, připomenutí)
 │       ├── admin-revize-historie.js # modal historie: archiv revizí (výsledek, PDF, kontakt, CRUD)
 │       ├── admin-fond-oprav.js # karta: fond oprav — READ-ONLY mini (zůstatek + graf) pro O domě
-│       ├── fond-oprav.js      # stránka: fond oprav dashboard (admin/výbor) — grafy, trend, účty
-│       ├── fond-oprav-detail.js # fond oprav: roční tabulka, statistiky, účty render, záznamy
+│       ├── fond-oprav.js      # stránka: fond oprav dashboard (admin/výbor) — grafy, trend, účty, filtry
+│       ├── fond-oprav-modal.js # fond oprav: modal přidání/editace záznamu + přílohy (upload, seznam, smazání)
+│       ├── fond-oprav-detail.js # fond oprav: roční tabulka, statistiky, účty render, záznamy + stránkování
 │       ├── admin-okoli.js  # karta: okolí budovy — Overpass API (MHD, obchody, zdraví…)
 │       ├── admin-parkovani.js  # karta: parkovací místa (garáž, stání, venkovní, moto)
 │       ├── admin-cenova-mapa.js# karta: cenová mapa — odkazy cenovamapa.org, ČÚZK, Sreality
@@ -90,7 +91,7 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
     ├── hlasovani.php       # hlasování/ankety: list, get, create, vote, close, delete, setExterni
     ├── penb.php            # PENB: get, save (upsert + PDF upload), delete, download (auth)
     ├── revize.php          # revize: list, save, delete, download (PDF protokol)
-    ├── fond_oprav.php      # fond oprav: list, stats, statsRocni, statsKat, add, delete, uctyList/Save/Delete
+    ├── fond_oprav.php      # fond oprav: list (filtry+fulltext), stats, statsRocni, statsKat, add, update, delete, upload/prilohy/prilohaDownload/prilohaDelete, uctyList/Save/Delete
     ├── okoli.php           # okolí budovy: proxy Overpass API (OSM), POI v 600 m
     ├── parkovani.php       # parkovací místa: list, save (upsert), delete
     ├── kontakty.php        # kontakty: list, save (upsert), delete — servisní firmy, řemeslníci
@@ -145,7 +146,8 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
         ├── 027_revize_ext.sql        # revize: kontakt_id, naklady, pripomenout_dni + tabulka revize_historie
         ├── 028_meridla.sql           # tabulky meridla + odecty (vodoměry, plynoměry, elektroměry…)
         ├── 029_google_sync.sql       # tabulky google_tokens + google_calendar_sync
-        └── 030_google_settings.sql   # Google OAuth credentials v settings tabulce
+        ├── 030_google_settings.sql   # Google OAuth credentials v settings tabulce
+        └── 031_fond_oprav_ext.sql    # tabulka fond_prilohy (přílohy k záznamům fondu oprav)
 ```
 
 ## Coding Standards — POVINNÉ

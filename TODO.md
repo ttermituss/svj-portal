@@ -192,3 +192,4 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 - [x] **Revize — rozšíření** — historie (archiv), revizní firma (z kontaktů), výsledek (ok/závady/nezpůsobilé), náklady, notifikace před vypršením
 - [x] **Měřidla a odečty** — vodoměry, plynoměry, elektroměry, měřiče tepla; self-service odečty, spotřeba, cejch upozornění
 - [x] **Google integrace** — OAuth 2.0, Gmail (inbox + odesílání), Google Calendar sync (push/pull), in-app průvodce nastavením, credentials v admin settings
+- [x] **Fond oprav — Fáze 2** — editace záznamů, přílohy (PDF/JPEG/PNG, 10 MB), filtrování (rok/typ/kategorie/fulltext), stránkování

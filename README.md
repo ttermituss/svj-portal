@@ -1,4 +1,4 @@
-# SVJ Portál v2.0.0
+# SVJ Portál v2.1.0
 
 Univerzální multi-tenant webový portál pro správu **Společenství vlastníků jednotek (SVJ)** v ČR.
 
@@ -45,7 +45,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 - 🗺️ **Mapa budovy** — OpenStreetMap iframe + odkaz na Mapy.cz
 - 💰 **Dotace SFPI** — Panel 2020+, NZÚ, IROP, MMR s doporučením dle budovy
 - ⚠️ **Správa závad** — změna stavu (Nová/V řešení/Vyřešeno/Zamítnuto), priority, přiřazení zodpovědné osoby; smazání (admin)
-- 💰 **Fond oprav — dashboard** — bankovní účty SVJ, roční přehled, trend zůstatku (SVG), top výdaje, průměry
+- 💰 **Fond oprav — dashboard** — bankovní účty SVJ, roční přehled, trend zůstatku (SVG), top výdaje, průměry, editace záznamů, přílohy (PDF/JPEG/PNG), filtrování a fulltext, stránkování
 - 📅 **Vlastní události** — vytvoření, editace a smazání událostí v kalendáři (kategorie, opakování, připomenutí)
 - 📤 **Export výkazů** — PDF/XLSX/CSV pro revize, fond oprav, parkovací místa, závady
 
@@ -120,7 +120,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 4. **Spusť migrace**
    ```bash
    for f in api/migrations/*.sql; do sudo mysql svj_portal < "$f"; done
-   # Aktuálně: 001–030
+   # Aktuálně: 001–031
    ```
 
 4. **Nastav Apache virtualhost**
@@ -210,6 +210,7 @@ sudo mysql svj_portal < api/migrations/00X_nazev.sql
 | 028 | Měřidla a odečty (meridla + odecty) |
 | 029 | Google sync (google_tokens + google_calendar_sync) |
 | 030 | Google settings (client_id, secret, redirect_uri) |
+| 031 | Fond oprav přílohy (fond_prilohy) |
 
 Nikdy neupravuj stávající migraci — vždy přidej novou.
 

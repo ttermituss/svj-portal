@@ -5,6 +5,33 @@ Formát: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [2.1.0] — 2026-03-13
+
+### Přidáno
+
+#### Fond oprav — Fáze 2: editace, přílohy, filtrování
+- **Editace záznamů** — modal `fondShowRecordModal` slouží pro přidání i editaci (tlačítko ✏️ u každého záznamu)
+  - Nová API akce `update` (POST, admin/výbor) s validací přes sdílenou `fondValidateRecord()`
+- **Přílohy k záznamům** — upload PDF/JPEG/PNG (max 10 MB) ke každému záznamu fondu oprav
+  - Tabulka `fond_prilohy` (FK na `fond_oprav` s CASCADE delete)
+  - Upload přes multipart POST (`finfo` MIME check, filename `{svj_id}_{hex}.{ext}`)
+  - Stažení přes auth endpoint s tenant isolation
+  - Smazání přílohy (soubor + DB záznam)
+  - Sekce příloh v edit modalu (upload + seznam + smazání)
+  - Indikátor 📎 s počtem příloh u každého záznamu v seznamu
+  - Upload dir `uploads/fond/` s `.htaccess` (deny PHP execution)
+- **Filtrování a vyhledávání** — filtrační bar nad záznamy
+  - Select rok (dynamicky z dat), typ (Příjem/Výdaj), kategorie (dynamicky dle typu)
+  - Fulltext hledání v popisu (debounce 300ms, LIKE na backendu)
+  - Tlačítko Reset pro smazání všech filtrů
+  - Filtry předávány do API `list` jako query parametry (`rok`, `typ`, `kategorie`, `q`)
+- **Stránkování** — navigace Předchozí/Další v seznamu záznamů (30 per page) s info "X–Y z N"
+- **Smazání záznamu** — automatické smazání souborů příloh při smazání záznamu (před DB CASCADE)
+- Frontend rozdělen na 3 soubory: `fond-oprav.js` (stránka + filtry), `fond-oprav-modal.js` (modal + přílohy), `fond-oprav-detail.js` (render komponenty)
+- Migration: `031_fond_oprav_ext.sql`
+
+---
+
 ## [2.0.0] — 2026-03-12
 
 ### Přidáno

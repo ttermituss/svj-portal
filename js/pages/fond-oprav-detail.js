@@ -67,13 +67,11 @@ function fondRenderRocniTable(wrap, roky) {
     tdK.textContent = fondFmt(r.zustatek_kumulativni) + ' K\u010d';
     tr.appendChild(tdK);
 
-    // Highlight change vs previous year
     if (i > 0) {
       var prevSaldo = roky[i - 1].saldo;
-      var change = r.saldo - prevSaldo;
       if (prevSaldo !== 0) {
+        var change = r.saldo - prevSaldo;
         var pct = Math.round((change / Math.abs(prevSaldo)) * 100);
-        var arrow = pct > 0 ? '\u25B2' : (pct < 0 ? '\u25BC' : '');
         tdS.title = 'Meziro\u010d\u011b: ' + (pct > 0 ? '+' : '') + pct + ' %';
       }
     }
@@ -109,13 +107,11 @@ function fondRenderKategorie(wrap, data) {
   var body = document.createElement('div');
   body.className = 'card-body';
 
-  // Averages
   var avgRow = document.createElement('div');
   avgRow.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;';
 
   var avgP = document.createElement('div');
   avgP.style.cssText = 'background:var(--bg-hover);border-radius:8px;padding:10px 14px;';
-  avgP.innerHTML = '';
   var avgPVal = document.createElement('div');
   avgPVal.style.cssText = 'font-size:1rem;font-weight:700;color:var(--accent);';
   avgPVal.textContent = fondFmt(data.prumer_mesicni_prijem || 0) + ' K\u010d';
@@ -137,7 +133,6 @@ function fondRenderKategorie(wrap, data) {
   avgRow.appendChild(avgP); avgRow.appendChild(avgV);
   body.appendChild(avgRow);
 
-  // Top výdaje bar chart
   if (topVydaje.length) {
     var subtitle = document.createElement('div');
     subtitle.style.cssText = 'font-size:0.82rem;font-weight:600;color:var(--text-light);margin-bottom:8px;';
@@ -248,7 +243,6 @@ function fondRenderUcty(wrap, ucty, onReload) {
         tile.appendChild(sazba);
       }
 
-      // Actions
       var actions = document.createElement('div');
       actions.style.cssText = 'display:flex;gap:6px;margin-top:10px;';
       var editBtn = document.createElement('button');
@@ -273,7 +267,6 @@ function fondRenderUcty(wrap, ucty, onReload) {
       grid.appendChild(tile);
     });
 
-    // Total across all accounts
     if (ucty.length > 1) {
       var totalTile = document.createElement('div');
       totalTile.style.cssText = 'background:var(--bg-hover);border:2px solid var(--accent);border-radius:10px;padding:14px 18px;'
@@ -337,7 +330,6 @@ function fondShowUcetModal(existing, onSaved) {
     fields[fd.key] = inp;
   });
 
-  // Typ select
   var typWrap = document.createElement('div');
   typWrap.style.marginBottom = '14px';
   var typLbl = document.createElement('label');
@@ -402,7 +394,7 @@ function fondShowUcetModal(existing, onSaved) {
 
 /* ===== SEZNAM ZÁZNAMŮ ===== */
 
-function fondRenderZaznamy(wrap, items, user, onReload) {
+function fondRenderZaznamy(wrap, items, total, user, onReload, loadRecords) {
   wrap.replaceChildren();
 
   var card = document.createElement('div');
@@ -410,10 +402,16 @@ function fondRenderZaznamy(wrap, items, user, onReload) {
   card.style.marginBottom = '20px';
   var hdr = document.createElement('div');
   hdr.className = 'card-header';
+  hdr.style.cssText = 'display:flex;align-items:center;justify-content:space-between;';
   var h2 = document.createElement('h2');
   h2.style.margin = '0';
-  h2.textContent = 'Posledn\xed z\xe1znamy';
+  h2.textContent = 'Z\xe1znamy';
   hdr.appendChild(h2);
+
+  var countBadge = document.createElement('span');
+  countBadge.style.cssText = 'font-size:0.8rem;color:var(--text-light);';
+  countBadge.textContent = total + ' celkem';
+  hdr.appendChild(countBadge);
   card.appendChild(hdr);
 
   var body = document.createElement('div');
@@ -439,6 +437,16 @@ function fondRenderZaznamy(wrap, items, user, onReload) {
       var popis = document.createElement('div');
       popis.style.cssText = 'font-size:0.9rem;font-weight:500;';
       popis.textContent = z.popis;
+
+      // Attachment indicator
+      if (parseInt(z.pocet_priloh) > 0) {
+        var clip = document.createElement('span');
+        clip.style.cssText = 'margin-left:6px;font-size:0.8rem;';
+        clip.title = z.pocet_priloh + ' p\u0159\xedloh';
+        clip.textContent = '\uD83D\uDCCE' + z.pocet_priloh;
+        popis.appendChild(clip);
+      }
+
       info.appendChild(popis);
       var meta = document.createElement('div');
       meta.style.cssText = 'font-size:0.78rem;color:var(--text-light);margin-top:1px;';
@@ -452,6 +460,18 @@ function fondRenderZaznamy(wrap, items, user, onReload) {
       castkaEl.textContent = (z.typ === 'prijem' ? '+' : '\u2212') + fondFmt(z.castka) + '\xa0K\u010d';
       row.appendChild(castkaEl);
 
+      // Edit button
+      var editBtn = document.createElement('button');
+      editBtn.className = 'btn btn-secondary btn-sm';
+      editBtn.style.fontSize = '0.78rem';
+      editBtn.textContent = '\u270F\uFE0F';
+      editBtn.title = 'Upravit';
+      editBtn.addEventListener('click', function() {
+        fondShowRecordModal(z, function() { onReload(); });
+      });
+      row.appendChild(editBtn);
+
+      // Delete button
       var delBtn = document.createElement('button');
       delBtn.className = 'btn btn-danger btn-sm';
       delBtn.textContent = 'Smazat';
@@ -468,6 +488,41 @@ function fondRenderZaznamy(wrap, items, user, onReload) {
   }
 
   card.appendChild(body);
+
+  // Pagination
+  var shown = fondListOffset + items.length;
+  if (total > fondListLimit) {
+    var pagBar = document.createElement('div');
+    pagBar.style.cssText = 'display:flex;gap:8px;justify-content:center;align-items:center;padding:12px 16px;'
+      + 'border-top:1px solid var(--border);font-size:0.85rem;';
+
+    var prevBtn = document.createElement('button');
+    prevBtn.className = 'btn btn-secondary btn-sm';
+    prevBtn.textContent = '\u2190 P\u0159edchoz\xed';
+    prevBtn.disabled = fondListOffset === 0;
+    prevBtn.addEventListener('click', function() {
+      fondListOffset = Math.max(0, fondListOffset - fondListLimit);
+      loadRecords();
+    });
+    pagBar.appendChild(prevBtn);
+
+    var pageInfo = document.createElement('span');
+    pageInfo.style.cssText = 'color:var(--text-light);';
+    pageInfo.textContent = (fondListOffset + 1) + '\u2013' + shown + ' z ' + total;
+    pagBar.appendChild(pageInfo);
+
+    var nextBtn = document.createElement('button');
+    nextBtn.className = 'btn btn-secondary btn-sm';
+    nextBtn.textContent = 'Dal\u0161\xed \u2192';
+    nextBtn.disabled = shown >= total;
+    nextBtn.addEventListener('click', function() {
+      fondListOffset += fondListLimit;
+      loadRecords();
+    });
+    pagBar.appendChild(nextBtn);
+
+    card.appendChild(pagBar);
+  }
+
   wrap.appendChild(card);
 }
-
