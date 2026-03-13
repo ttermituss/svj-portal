@@ -69,9 +69,14 @@ function handleList(): void
         "SELECT f.id, f.typ, f.kategorie, f.popis, f.castka, f.datum, f.poznamka,
                 (SELECT COUNT(*) FROM fond_prilohy p WHERE p.fond_oprav_id = f.id) AS pocet_priloh
          FROM fond_oprav f WHERE {$where} ORDER BY f.datum DESC, f.id DESC
-         LIMIT {$limit} OFFSET {$offset}"
+         LIMIT :lim OFFSET :off"
     );
-    $stmt->execute($params);
+    foreach ($params as $k => $v) {
+        $stmt->bindValue($k, $v);
+    }
+    $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
+    $stmt->bindValue(':off', $offset, PDO::PARAM_INT);
+    $stmt->execute();
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $countStmt = $db->prepare("SELECT COUNT(*) FROM fond_oprav f WHERE {$where}");

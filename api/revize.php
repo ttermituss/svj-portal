@@ -75,9 +75,11 @@ function handleSave(): void
 
     if ($datumPristi && !strtotime($datumPristi)) jsonError('Neplatné datum příští revize', 400, 'INVALID_DATE');
     if (!$datumPristi && $intervalMesice) {
-        $dt = new DateTime($datumPosledni);
-        $dt->modify("+{$intervalMesice} months");
-        $datumPristi = $dt->format('Y-m-d');
+        $dt = DateTime::createFromFormat('Y-m-d', $datumPosledni);
+        if ($dt) {
+            $dt->modify("+{$intervalMesice} months");
+            $datumPristi = $dt->format('Y-m-d');
+        }
     }
 
     $db = getDb();
@@ -365,7 +367,9 @@ function servePdf(string $cesta, ?string $nazev, int $svjId = 0): never
 
 function revizeScheduleNotif(PDO $db, int $svjId, string $nazev, string $datumPristi, int $dni): void
 {
-    $notifDatum = (new DateTime($datumPristi))->modify("-{$dni} days")->format('Y-m-d');
+    $dt = DateTime::createFromFormat('Y-m-d', $datumPristi);
+    if (!$dt) return;
+    $notifDatum = $dt->modify("-{$dni} days")->format('Y-m-d');
     $dnes = date('Y-m-d');
     if ($notifDatum < $dnes) return; // Již prošlo
 

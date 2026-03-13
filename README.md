@@ -127,7 +127,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 4. **Spusť migrace**
    ```bash
    for f in api/migrations/*.sql; do sudo mysql svj_portal < "$f"; done
-   # Aktuálně: 001–031
+   # Aktuálně: 001–035
    ```
 
 4. **Nastav Apache virtualhost**

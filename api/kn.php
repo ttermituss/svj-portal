@@ -313,7 +313,9 @@ function knImportParcely(string $apiKey, \PDO $db, int $svjId, array $parcelaIds
 function getKnApiKey(): string
 {
     $db  = getDb();
-    $row = $db->query("SELECT value FROM settings WHERE `key` = 'cuzk_api_klic' LIMIT 1")->fetch();
+    $stmt = $db->prepare("SELECT value FROM settings WHERE `key` = :k LIMIT 1");
+    $stmt->execute([':k' => 'cuzk_api_klic']);
+    $row = $stmt->fetch();
     $key = trim(decryptSetting($row['value'] ?? ''));
     if (!$key) jsonError('API klíč ČÚZK není nastaven v systémových nastaveních.', 503, 'NO_API_KEY');
     return $key;

@@ -20,7 +20,9 @@ switch ($action) {
 function handleListUsers(): void
 {
     requireMethod('GET');
-    requireRole('admin', 'vybor');
+    $currentUser = requireRole('admin', 'vybor');
+    $svjId = (int) ($currentUser['svj_id'] ?? 0);
+    if (!$svjId) jsonError('SVJ není přiřazeno', 403, 'NO_SVJ');
 
     $db   = getDb();
     $stmt = $db->prepare(
@@ -29,9 +31,10 @@ function handleListUsers(): void
                 j.cislo_jednotky
          FROM users u
          LEFT JOIN jednotky j ON j.id = u.jednotka_id
+         WHERE u.svj_id = :svj_id
          ORDER BY u.created_at DESC'
     );
-    $stmt->execute();
+    $stmt->execute([':svj_id' => $svjId]);
     $users = $stmt->fetchAll();
 
     foreach ($users as &$u) {
@@ -82,6 +85,9 @@ function handleUpdateRole(): void
 {
     requireMethod('POST');
     $currentUser = requireRole('admin');
+    $svjId = (int) ($currentUser['svj_id'] ?? 0);
+    if (!$svjId) jsonError('SVJ není přiřazeno', 403, 'NO_SVJ');
+
     $body = getJsonBody();
 
     $userId = isset($body['user_id']) ? (int)$body['user_id'] : 0;
@@ -101,14 +107,14 @@ function handleUpdateRole(): void
     }
 
     $db = getDb();
-    $stmt = $db->prepare('SELECT id FROM users WHERE id = :id');
-    $stmt->execute([':id' => $userId]);
+    $stmt = $db->prepare('SELECT id FROM users WHERE id = :id AND svj_id = :svj_id');
+    $stmt->execute([':id' => $userId, ':svj_id' => $svjId]);
     if (!$stmt->fetch()) {
         jsonResponse(['error' => ['message' => 'Uživatel nenalezen', 'code' => 'NOT_FOUND']], 404);
     }
 
-    $stmt = $db->prepare('UPDATE users SET role = :role WHERE id = :id');
-    $stmt->execute([':role' => $role, ':id' => $userId]);
+    $stmt = $db->prepare('UPDATE users SET role = :role WHERE id = :id AND svj_id = :svj_id');
+    $stmt->execute([':role' => $role, ':id' => $userId, ':svj_id' => $svjId]);
 
     jsonResponse(['ok' => true]);
 }
@@ -117,6 +123,9 @@ function handleDeleteUser(): void
 {
     requireMethod('POST');
     $currentUser = requireRole('admin');
+    $svjId = (int) ($currentUser['svj_id'] ?? 0);
+    if (!$svjId) jsonError('SVJ není přiřazeno', 403, 'NO_SVJ');
+
     $body = getJsonBody();
 
     $userId = isset($body['user_id']) ? (int)$body['user_id'] : 0;
@@ -130,8 +139,8 @@ function handleDeleteUser(): void
     }
 
     $db = getDb();
-    $stmt = $db->prepare('SELECT id FROM users WHERE id = :id');
-    $stmt->execute([':id' => $userId]);
+    $stmt = $db->prepare('SELECT id FROM users WHERE id = :id AND svj_id = :svj_id');
+    $stmt->execute([':id' => $userId, ':svj_id' => $svjId]);
     if (!$stmt->fetch()) {
         jsonResponse(['error' => ['message' => 'Uživatel nenalezen', 'code' => 'NOT_FOUND']], 404);
     }
@@ -139,8 +148,8 @@ function handleDeleteUser(): void
     // Smazat sessions uživatele
     $db->prepare('DELETE FROM sessions WHERE user_id = :id')->execute([':id' => $userId]);
 
-    $stmt = $db->prepare('DELETE FROM users WHERE id = :id');
-    $stmt->execute([':id' => $userId]);
+    $stmt = $db->prepare('DELETE FROM users WHERE id = :id AND svj_id = :svj_id');
+    $stmt->execute([':id' => $userId, ':svj_id' => $svjId]);
 
     jsonResponse(['ok' => true]);
 }

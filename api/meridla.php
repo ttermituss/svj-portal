@@ -83,9 +83,11 @@ function handleSave(array $user, int $svjId): void
     // Datum příštího cejchu
     $datumPristiCejch = null;
     if ($datumCejchu && $intervalCejchu) {
-        $dt = new DateTime($datumCejchu);
-        $dt->modify("+{$intervalCejchu} months");
-        $datumPristiCejch = $dt->format('Y-m-d');
+        $dt = DateTime::createFromFormat('Y-m-d', $datumCejchu);
+        if ($dt) {
+            $dt->modify("+{$intervalCejchu} months");
+            $datumPristiCejch = $dt->format('Y-m-d');
+        }
     }
 
     $db = getDb();
