@@ -101,6 +101,7 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
     ├── fond_notif_helper.php # fond notifikace: helper — lowBalance, highExpense, unpaidZalohy
     ├── storage_helper.php  # abstrakční vrstva: hybrid local + GDrive storage (upload/download/delete/sync)
     ├── google_drive.php    # GDrive API: status, enable, disable, syncStart, syncStatus, folderUrl
+    ├── google_calendar_webhook.php # Calendar webhook: přijímá push notifikace od Google, inkrementální sync
     ├── okoli.php           # okolí budovy: proxy Overpass API (OSM), POI v 600 m
     ├── parkovani.php       # parkovací místa: list, save (upsert), delete
     ├── kontakty.php        # kontakty: list, save (upsert), delete — servisní firmy, řemeslníci
@@ -158,7 +159,18 @@ Univerzální **multi-tenant webový portál** pro správu Společenství vlastn
         ├── 030_google_settings.sql   # Google OAuth credentials v settings tabulce
         ├── 031_fond_oprav_ext.sql    # tabulka fond_prilohy (přílohy k záznamům fondu oprav)
         ├── 032_fond_rozpocet_zalohy.sql # fond_rozpocet + fond_predpis + fond_zalohy + notifikace typ 'fond'
-        └── 033_gdrive_storage.sql    # gdrive_folders + gdrive_files + svj.gdrive_folder_id + svj.gdrive_enabled
+        ├── 033_gdrive_storage.sql    # gdrive_folders + gdrive_files + svj.gdrive_folder_id + svj.gdrive_enabled
+        └── 034_calendar_watch.sql   # google_calendar_watch (webhook kanály, sync tokeny)
+```
+
+### CLI skripty
+
+```
+cli/
+├── bootstrap.php           # sdílená inicializace, DB, helpers, Google client, output formátování
+├── google-gmail.php        # Gmail: inbox, read, send, status
+├── google-drive.php        # GDrive: status, list, sync, upload
+└── google-calendar.php     # Calendar: list, push, pull, status, watch, unwatch, watch-renew
 ```
 
 ## Coding Standards — POVINNÉ

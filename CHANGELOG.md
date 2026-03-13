@@ -5,6 +5,33 @@ Formát: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [2.4.0] — 2026-03-13
+
+### Přidáno
+
+#### CLI skripty pro Google (gmail, drive, calendar)
+- **`cli/bootstrap.php`** — sdílený bootstrap (DB, config, Google client, barevný CLI output, tabulky)
+- **`cli/google-gmail.php`** — inbox (s hledáním), read (detail zprávy), send (odeslání), status
+- **`cli/google-drive.php`** — status (přehled sync), list (trackované soubory), sync (batch upload na GDrive), upload (nový soubor)
+- **`cli/google-calendar.php`** — list (události z Google), push (portal → Google), pull (Google → zobrazení), status, watch/unwatch/watch-renew
+- Všechny skripty podporují `--svj=ID` pro multi-tenant výběr (default: první SVJ nebo SVJ s Google)
+
+#### Google Calendar webhooky (push notifikace)
+- **Webhook endpoint** (`google_calendar_webhook.php`) — přijímá POST od Google při změně kalendáře
+  - Validace přes `channel_id` lookup v DB (bez session cookies)
+  - Inkrementální sync přes `syncToken` (pouze změněné události)
+  - Automatic full sync při expirovaném tokenu (410 Gone)
+  - Zpracování: create/update/delete lokálních událostí z Google změn
+- **Web API akce** v `google_calendar.php`: watchStart, watchStop, watchStatus
+  - `watchStart` (POST, admin) — vytvoří watch kanál na Google Calendar
+  - `watchStop` (POST, admin) — zastaví kanál na Google i v DB
+  - `watchStatus` (GET, admin/výbor) — stav kanálu, expirace, sync token
+- **Cron obnova** — `php cli/google-calendar.php watch-renew` (obnovuje kanály expirující do 1h)
+- **DB migrace 034** — tabulka `google_calendar_watch` (channel_id, resource_id, expiration, sync_token)
+- Webhook URL nastavitelná v admin settings (`google_calendar_webhook_url`)
+
+---
+
 ## [2.3.0] — 2026-03-13
 
 ### Přidáno

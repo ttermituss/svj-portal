@@ -1,4 +1,4 @@
-# SVJ Portál v2.3.0
+# SVJ Portál v2.4.0
 
 Univerzální multi-tenant webový portál pro správu **Společenství vlastníků jednotek (SVJ)** v ČR.
 
@@ -62,6 +62,8 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 - **In-app průvodce** — 5 kroků jak nastavit Google Cloud projekt + FAQ
 - **Nastavení v UI** — Client ID + Secret zadává admin ve Správě portálu (ne na serveru)
 - **Google Drive** — hybridní úložiště (local + GDrive záloha), 7 modulů, sync panel s progress bary, fallback download
+- **Google Calendar webhooky** — push notifikace, inkrementální sync, automatická obnova kanálů
+- **CLI skripty** — `google-gmail.php`, `google-drive.php`, `google-calendar.php` (inbox, send, sync, watch…)
 
 ### ⚙️ Pro správce (admin)
 - 👥 **Správa uživatelů** — role, pozvánky, smazání; přiřazení jednotky + telefon

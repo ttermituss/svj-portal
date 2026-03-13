@@ -166,8 +166,6 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 
 ## 💡 Nápady do budoucna
 
-- CLI skripty — `cli/google-gmail.php`, `cli/google-drive.php`, `cli/google-calendar.php`
-- Google Calendar webhooky — push notifikace ze strany Google (watch kanály, cron obnova)
 - Push notifikace (PWA) — rozšíření stávajících in-app notifikací o browser push
 - Mobilní app (PWA shell)
 - API pro správcovské firmy (multi-SVJ správa)
@@ -194,3 +192,5 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 - [x] **Fond oprav — Fáze 2** — editace záznamů, přílohy (PDF/JPEG/PNG, 10 MB), filtrování (rok/typ/kategorie/fulltext), stránkování
 - [x] **Fond oprav — Fáze 3** — rozpočet (plán vs. skutečnost), zálohy vlastníků (předpisy, platby), notifikace (nízký zůstatek, vysoký výdaj, neuhrazené zálohy)
 - [x] **Google Drive úložiště** — hybridní storage (local + GDrive záloha), 7 modulů, sync panel, folder hierarchie, fallback download
+- [x] **CLI skripty** — `cli/google-gmail.php` (inbox/read/send), `cli/google-drive.php` (status/list/sync/upload), `cli/google-calendar.php` (list/push/pull/watch)
+- [x] **Google Calendar webhooky** — push notifikace (events.watch), inkrementální sync (syncToken), cron obnova kanálů, webhook endpoint

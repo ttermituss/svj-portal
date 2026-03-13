@@ -22,6 +22,9 @@ switch ($action) {
     case 'syncPull':    handleSyncPull();    break;
     case 'deleteSynced': handleDeleteSynced(); break;
     case 'status':      handleCalStatus();   break;
+    case 'watchStart':  handleWatchStart();  break;
+    case 'watchStop':   handleWatchStop();   break;
+    case 'watchStatus': handleWatchStatus(); break;
     default: jsonError('Neznámá akce', 400, 'UNKNOWN_ACTION');
 }
 
@@ -182,10 +185,158 @@ function handleCalStatus(): never
         $syncCount = (int) $stmt->fetchColumn();
     }
 
+    // Watch status
+    $watchInfo = null;
+    if ($user['svj_id']) {
+        $wStmt = $db->prepare('SELECT channel_id, expiration FROM google_calendar_watch WHERE svj_id = ?');
+        $wStmt->execute([$user['svj_id']]);
+        $w = $wStmt->fetch(PDO::FETCH_ASSOC);
+        if ($w) {
+            $watchInfo = [
+                'active'     => strtotime($w['expiration']) > time(),
+                'expiration' => $w['expiration'],
+            ];
+        }
+    }
+
     jsonOk([
-        'connected'   => (bool) $hasCal,
+        'connected'    => (bool) $hasCal,
         'synced_count' => $syncCount,
+        'watch'        => $watchInfo,
     ]);
+}
+
+/* ===== WATCH START ===== */
+
+function handleWatchStart(): never
+{
+    requireMethod('POST');
+    $user = requireRole('admin');
+    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+
+    $svjId = (int) $user['svj_id'];
+    $db = getDb();
+
+    // Check existing
+    $existing = $db->prepare('SELECT channel_id, expiration FROM google_calendar_watch WHERE svj_id = ?');
+    $existing->execute([$svjId]);
+    $old = $existing->fetch(PDO::FETCH_ASSOC);
+    if ($old && strtotime($old['expiration']) > time()) {
+        jsonError('Watch kanál už existuje (expirace: ' . $old['expiration'] . '). Nejdříve zastavte.', 409, 'ALREADY_EXISTS');
+    }
+
+    // Get webhook URL
+    $webhookUrl = getCalendarWebhookUrl();
+    if (!$webhookUrl) {
+        jsonError('Webhook URL není nastavena v systémových nastaveních.', 400, 'NO_WEBHOOK_URL');
+    }
+
+    $client = getAuthenticatedGoogleClient($user['id'], $svjId);
+    if (!$client) jsonError('Google účet není propojen.', 400, 'NOT_CONNECTED');
+
+    $service = new Google\Service\Calendar($client);
+    $channelId = bin2hex(random_bytes(16));
+
+    $channel = new Google\Service\Calendar\Channel([
+        'id'      => $channelId,
+        'type'    => 'web_hook',
+        'address' => $webhookUrl,
+    ]);
+
+    try {
+        $response = $service->events->watch('primary', $channel);
+    } catch (\Exception $e) {
+        jsonError('Google Watch API: ' . $e->getMessage(), 502, 'WATCH_ERROR');
+    }
+
+    $resourceId = $response->getResourceId();
+    $expDt = date('Y-m-d H:i:s', (int) ($response->getExpiration() / 1000));
+
+    $db->prepare(
+        'INSERT INTO google_calendar_watch (svj_id, user_id, channel_id, resource_id, expiration)
+         VALUES (?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE user_id=VALUES(user_id), channel_id=VALUES(channel_id),
+                                 resource_id=VALUES(resource_id), expiration=VALUES(expiration)'
+    )->execute([$svjId, $user['id'], $channelId, $resourceId, $expDt]);
+
+    jsonOk([
+        'channel_id'  => $channelId,
+        'expiration'  => $expDt,
+        'webhook_url' => $webhookUrl,
+    ]);
+}
+
+/* ===== WATCH STOP ===== */
+
+function handleWatchStop(): never
+{
+    requireMethod('POST');
+    $user = requireRole('admin');
+    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+
+    $svjId = (int) $user['svj_id'];
+    $db = getDb();
+
+    $stmt = $db->prepare('SELECT channel_id, resource_id FROM google_calendar_watch WHERE svj_id = ?');
+    $stmt->execute([$svjId]);
+    $watch = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$watch) {
+        jsonOk(['message' => 'Žádný aktivní watch kanál.']);
+        exit;
+    }
+
+    $client = getAuthenticatedGoogleClient($user['id'], $svjId);
+    if ($client && $watch['resource_id']) {
+        $service = new Google\Service\Calendar($client);
+        $ch = new Google\Service\Calendar\Channel([
+            'id'         => $watch['channel_id'],
+            'resourceId' => $watch['resource_id'],
+        ]);
+        try {
+            $service->channels->stop($ch);
+        } catch (\Exception $e) {
+            // Channel may already be expired
+        }
+    }
+
+    $db->prepare('DELETE FROM google_calendar_watch WHERE svj_id = ?')->execute([$svjId]);
+    jsonOk(['message' => 'Watch kanál zastaven.']);
+}
+
+/* ===== WATCH STATUS ===== */
+
+function handleWatchStatus(): never
+{
+    requireMethod('GET');
+    $user = requireRole('admin', 'vybor');
+    if (!$user['svj_id']) jsonError('Není přiřazeno SVJ', 403, 'NO_SVJ');
+
+    $db = getDb();
+    $stmt = $db->prepare('SELECT channel_id, expiration, sync_token, created_at FROM google_calendar_watch WHERE svj_id = ?');
+    $stmt->execute([$user['svj_id']]);
+    $watch = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$watch) {
+        jsonOk(['active' => false]);
+        exit;
+    }
+
+    jsonOk([
+        'active'     => strtotime($watch['expiration']) > time(),
+        'channel_id' => $watch['channel_id'],
+        'expiration' => $watch['expiration'],
+        'has_token'  => (bool) $watch['sync_token'],
+        'created_at' => $watch['created_at'],
+    ]);
+}
+
+function getCalendarWebhookUrl(): ?string
+{
+    $db = getDb();
+    $stmt = $db->prepare("SELECT val FROM settings WHERE klic = 'google_calendar_webhook_url'");
+    $stmt->execute();
+    return $stmt->fetchColumn() ?: null;
 }
 
 /* ===== PUSH HELPER ===== */
