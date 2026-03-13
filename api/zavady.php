@@ -27,13 +27,10 @@ function handleList(): void
     $limit  = min((int) getParam('limit', 50), 200);
     $offset = (int) getParam('offset', 0);
 
-    $where = 'z.svj_id = :svj_id';
-    $params = [':svj_id' => $user['svj_id']];
-
+    $qb = new WhereBuilder('z.svj_id', $svjId);
     $allowedStavy = ['nova', 'v_reseni', 'vyreseno', 'zamitnuto'];
     if ($stav && in_array($stav, $allowedStavy, true)) {
-        $where .= ' AND z.stav = :stav';
-        $params[':stav'] = $stav;
+        $qb->addWhereAlways('z.stav = ?', $stav);
     }
 
     $db = getDb();
@@ -44,13 +41,15 @@ function handleList(): void
                 (SELECT COUNT(*) FROM zavady_historie h WHERE h.zavada_id = z.id AND h.typ = 'komentar') AS pocet_komentaru
          FROM zavady z
          JOIN users u ON u.id = z.vytvoril_id
-         WHERE {$where}
+         WHERE " . $qb->sql() . "
          ORDER BY FIELD(z.stav, 'nova', 'v_reseni', 'vyreseno', 'zamitnuto'), z.created_at DESC
-         LIMIT :limit OFFSET :offset"
+         LIMIT ? OFFSET ?"
     );
-    $params[':limit'] = $limit;
-    $params[':offset'] = $offset;
-    $stmt->execute($params);
+    $qb->bind($stmt);
+    $pc = count($qb->params());
+    $stmt->bindValue($pc + 1, $limit, PDO::PARAM_INT);
+    $stmt->bindValue($pc + 2, $offset, PDO::PARAM_INT);
+    $stmt->execute();
 
     $countStmt = $db->prepare(
         "SELECT stav, COUNT(*) AS cnt FROM zavady WHERE svj_id = :svj_id GROUP BY stav"

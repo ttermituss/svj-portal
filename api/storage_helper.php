@@ -405,16 +405,14 @@ function storageSync(int $svjId, string $module, int $limit = 10): array
     }
 
     $db = getDb();
-    $where = 'svj_id = ? AND gdrive_file_id IS NULL';
-    $params = [$svjId];
-    if ($module !== 'all') {
-        $where .= ' AND module = ?';
-        $params[] = $module;
-    }
+    $qb = new WhereBuilder('svj_id', $svjId);
+    $qb->addRaw('gdrive_file_id IS NULL');
+    if ($module !== 'all') $qb->addWhereAlways('module = ?', $module);
 
-    $stmt = $db->prepare("SELECT id, module, local_path, gdrive_name, mime_type FROM gdrive_files WHERE {$where} LIMIT ?");
-    $params[] = $limit;
-    $stmt->execute($params);
+    $stmt = $db->prepare("SELECT id, module, local_path, gdrive_name, mime_type FROM gdrive_files WHERE " . $qb->sql() . " LIMIT ?");
+    $qb->bind($stmt);
+    $stmt->bindValue(count($qb->params()) + 1, $limit, PDO::PARAM_INT);
+    $stmt->execute();
     $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $synced = 0;
@@ -423,15 +421,8 @@ function storageSync(int $svjId, string $module, int $limit = 10): array
         if ($gid) $synced++;
     }
 
-    // Count remaining
-    $countParams = [$svjId];
-    $countWhere = 'svj_id = ? AND gdrive_file_id IS NULL';
-    if ($module !== 'all') {
-        $countWhere .= ' AND module = ?';
-        $countParams[] = $module;
-    }
-    $countStmt = $db->prepare("SELECT COUNT(*) FROM gdrive_files WHERE {$countWhere}");
-    $countStmt->execute($countParams);
+    $countStmt = $db->prepare("SELECT COUNT(*) FROM gdrive_files WHERE " . $qb->sql());
+    $countStmt->execute($qb->params());
     $remaining = (int) $countStmt->fetchColumn();
 
     return ['synced' => $synced, 'remaining' => $remaining];

@@ -38,43 +38,28 @@ function handleList(): void
     $kategorie = getParam('kategorie', '');
     $q         = trim(getParam('q', ''));
 
-    $where = 'f.svj_id = :svj_id';
-    $params = [':svj_id' => $user['svj_id']];
-
-    if ($typ === 'prijem' || $typ === 'vydaj') {
-        $where .= ' AND f.typ = :typ';
-        $params[':typ'] = $typ;
-    }
-    if ($rok && is_numeric($rok)) {
-        $where .= ' AND YEAR(f.datum) = :rok';
-        $params[':rok'] = (int) $rok;
-    }
-    if ($kategorie) {
-        $where .= ' AND f.kategorie = :kat';
-        $params[':kat'] = $kategorie;
-    }
-    if ($q) {
-        $where .= ' AND f.popis LIKE :q';
-        $params[':q'] = '%' . $q . '%';
-    }
+    $qb = new WhereBuilder('f.svj_id', $svjId);
+    if ($typ === 'prijem' || $typ === 'vydaj') $qb->addWhereAlways('f.typ = ?', $typ);
+    if ($rok && is_numeric($rok)) $qb->addWhereAlways('YEAR(f.datum) = ?', (int) $rok);
+    $qb->addWhere('f.kategorie = ?', $kategorie);
+    $qb->addLike('f.popis', $q);
 
     $db   = getDb();
     $stmt = $db->prepare(
         "SELECT f.id, f.typ, f.kategorie, f.popis, f.castka, f.datum, f.poznamka,
                 (SELECT COUNT(*) FROM fond_prilohy p WHERE p.fond_oprav_id = f.id) AS pocet_priloh
-         FROM fond_oprav f WHERE {$where} ORDER BY f.datum DESC, f.id DESC
-         LIMIT :lim OFFSET :off"
+         FROM fond_oprav f WHERE " . $qb->sql() . " ORDER BY f.datum DESC, f.id DESC
+         LIMIT ? OFFSET ?"
     );
-    foreach ($params as $k => $v) {
-        $stmt->bindValue($k, $v);
-    }
-    $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
-    $stmt->bindValue(':off', $offset, PDO::PARAM_INT);
+    $qb->bind($stmt);
+    $paramCount = count($qb->params());
+    $stmt->bindValue($paramCount + 1, $limit, PDO::PARAM_INT);
+    $stmt->bindValue($paramCount + 2, $offset, PDO::PARAM_INT);
     $stmt->execute();
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    $countStmt = $db->prepare("SELECT COUNT(*) FROM fond_oprav f WHERE {$where}");
-    $countStmt->execute($params);
+    $countStmt = $db->prepare("SELECT COUNT(*) FROM fond_oprav f WHERE " . $qb->sql());
+    $countStmt->execute($qb->params());
     $total = (int) $countStmt->fetchColumn();
 
     jsonOk(['zaznamy' => $rows, 'total' => $total]);
