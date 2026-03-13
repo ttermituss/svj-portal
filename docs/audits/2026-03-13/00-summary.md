@@ -61,7 +61,7 @@ Opravy: commit `6bc7a2f` (security), `0843ea3` (P1 UX)
 
 | Nález | Status |
 |-------|--------|
-| Chybějící HTTP security headers (CSP, HSTS) | ⏳ P1 (server config) |
+| ~~Chybějící HTTP security headers~~ | ✅ OPRAVENO (.htaccess) |
 | innerHTML v markdown renderingu | ⏳ P2 |
 | MIME validace bez extension check | ⏳ P2 |
 | Kontrastní poměr hraničně | ⏳ P3 |
@@ -101,9 +101,9 @@ Opravy: commit `6bc7a2f` (security), `0843ea3` (P1 UX)
 6. ~~P1: Zvýšit min. font size (100+ míst)~~ ✅
 7. ~~P1: Touch targets (btn-sm, badge, sidebar, hamburger)~~ ✅
 8. ~~P1: Senior theme overrides pro malé prvky~~ ✅
+9. ~~P1: HTTP security headers (CSP, X-Frame-Options, Referrer-Policy, Permissions-Policy)~~ ✅
 
 ### Zbývá
-9. **P1 (server):** HTTP security headers v Apache (CSP, HSTS, Referrer-Policy)
 10. **P2:** Rozdělit soubory > 500 řádků (fond_oprav.php, dokumenty.js, fond-oprav.js...)
 11. **P2:** Extrahovat DRY helpers (requireSvj, file size konstanty)
 12. **P2:** Hardcoded barvy → CSS vars (admin-penb.js, dokumenty.js)

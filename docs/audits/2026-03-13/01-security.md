@@ -36,14 +36,15 @@ Stejný pattern — aktuálně bezpečné, architektonicky rizikové.
 
 ---
 
-## MEDIUM: Chybějící HTTP security headers
+## ~~MEDIUM: Chybějící HTTP security headers~~ ✅ OPRAVENO
 
-Chybí v Apache konfiguraci:
-- `Content-Security-Policy` (CSP)
-- `Strict-Transport-Security` (HSTS)
-- `Referrer-Policy`
-- `Permissions-Policy`
-- `X-Frame-Options` — neúplně
+Přidáno do `.htaccess`:
+- `Content-Security-Policy` — default 'self', povolené API endpointy (Google, ARES, ČÚZK, OpenMeteo, Overpass, OSM)
+- `X-Frame-Options: SAMEORIGIN`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=()`
+- `X-XSS-Protection: 0` (moderní best practice — CSP to nahrazuje)
+- HSTS připraveno k odkomentování po potvrzení HTTPS
 
 ---
 

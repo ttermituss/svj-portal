@@ -9,6 +9,8 @@
     RewriteRule ^migrations/ - [F,L]
 </IfModule>
 
-# Security headers pro API
-Header always set X-Content-Type-Options "nosniff"
-# X-Frame-Options nastavuje PHP endpoint dle kontextu (inline náhled vs. stažení)
+# Security headers pro API (doplňují root .htaccess)
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    # X-Frame-Options nastavuje PHP endpoint dle kontextu (inline náhled vs. stažení)
+</IfModule>
