@@ -8,10 +8,8 @@ require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/middleware.php';
 
 $user   = requireAuth();
-$svjId  = $user['svj_id'];
+$svjId  = requireSvj($user);
 $action = getParam('action', 'list');
-
-if (!$svjId) jsonError('Není přiřazeno SVJ', 403);
 
 switch ($action) {
     case 'list':         handleList($svjId, $user); break;
