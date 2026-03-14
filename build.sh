@@ -97,6 +97,11 @@ npx esbuild "$CONCAT_CSS" \
 
 rm -f "$CONCAT_CSS"
 
+# Senior CSS — samostatný bundle (lazy loaded přes theme.js)
+npx esbuild "$SCRIPT_DIR/css/senior.css" \
+  --minify \
+  --outfile="$DIST/senior.min.css"
+
 echo "=== [4/4] Cache busting + index.html ==="
 HASH=$(md5sum "$DIST/bundle.min.js" "$DIST/bundle.min.css" | md5sum | cut -c1-8)
 echo "Hash: $HASH"

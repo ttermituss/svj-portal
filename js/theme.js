@@ -11,12 +11,31 @@
 function getBase()   { return localStorage.getItem('svj-theme')  || 'light'; }
 function isSenior()  { return localStorage.getItem('svj-senior') === '1'; }
 
+var SENIOR_CSS_ID = 'svj-senior-css';
+
+function loadSeniorCss(enable) {
+  if (enable) {
+    if (!document.getElementById(SENIOR_CSS_ID)) {
+      var link = document.createElement('link');
+      link.id   = SENIOR_CSS_ID;
+      link.rel  = 'stylesheet';
+      link.href = 'dist/senior.min.css';
+      document.head.appendChild(link);
+    }
+  } else {
+    var existing = document.getElementById(SENIOR_CSS_ID);
+    if (existing) existing.parentNode.removeChild(existing);
+  }
+}
+
 function applyTheme() {
   document.documentElement.setAttribute('data-theme', getBase());
   if (isSenior()) {
     document.documentElement.setAttribute('data-senior', '');
+    loadSeniorCss(true);
   } else {
     document.documentElement.removeAttribute('data-senior');
+    loadSeniorCss(false);
   }
 }
 
