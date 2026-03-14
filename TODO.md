@@ -164,10 +164,16 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 
 ---
 
+## ✅ Hotovo — Performance audit (v2.8.0)
+
+- [x] **Senior CSS lazy load** — `css/senior.css` → `dist/senior.min.css` (1.2 KB), injektováno z `theme.js` jen při aktivaci
+- [x] **Service Worker** — `sw.js`: cache-first pro dist/, network-first+offline pro HTML, network-only pro /api/
+- [x] **POST rate limit** — `requirePostRateLimit()` v middleware, automaticky z `requireAuth()`, 120/min per user
+
 ## 💡 Nápady do budoucna
 
-- Push notifikace (PWA) — rozšíření stávajících in-app notifikací o browser push
-- Mobilní app (PWA shell)
+- Push notifikace (PWA) — rozšíření SW o browser push (základ SW je hotový)
+- Mobilní app (PWA shell) — SW základ hotový
 - API pro správcovské firmy (multi-SVJ správa)
 
 ## ✅ Hotovo (doplňky po v1.0.0)

@@ -1,7 +1,7 @@
 # SVJ Portál — Performance Audit
 
-**Verze:** 2.7.0 | **Datum auditu:** 2026-03-14
-**Celkem problémů:** 24 (8× HIGH, 11× MEDIUM, 5× LOW)
+**Verze:** 2.8.0 | **Datum auditu:** 2026-03-14
+**Celkem problémů:** 24 (8× HIGH, 11× MEDIUM, 5× LOW) — **vše vyřešeno ✓**
 
 ---
 
@@ -99,11 +99,13 @@
 - [x] **[LOW]** CSS minifikace — esbuild v `build.sh` ✓
   - 3 soubory → `dist/bundle.min.css` → 16KB → **12KB → 3.4KB gzipped**
 
-- [ ] **[LOW]** Senior téma se načítá pro všechny uživatele — lazy load `theme-senior.css` (nízká priorita, minor win)
+- [x] **[LOW]** Senior CSS lazy load — `css/senior.css` → `dist/senior.min.css` (1.2 KB), injektováno přes `theme.js` pouze při aktivaci senior módu ✓
 
 ### Service Worker
 
-- [ ] **[MEDIUM]** Service Worker — offline cache-first strategie (větší effort, plánovat samostatně)
+- [x] **[MEDIUM]** Service Worker — `sw.js` v rootu: `dist/` cache-first, `index.html` network-first s offline fallback, `/api/` network-only ✓
+  - skipWaiting + clients.claim pro okamžitý update
+  - `.htaccess`: `sw.js` má `max-age=0` (přebije *.js pravidlo 30 dní)
 
 ---
 
@@ -121,10 +123,10 @@
   - `return is_array($expectedExt) ? reset($expectedExt) : $expectedExt`
   - Double extension attack check zachován
 
-- [ ] **[LOW / WONTFIX]** Rate limiting na všechny POST endpointy — **accepted risk**
-  - Všechny POST endpointy jsou za `requireAuth()` → pouze přihlášení vlastníci
-  - Existující rate limit chrání auth endpointy (jediné veřejně přístupné)
-  - Přidání DB rate limit na každý POST = overhead bez odpovídajícího bezp. přínosu pro SVJ scale
+- [x] **[LOW]** Rate limiting na POST endpointy — `requirePostRateLimit()` v `middleware.php` ✓
+  - Automaticky voláno z `requireAuth()` pro každý POST request (nulová změna v ostatních souborech)
+  - 120 POST/minutu per user, klíč `user_id` (ne IP — NAT-safe), fixed window
+  - Reuse stávající `rate_limits` tabulky (2× SQL/request)
 
 - [x] **[LOW]** `api/fond_ucty.php` — `SELECT *` → explicitní sloupce v list query ✓
   - `fond_rozpocet.php` — již měl explicitní sloupce ✓

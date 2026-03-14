@@ -5,6 +5,33 @@ Formát: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [2.8.0] — 2026-03-14
+
+### Performance audit — dokončení (fáze LOW + MEDIUM)
+
+#### Senior CSS lazy load
+- **`css/senior.css`** — senior pravidla vyčleněna z `theme.css` do samostatného souboru
+- **`dist/senior.min.css`** (1.2 KB) — buildováno separátně přes `build.sh`
+- **`js/theme.js`** — `loadSeniorCss(enable)` dynamicky injektuje `<link id="svj-senior-css">` pouze při aktivaci senior módu; při deaktivaci ho odstraní
+- `bundle.min.css` zmenšen z 12 KB → 11 KB (senior pravidla načítána on-demand)
+
+#### Service Worker — offline podpora
+- **`sw.js`** v rootu SPA — tři strategie podle URL:
+  - `dist/` bundles → cache-first (hash v URL = bezpečné, 0 síťových requestů po prvním načtení)
+  - `index.html` / navigace → network-first s offline fallback (app shell dostupný offline)
+  - `/api/` → network-only (citlivá data, nikdy necachovat)
+- `skipWaiting` + `clients.claim` — okamžitý update bez čekání na zavření záložky
+- **`.htaccess`** — `sw.js` dostane `Cache-Control: max-age=0` (přebije obecné *.js pravidlo 30 dní)
+- Registrace v `js/app.js` po inicializaci Auth + Router
+
+#### POST rate limit pro přihlášené uživatele
+- **`requirePostRateLimit()`** v `middleware.php` — automaticky voláno z `requireAuth()` pro každý POST
+- 120 requestů/minutu per user, klíč: `user_id` (ne IP — odolné vůči NAT/shared IP), fixed window
+- Reuse stávající `rate_limits` tabulky, žádná nová migrace
+- Pokrývá všechny endpointy za `requireAuth()` bez změny ostatních souborů
+
+---
+
 ## [2.7.0] — 2026-03-13
 
 ### Audit v2 — kompletní reaudit (6 oblastí, 60+ oprav, průměr 74→90/100)

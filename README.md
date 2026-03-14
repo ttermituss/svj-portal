@@ -1,4 +1,4 @@
-# SVJ Portál v2.7.0
+# SVJ Portál v2.8.0
 
 Univerzální multi-tenant webový portál pro správu **Společenství vlastníků jednotek (SVJ)** v ČR.
 
@@ -8,7 +8,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 |---|---|
 | Backend | PHP 8.4 + Composer (google/apiclient) |
 | Databáze | MySQL 8.4 |
-| Frontend | Vanilla JS (žádný framework, žádný build step) |
+| Frontend | Vanilla JS (žádný framework) + esbuild (minifikace) |
 | Webserver | Apache + mod_rewrite |
 
 ---
@@ -127,7 +127,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 4. **Spusť migrace**
    ```bash
    for f in api/migrations/*.sql; do sudo mysql svj_portal < "$f"; done
-   # Aktuálně: 001–037
+   # Aktuálně: 001–038
    ```
 
 4. **Nastav Apache virtualhost**
@@ -163,7 +163,7 @@ SPA (index.html)
     └── admin-*.js          # jednotlivé karty správy
 
 API (api/*.php)
-├── middleware.php          # requireAuth(), requireRole()
+├── middleware.php          # requireAuth(), requireRole(), requirePostRateLimit()
 ├── helpers.php             # jsonOk, jsonError, sanitize
 ├── svj_helper.php          # ARES + RÚIAN integrace
 └── *.php                   # endpointy
@@ -177,6 +177,7 @@ API (api/*.php)
 - **bcrypt** pro hesla, `bin2hex(random_bytes(32))` pro tokeny
 - **SameSite=Lax** cookies, X-Frame-Options, X-Content-Type-Options
 - **MIME check** — `finfo` pro upload souborů, přímý přístup blokován `.htaccess`
+- **POST rate limit** — 120 req/min per user pro všechny autentizované endpointy (`middleware.php`)
 
 ## Témata
 
@@ -186,7 +187,21 @@ Portál podporuje 3 vizuální témata (optimalizováno pro seniory):
 |---|---|
 | `data-theme="light"` | Světlý mód (výchozí) |
 | `data-theme="dark"` | Tmavý mód |
-| `data-theme="senior"` | Zvětšené písmo (18px), vysoký kontrast |
+| `data-senior` | Zvětšené písmo (22px), vyšší kontrast — lazy loaded (`dist/senior.min.css`) |
+
+Senior CSS se načítá **on-demand** jen pro uživatele s aktivním senior módem (`theme.js`).
+
+## PWA / Offline podpora
+
+Portál obsahuje Service Worker (`sw.js`) s cache strategií:
+
+| URL pattern | Strategie | Popis |
+|---|---|---|
+| `dist/*.min.*` | Cache-first | Bundles s hash URL — rychlé opakované načítání |
+| `index.html` / navigace | Network-first + fallback | App shell dostupný i offline |
+| `/api/` | Network-only | Citlivá data — nikdy necachovat |
+
+SW se automaticky aktualizuje při nasazení nové verze (skipWaiting + clients.claim).
 
 ## Databázové migrace
 
@@ -224,6 +239,7 @@ sudo mysql svj_portal < api/migrations/00X_nazev.sql
 | 035 | Revize závady (revize_zavady — závady z revizní zprávy) |
 | 036 | Cizí klíče pro datovka tabulky (svj_id, uploaded_by) |
 | 037 | Chybějící indexy: penb(svj_id), dokumenty(svj_id, kategorie, created_at) |
+| 038 | Performance indexy: zavady_historie(zavada_id, typ), fond_oprav N+1 optimalizace |
 
 Nikdy neupravuj stávající migraci — vždy přidej novou.
 
