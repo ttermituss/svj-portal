@@ -1,5 +1,6 @@
 /* ===== SDÍLENÉ UI HELPERY =====
- * showToast, showConfirmModal, copyToClipboard
+ * showToast, showConfirmModal, copyToClipboard,
+ * makeEmptyState, makeExportButtons
  * Dostupné globálně — načítáno před všemi page skripty.
  */
 
@@ -416,4 +417,51 @@ function createModal(opts) {
   }
 
   return { overlay: overlay, modal: modal, close: close };
+}
+
+/* ---- Empty state helper ---- */
+/**
+ * Vytvoří div.empty-state s ikonou a textem.
+ * Náhrada za 10× opakující se ruční sestavení empty-state v page skriptech.
+ *
+ * @param {string} icon  Emoji nebo text pro ikonu
+ * @param {string} text  Informační zpráva
+ * @returns {HTMLElement}
+ */
+function makeEmptyState(icon, text) {
+  var wrap = document.createElement('div');
+  wrap.className = 'empty-state';
+  var iconEl = document.createElement('div');
+  iconEl.className = 'icon';
+  iconEl.textContent = icon;
+  var msg = document.createElement('p');
+  msg.textContent = text;
+  wrap.appendChild(iconEl);
+  wrap.appendChild(msg);
+  return wrap;
+}
+
+/* ---- Export buttons helper ---- */
+/**
+ * Přidá tlačítka PDF / XLSX / CSV do kontejneru.
+ * Náhrada za 6× opakující se forEach(['pdf','xlsx','csv']) v page skriptech.
+ *
+ * @param {HTMLElement} container  Rodičovský element (button group / action bar)
+ * @param {string}      type       Hodnota parametru type pro api/export.php
+ * @param {string}      [cls]      CSS třída tlačítek (default: 'btn btn-secondary btn-sm')
+ * @param {string}      [extra]    Extra query string (např. '&rok=2024'), bez úvodního &
+ */
+function makeExportButtons(container, type, cls, extra) {
+  var btnClass = cls || 'btn btn-secondary btn-sm';
+  var extraQ   = extra ? '&' + extra : '';
+  var labels   = { pdf: '\uD83D\uDCC3 PDF', xlsx: '\uD83D\uDCCA XLSX', csv: '\uD83D\uDCC4 CSV' };
+  ['pdf', 'xlsx', 'csv'].forEach(function(fmt) {
+    var btn = document.createElement('button');
+    btn.className = btnClass;
+    btn.textContent = labels[fmt];
+    btn.addEventListener('click', function() {
+      window.location.href = 'api/export.php?type=' + type + '&format=' + fmt + extraQ;
+    });
+    container.appendChild(btn);
+  });
 }

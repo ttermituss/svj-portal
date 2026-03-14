@@ -81,16 +81,7 @@ Router.register('vlastnici', function(el) {
 /* ===== REGISTROVANÍ VLASTNÍCI ===== */
 
 function renderEmptyReg(body) {
-  var empty = document.createElement('div');
-  empty.className = 'empty-state';
-  var icon = document.createElement('div');
-  icon.className  = 'icon';
-  icon.textContent = '\uD83D\uDC65';
-  var msg = document.createElement('p');
-  msg.textContent = 'Zatím nejsou registrováni žádní členové SVJ. Správce může pozvat vlastníky přes Správu portálu.';
-  empty.appendChild(icon);
-  empty.appendChild(msg);
-  body.appendChild(empty);
+  body.appendChild(makeEmptyState('\uD83D\uDC65', 'Zatím nejsou registrováni žádní členové SVJ. Správce může pozvat vlastníky přes Správu portálu.'));
 }
 
 function exportVlastnici(format) {
@@ -101,14 +92,7 @@ function renderTableReg(body, vlastnici, isPriv) {
   if (isPriv) {
     var actions = document.createElement('div');
     actions.style.cssText = 'display:flex;gap:8px;justify-content:flex-end;margin-bottom:12px;';
-    ['pdf', 'xlsx', 'csv'].forEach(function(fmt) {
-      var btn = document.createElement('button');
-      btn.className = 'btn btn-secondary';
-      btn.style.fontSize = '0.82rem';
-      btn.textContent = fmt === 'pdf' ? '\uD83D\uDCC3 Export PDF' : fmt === 'xlsx' ? '\uD83D\uDCCA Export XLSX' : '\uD83D\uDCC4 Export CSV';
-      btn.addEventListener('click', function() { exportVlastnici(fmt); });
-      actions.appendChild(btn);
-    });
+    makeExportButtons(actions, 'vlastnici', 'btn btn-secondary');
     body.appendChild(actions);
   }
 

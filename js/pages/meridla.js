@@ -101,14 +101,7 @@ function merRenderList(listWrap, items, user) {
   var isPriv = isPrivileged(user);
 
   if (!items.length) {
-    var empty = document.createElement('div');
-    empty.className = 'empty-state';
-    var emI = document.createElement('div');
-    emI.className = 'empty-icon'; emI.textContent = '\uD83D\uDCA7';
-    var emP = document.createElement('p');
-    emP.textContent = '\u017d\xe1dn\xe1 m\u011b\u0159idla.';
-    empty.appendChild(emI); empty.appendChild(emP);
-    listWrap.appendChild(empty);
+    listWrap.appendChild(makeEmptyState('\uD83D\uDCA7', '\u017d\xe1dn\xe1 m\u011b\u0159idla.'));
     return;
   }
 

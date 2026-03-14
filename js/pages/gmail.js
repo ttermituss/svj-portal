@@ -125,10 +125,7 @@ function loadGmailMessages(listEl, query, pageToken) {
     .then(function(data) {
       loading.remove();
       if (!data.messages || data.messages.length === 0) {
-        var empty = document.createElement('div');
-        empty.className = 'empty-state';
-        empty.textContent = query ? '\u017d\u00e1dn\u00e9 v\u00fdsledky.' : 'Schr\u00e1nka je pr\u00e1zdn\u00e1.';
-        listEl.appendChild(empty);
+        listEl.appendChild(makeEmptyState('\uD83D\uDCE7', query ? '\u017d\u00e1dn\u00e9 v\u00fdsledky.' : 'Schr\u00e1nka je pr\u00e1zdn\u00e1.'));
         return;
       }
 

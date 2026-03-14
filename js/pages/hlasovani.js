@@ -40,13 +40,7 @@ function loadList(wrap, isPriv) {
     .then(function(data) {
       wrap.replaceChildren();
       if (!data.hlasovani || !data.hlasovani.length) {
-        var empty = document.createElement('div');
-        empty.className = 'empty-state';
-        var icon = document.createElement('div'); icon.className = 'icon'; icon.textContent = '\uD83D\uDDF3\uFE0F';
-        var msg  = document.createElement('p');
-        msg.textContent = 'Zat\u00edm nen\u00ed vyhl\u00e1\u0161eno \u017e\u00e1dn\u00e9 hlasov\u00e1n\u00ed.';
-        empty.appendChild(icon); empty.appendChild(msg);
-        wrap.appendChild(empty);
+        wrap.appendChild(makeEmptyState('\uD83D\uDDF3\uFE0F', 'Zat\u00edm nen\u00ed vyhl\u00e1\u0161eno \u017e\u00e1dn\u00e9 hlasov\u00e1n\u00ed.'));
         return;
       }
       var pocetClenu = data.pocet_clenu || 0;

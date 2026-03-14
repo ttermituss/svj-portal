@@ -18,16 +18,7 @@ Router.register('nastenka', function(el) {
   var body = document.createElement('div');
   body.className = 'card-body';
 
-  var empty = document.createElement('div');
-  empty.className = 'empty-state';
-  var icon = document.createElement('div');
-  icon.className = 'icon';
-  icon.textContent = '\uD83D\uDCCB';
-  var msg = document.createElement('p');
-  msg.textContent = 'Nástěnka je zatím prázdná. Oznámení budou zobrazena zde.';
-  empty.appendChild(icon);
-  empty.appendChild(msg);
-  body.appendChild(empty);
+  body.appendChild(makeEmptyState('\uD83D\uDCCB', 'Nástěnka je zatím prázdná. Oznámení budou zobrazena zde.'));
 
   card.appendChild(body);
   el.appendChild(card);

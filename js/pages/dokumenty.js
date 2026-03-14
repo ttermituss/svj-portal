@@ -81,16 +81,7 @@ function dokRenderList(wrap, docs, user) {
   var isPriv = isPrivileged(user);
 
   if (!docs.length) {
-    var empty = document.createElement('div');
-    empty.className = 'empty-state';
-    var icon = document.createElement('div');
-    icon.className = 'icon';
-    icon.textContent = '\uD83D\uDCC1';
-    var msg = document.createElement('p');
-    msg.textContent = 'Zat\xedm nejsou nahr\xe1ny \u017e\xe1dn\xe9 dokumenty.';
-    empty.appendChild(icon);
-    empty.appendChild(msg);
-    wrap.appendChild(empty);
+    wrap.appendChild(makeEmptyState('\uD83D\uDCC1', 'Zat\xedm nejsou nahr\xe1ny \u017e\xe1dn\xe9 dokumenty.'));
     return;
   }
 

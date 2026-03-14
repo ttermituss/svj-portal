@@ -173,16 +173,7 @@ function datovkaLoadList(wrap, user) {
     .then(function(data) {
       wrap.removeChild(loading);
       if (!data.zpravy || !data.zpravy.length) {
-        var empty = document.createElement('div');
-        empty.className = 'empty-state';
-        empty.innerHTML = '';
-        var ic = document.createElement('div');
-        ic.className = 'icon';
-        ic.textContent = '\uD83D\uDCEC';
-        var msg = document.createElement('p');
-        msg.textContent = 'Archiv je prázdný. Nahrajte první .zfo zprávu výše.';
-        empty.appendChild(ic);
-        empty.appendChild(msg);
+        var empty = makeEmptyState('\uD83D\uDCEC', 'Archiv je prázdný. Nahrajte první .zfo zprávu výše.');
         wrap.appendChild(empty);
       } else {
         datovkaRenderList(wrap, data.zpravy, user);

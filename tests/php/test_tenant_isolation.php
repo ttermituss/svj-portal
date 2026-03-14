@@ -71,7 +71,10 @@ $t->assert(
     "handleLink() vyžaduje roli admin nebo vybor",
     str_contains($svjPhp, "requireRole('admin', 'vybor')")
 );
+// Ověř přímo v těle funkce handleLink (prvních 400 znaků od definice)
+$linkStart = strpos($svjPhp, 'function handleLink');
+$linkBody  = $linkStart !== false ? substr($svjPhp, $linkStart, 400) : '';
 $t->assert(
-    "handleLink() nepoužívá jen requireAuth()",
-    !preg_match('/function handleLink.*?requireAuth\(\)/s', $svjPhp)
+    "handleLink() nepoužívá jen requireAuth() — musí mít requireRole",
+    !str_contains($linkBody, 'requireAuth()') || str_contains($linkBody, 'requireRole')
 );

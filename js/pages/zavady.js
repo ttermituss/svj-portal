@@ -56,16 +56,7 @@ Router.register('zavady', function(el) {
   filterBar.appendChild(addBtn);
 
   if (isPriv) {
-    ['pdf', 'xlsx', 'csv'].forEach(function(fmt) {
-      var btn = document.createElement('button');
-      btn.className = 'btn btn-secondary';
-      btn.style.fontSize = '0.82rem';
-      btn.textContent = fmt === 'pdf' ? '\uD83D\uDCC3 PDF' : fmt === 'xlsx' ? '\uD83D\uDCCA XLSX' : '\uD83D\uDCC4 CSV';
-      btn.addEventListener('click', function() {
-        window.location.href = 'api/export.php?type=zavady&format=' + fmt;
-      });
-      filterBar.appendChild(btn);
-    });
+    makeExportButtons(filterBar, 'zavady', 'btn btn-secondary');
   }
 
   el.appendChild(filterBar);
@@ -141,15 +132,9 @@ function zavadyLoadList(wrap, countsBar, user, filterStav) {
       zavadyRenderCounts(countsBar, data.pocty || {});
 
       if (!data.zavady || !data.zavady.length) {
-        var empty = document.createElement('div');
-        empty.className = 'empty-state';
-        var icon = document.createElement('div'); icon.className = 'icon'; icon.textContent = '\u2705';
-        var msg = document.createElement('p');
-        msg.textContent = filterStav
+        wrap.appendChild(makeEmptyState('\u2705', filterStav
           ? '\u017d\u00e1dn\u00e9 z\u00e1vady v tomto stavu.'
-          : 'Zat\u00edm nebyly nahl\u00e1\u0161eny \u017e\u00e1dn\u00e9 z\u00e1vady. To je dobr\u00e1 zpr\u00e1va!';
-        empty.appendChild(icon); empty.appendChild(msg);
-        wrap.appendChild(empty);
+          : 'Zat\u00edm nebyly nahl\u00e1\u0161eny \u017e\u00e1dn\u00e9 z\u00e1vady. To je dobr\u00e1 zpr\u00e1va!'));
         return;
       }
 

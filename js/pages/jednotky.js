@@ -50,16 +50,7 @@ Router.register('jednotky', function(el) {
 });
 
 function renderEmpty(body) {
-  var empty = document.createElement('div');
-  empty.className = 'empty-state';
-  var icon = document.createElement('div');
-  icon.className  = 'icon';
-  icon.textContent = '\uD83C\uDFE2';
-  var msg = document.createElement('p');
-  msg.textContent = 'Zatím nejsou importovány žádné jednotky. Správce portálu je může načíst přes Správu portálu → ČÚZK KN.';
-  empty.appendChild(icon);
-  empty.appendChild(msg);
-  body.appendChild(empty);
+  body.appendChild(makeEmptyState('\uD83C\uDFE2', 'Zatím nejsou importovány žádné jednotky. Správce portálu je může načíst přes Správu portálu → ČÚZK KN.'));
 }
 
 function renderTable(body, jednotky, isPriv, reloadFn) {
@@ -85,16 +76,7 @@ function renderTable(body, jednotky, isPriv, reloadFn) {
   printBtn.addEventListener('click', function() { jednotkyPrintQr(jednotky, svj); });
   actions.appendChild(printBtn);
 
-  ['pdf', 'xlsx', 'csv'].forEach(function(fmt) {
-    var btn = document.createElement('button');
-    btn.className = 'btn btn-secondary';
-    btn.style.fontSize = '0.82rem';
-    btn.textContent = fmt === 'pdf' ? '\uD83D\uDCC3 Export PDF' : fmt === 'xlsx' ? '\uD83D\uDCCA Export XLSX' : '\uD83D\uDCC4 Export CSV';
-    btn.addEventListener('click', function() {
-      window.location.href = 'api/export.php?type=jednotky&format=' + fmt;
-    });
-    actions.appendChild(btn);
-  });
+  makeExportButtons(actions, 'jednotky', 'btn btn-secondary');
   body.appendChild(actions);
 
   // Hlavička tabulky

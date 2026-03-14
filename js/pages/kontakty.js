@@ -89,16 +89,7 @@ function kontRenderList(listWrap, items, user) {
   var isPriv = isPrivileged(user);
 
   if (!items.length) {
-    var empty = document.createElement('div');
-    empty.className = 'empty-state';
-    var emIcon = document.createElement('div');
-    emIcon.className = 'empty-icon';
-    emIcon.textContent = '\uD83D\uDCDE';
-    var emText = document.createElement('p');
-    emText.textContent = 'Zat\xedm nejsou evidov\xe1ny \u017e\xe1dn\xe9 kontakty.';
-    empty.appendChild(emIcon);
-    empty.appendChild(emText);
-    listWrap.appendChild(empty);
+    listWrap.appendChild(makeEmptyState('\uD83D\uDCDE', 'Zat\xedm nejsou evidov\xe1ny \u017e\xe1dn\xe9 kontakty.'));
     return;
   }
 

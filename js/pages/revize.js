@@ -31,15 +31,7 @@ Router.register('revize', function(el) {
     addBtn.textContent = '+ P\u0159idat revizi';
     btnGroup.appendChild(addBtn);
 
-    ['pdf', 'xlsx', 'csv'].forEach(function(fmt) {
-      var btn = document.createElement('button');
-      btn.className = 'btn btn-secondary btn-sm';
-      btn.textContent = fmt === 'pdf' ? '\uD83D\uDCC3 PDF' : fmt === 'xlsx' ? '\uD83D\uDCCA XLSX' : '\uD83D\uDCC4 CSV';
-      btn.addEventListener('click', function() {
-        window.location.href = 'api/export.php?type=revize&format=' + fmt;
-      });
-      btnGroup.appendChild(btn);
-    });
+    makeExportButtons(btnGroup, 'revize');
 
     header.appendChild(btnGroup);
   }

@@ -132,16 +132,7 @@ Router.register('fond-oprav', function(el) {
   });
   actionBar.appendChild(addBtn);
 
-  ['pdf', 'xlsx', 'csv'].forEach(function(fmt) {
-    var btn = document.createElement('button');
-    btn.className = 'btn btn-secondary';
-    var icons = { pdf: '\uD83D\uDCC3 PDF', xlsx: '\uD83D\uDCCA XLSX', csv: '\uD83D\uDCC4 CSV' };
-    btn.textContent = icons[fmt];
-    btn.addEventListener('click', function() {
-      window.location.href = 'api/export.php?type=fond_oprav&format=' + fmt;
-    });
-    actionBar.appendChild(btn);
-  });
+  makeExportButtons(actionBar, 'fond_oprav', 'btn btn-secondary');
   prehledEl.appendChild(actionBar);
 
   // Filter bar
