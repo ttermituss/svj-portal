@@ -89,17 +89,13 @@ function renderGmailToolbar(el, isPriv) {
   el.appendChild(bar);
 
   // Hledání
-  var searchTimeout;
-  searchInput.addEventListener('input', function() {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(function() {
-      var listEl = el.querySelector('[data-gmail-list]');
-      if (listEl) {
-        listEl.innerHTML = '';
-        loadGmailMessages(listEl, searchInput.value, null);
-      }
-    }, 400);
-  });
+  searchInput.addEventListener('input', debounce(function() {
+    var listEl = el.querySelector('[data-gmail-list]');
+    if (listEl) {
+      listEl.innerHTML = '';
+      loadGmailMessages(listEl, searchInput.value, null);
+    }
+  }, 400));
 }
 
 /* ===== INBOX SEZNAM ===== */

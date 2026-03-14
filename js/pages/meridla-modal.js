@@ -1,5 +1,9 @@
 /* ===== Měřidla — modal přidání/úpravy + odečty modal ===== */
 
+/* Jednoduchá in-memory cache — jednotky a měřidla se nemění při otevírání modalu */
+var _merCacheJednotky = null;
+var _merCacheMeridla  = null;
+
 /* ── Modal: přidání / úprava měřidla ──────────────── */
 function merShowModal(existing, user, onSaved) {
   var m = createModal({ title: existing ? 'Upravit m\u011b\u0159idlo' : 'Nov\xe9 m\u011b\u0159idlo', width: '500px' });
@@ -31,10 +35,13 @@ function merShowModal(existing, user, onSaved) {
   modal.appendChild(jednField.el);
   var jednSelect = jednField.input;
 
-  // Načti jednotky + existující měřidla pro hints
+  // Načti jednotky + existující měřidla pro hints (cached)
+  function fetchWithCache(url, cacheVar, setter) {
+    return cacheVar ? Promise.resolve(cacheVar) : Api.apiGet(url).then(function(d) { setter(d); return d; });
+  }
   Promise.all([
-    Api.apiGet('api/jednotky.php?action=list'),
-    Api.apiGet('api/meridla.php?action=list'),
+    fetchWithCache('api/jednotky.php?action=list', _merCacheJednotky, function(d) { _merCacheJednotky = d; }),
+    fetchWithCache('api/meridla.php?action=list',  _merCacheMeridla,  function(d) { _merCacheMeridla  = d; }),
   ]).then(function(results) {
     var jednotky = results[0].jednotky || [];
     var meridla  = results[1].meridla || [];

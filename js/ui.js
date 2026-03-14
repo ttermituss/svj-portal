@@ -421,6 +421,17 @@ function createModal(opts) {
   return { overlay: overlay, modal: modal, close: close };
 }
 
+/* ---- Debounce helper ---- */
+/** Vrátí debounced verzi funkce fn s prodlevou delay ms. */
+function debounce(fn, delay) {
+  var timer;
+  return function() {
+    clearTimeout(timer);
+    var args = arguments, ctx = this;
+    timer = setTimeout(function() { fn.apply(ctx, args); }, delay);
+  };
+}
+
 /* ---- Loading placeholder helper ---- */
 /** Vrátí div s textem "Načítám…" ve stylu var(--text-light). */
 function makeLoadingEl(text) {

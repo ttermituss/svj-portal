@@ -270,14 +270,10 @@ function fondRenderFilterBar(wrap, roky, onChange) {
   searchInp.placeholder = 'Hledat v popisu\u2026';
   searchInp.style.cssText = 'width:auto;min-width:160px;flex:1;';
   searchInp.value = fondFilters.q;
-  var searchTimer = null;
-  searchInp.addEventListener('input', function() {
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(function() {
-      fondFilters.q = searchInp.value.trim();
-      onChange();
-    }, 300);
-  });
+  searchInp.addEventListener('input', debounce(function() {
+    fondFilters.q = searchInp.value.trim();
+    onChange();
+  }, 300));
   bar.appendChild(searchInp);
 
   // Reset button

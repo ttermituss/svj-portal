@@ -98,8 +98,8 @@ function handleGet(array $user, int $svjId): void
                     COALESCE(j.podil_citatel, 1)    AS pc,
                     COALESCE(j.podil_jmenovatel, 1) AS pj
              FROM hlasy hl
-             LEFT JOIN jednotky j ON j.svj_id = :svj_id
-                 AND j.svj_id = (SELECT svj_id FROM users WHERE id = hl.user_id LIMIT 1)
+             LEFT JOIN users u  ON u.id  = hl.user_id
+             LEFT JOIN jednotky j ON j.id = u.jednotka_id AND j.svj_id = :svj_id
              WHERE hl.hlasovani_id = :id
              GROUP BY hl.user_id'
         );
