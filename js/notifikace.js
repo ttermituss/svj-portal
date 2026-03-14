@@ -60,8 +60,19 @@ var NotifBadge = (function() {
     // Initial count
     refreshCount();
 
-    // Poll every 60s
-    pollInterval = setInterval(refreshCount, 60000);
+    // Poll every 60s — zastaví se když je tab na pozadí (Page Visibility API)
+    function startPolling() {
+      if (pollInterval) return;
+      pollInterval = setInterval(refreshCount, 60000);
+    }
+    function stopPolling() {
+      clearInterval(pollInterval);
+      pollInterval = null;
+    }
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden) { stopPolling(); } else { refreshCount(); startPolling(); }
+    });
+    startPolling();
   }
 
   function refreshCount() {

@@ -83,29 +83,27 @@
 
 ### JavaScript
 
-- [ ] **[MEDIUM]** `js/notifikace.js` — polling každých 60s i na pozadí — přidat Page Visibility API
-  ```javascript
-  document.addEventListener('visibilitychange', () => {
-      document.hidden ? stopPolling() : startPolling();
-  });
-  ```
+- [x] **[MEDIUM]** `js/notifikace.js` — Page Visibility API: `startPolling()` / `stopPolling()` + `visibilitychange` event ✓
+  - Tab na pozadí → interval zastaven úplně (ne jen přeskočen)
+  - Tab zpět → okamžitý `refreshCount()` + restart intervalu
 
-- [ ] **[HIGH]** `index.html` — 59 JS souborů bez minifikace (~40KB+) — přidat build step
-  - Nástroj: esbuild nebo rollup
-  - Výstup: `core.min.js` (eager) + `pages.min.js` (defer)
-  - Přidat hash do názvu souboru pro cache busting
+- [x] **[HIGH]** `index.html` — build step přes esbuild ✓
+  - `build.sh`: concat 59 JS souborů → esbuild minify → `dist/bundle.min.js`
+  - 626KB unminified → **427KB minified → 93KB gzipped** (15× komprese)
+  - 59 HTTP requestů → **1 request**
+  - Cache busting: `?v=HASH` (md5 z bundle obsahu), hash v index.html při každém buildu
+  - Dev: `git checkout index.html` pro reset na 59 separátních souborů
 
 ### CSS
 
-- [ ] **[LOW]** `css/theme.css`, `css/layout.css`, `css/components.css` — nejsou minifikované (~8–10KB → ~4–5KB)
+- [x] **[LOW]** CSS minifikace — esbuild v `build.sh` ✓
+  - 3 soubory → `dist/bundle.min.css` → 16KB → **12KB → 3.4KB gzipped**
 
-- [ ] **[LOW]** Senior téma se načítá pro všechny uživatele — zvážit lazy load `theme-senior.css` jen při výběru tématu
+- [ ] **[LOW]** Senior téma se načítá pro všechny uživatele — lazy load `theme-senior.css` (nízká priorita, minor win)
 
 ### Service Worker
 
-- [ ] **[MEDIUM]** Chybí Service Worker — přidat cache-first strategii pro CSS/JS/fonty
-  - Cache name verzovaný: `svj-cache-v2.7.0`
-  - Offline fallback pro SPA shell
+- [ ] **[MEDIUM]** Service Worker — offline cache-first strategie (větší effort, plánovat samostatně)
 
 ---
 
