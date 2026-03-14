@@ -109,13 +109,26 @@
 
 ## Fáze 5 — Hardening a doplňky 🔒
 
-- [ ] **[LOW]** Apache: přidat HSTS header (`Strict-Transport-Security: max-age=31536000`)
+- [ ] **[LOW]** Apache: HSTS — `.htaccess` má řádek připravený, odkomentovat po nasazení HTTPS na produkci
+  ```apache
+  # Odkomentovat po potvrzení HTTPS:
+  # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  ```
+  → Dev běží na HTTP (svj-portal.local) → nelze aktivovat nyní, **pending HTTPS setup**
 
-- [ ] **[LOW]** `api/helpers.php` → `validateUpload()` — nepoužívat extension z `$_FILES['name']`, derivovat ext výhradně z MIME typu
+- [x] **[LOW]** `api/helpers.php` → `validateUpload()` — extension derivována výhradně z MIME mapy ✓
+  - Odstraněna závislost na `$_FILES['name']` (user input)
+  - `return is_array($expectedExt) ? reset($expectedExt) : $expectedExt`
+  - Double extension attack check zachován
 
-- [ ] **[LOW]** Rate limiting: rozšířit `api/ratelimit.php` i na všechny POST endpointy (nejen auth)
+- [ ] **[LOW / WONTFIX]** Rate limiting na všechny POST endpointy — **accepted risk**
+  - Všechny POST endpointy jsou za `requireAuth()` → pouze přihlášení vlastníci
+  - Existující rate limit chrání auth endpointy (jediné veřejně přístupné)
+  - Přidání DB rate limit na každý POST = overhead bez odpovídajícího bezp. přínosu pro SVJ scale
 
-- [ ] **[LOW]** `api/fond_ucty.php` + `api/fond_rozpocet.php` — nahradit `SELECT *` explicitními sloupci
+- [x] **[LOW]** `api/fond_ucty.php` — `SELECT *` → explicitní sloupce v list query ✓
+  - `fond_rozpocet.php` — již měl explicitní sloupce ✓
+  - Zbývající `SELECT *` v kódu jsou single-row PK lookups (detail fetch před update) → legitimní použití, ponecháno
 
 ---
 

@@ -23,7 +23,10 @@ function handleUctyList(): void
     $user = requireRole('admin', 'vybor');
     $svjId = requireSvj($user);
 
-    $stmt = getDb()->prepare('SELECT * FROM fond_ucty WHERE svj_id = :sid ORDER BY nazev');
+    $stmt = getDb()->prepare(
+        'SELECT id, svj_id, nazev, cislo_uctu, banka, typ, zustatek, urokova_sazba, poznamka, created_at
+         FROM fond_ucty WHERE svj_id = :sid ORDER BY nazev'
+    );
     $stmt->execute([':sid' => $svjId]);
     jsonOk(['ucty' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
 }

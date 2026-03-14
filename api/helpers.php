@@ -101,19 +101,16 @@ function validateUpload(array $file, array $allowedMime, int $maxSize, string $e
     }
 
     $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
-    $origExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-
     if (!isset($allowedMime[$mime])) {
         jsonError($errorMsg, 415, 'INVALID_MIME');
     }
 
     $expectedExt = $allowedMime[$mime];
 
-    // Defense-in-depth: extension musí odpovídat MIME typu
-    // Blokuje např. shell.php.jpg (MIME ok, ale přípona .php skrytá)
+    // Defense-in-depth: blokovat double extension attack (shell.php.jpg)
+    // Extension derivujeme VŽDY z MIME, ne z $_FILES['name'] — user input nedůvěřujeme
     $extParts = explode('.', $file['name']);
     if (count($extParts) > 2) {
-        // Více než jedna tečka → podezřelé (double extension attack)
         $innerExt = strtolower($extParts[count($extParts) - 2]);
         $dangerous = ['php', 'phtml', 'phar', 'php3', 'php4', 'php5', 'php7', 'phps'];
         if (in_array($innerExt, $dangerous, true)) {
@@ -121,7 +118,8 @@ function validateUpload(array $file, array $allowedMime, int $maxSize, string $e
         }
     }
 
-    return is_array($expectedExt) ? ($expectedExt[$origExt] ?? reset($expectedExt)) : $expectedExt;
+    // Vždy vrátit extension z MIME mapy — nikdy z user-provided jména souboru
+    return is_array($expectedExt) ? reset($expectedExt) : $expectedExt;
 }
 
 /**
