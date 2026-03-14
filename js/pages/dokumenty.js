@@ -248,49 +248,6 @@ function dokFileIcon(ext) {
   return icons[ext] || '\uD83D\uDCC4';
 }
 
-function dokMakeField(labelText, type, id, value) {
-  var wrap = document.createElement('div');
-  var lbl = document.createElement('label');
-  lbl.htmlFor = id;
-  lbl.textContent = labelText;
-  lbl.style.cssText = 'display:block;margin-bottom:4px;font-weight:500;font-size:.85rem;color:var(--text-light);';
-  var inp = document.createElement('input');
-  inp.type = type; inp.id = id; inp.className = 'form-input'; inp.value = value;
-  wrap.appendChild(lbl);
-  wrap.appendChild(inp);
-  return { el: wrap, input: inp };
-}
-
-function dokMakeSelectField(labelText, id, options) {
-  var wrap = document.createElement('div');
-  var lbl = document.createElement('label');
-  lbl.htmlFor = id;
-  lbl.textContent = labelText;
-  lbl.style.cssText = 'display:block;margin-bottom:4px;font-weight:500;font-size:.85rem;color:var(--text-light);';
-  var sel = document.createElement('select');
-  sel.id = id; sel.className = 'form-input';
-  options.forEach(function(o) {
-    var opt = document.createElement('option');
-    opt.value = o.value; opt.textContent = o.label;
-    sel.appendChild(opt);
-  });
-  wrap.appendChild(lbl);
-  wrap.appendChild(sel);
-  return { el: wrap, select: sel };
-}
-
-function dokMakeTextareaField(labelText) {
-  var wrap = document.createElement('div');
-  var lbl = document.createElement('label');
-  lbl.textContent = labelText;
-  lbl.style.cssText = 'display:block;margin-bottom:4px;font-weight:500;font-size:.85rem;color:var(--text-light);';
-  var ta = document.createElement('textarea');
-  ta.className = 'form-input'; ta.rows = 2;
-  ta.placeholder = 'Voliteln\xe1 pozn\xe1mka ke dokumentu\u2026';
-  wrap.appendChild(lbl);
-  wrap.appendChild(ta);
-  return { el: wrap, textarea: ta };
-}
 
 function dokGuessKategorie(filename) {
   var n = filename.toLowerCase();

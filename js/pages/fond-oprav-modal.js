@@ -1,42 +1,22 @@
 /* ===== FOND OPRAV — MODAL PŘIDÁNÍ/EDITACE + PŘÍLOHY ===== */
+/* createModal / makeFormField → js/ui.js */
 
 function fondShowRecordModal(existing, onSaved) {
-  var overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;'
-    + 'display:flex;align-items:center;justify-content:center;padding:16px;';
-  var modal = document.createElement('div');
-  modal.style.cssText = 'background:var(--bg-card);border-radius:12px;width:100%;max-width:480px;'
-    + 'max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:24px;';
-  var titleEl = document.createElement('h2');
-  titleEl.style.cssText = 'margin:0 0 16px;font-size:1.1rem;';
-  titleEl.textContent = existing ? 'Upravit z\xe1znam' : 'P\u0159idat z\xe1znam';
-  modal.appendChild(titleEl);
+  var m = createModal({ title: existing ? 'Upravit z\xe1znam' : 'P\u0159idat z\xe1znam', width: '480px' });
+  var modal = m.modal;
 
   // Typ
-  var typWrap = document.createElement('div');
-  typWrap.style.marginBottom = '12px';
-  var typLbl = document.createElement('label');
-  typLbl.textContent = 'Typ *';
-  typLbl.style.cssText = 'display:block;margin-bottom:4px;font-weight:500;font-size:0.85rem;color:var(--text-light);';
-  var typSel = document.createElement('select');
-  typSel.className = 'form-input';
-  [{ v: 'prijem', l: '\u2191 P\u0159\xedjem' }, { v: 'vydaj', l: '\u2193 V\xfddaj' }].forEach(function(t) {
-    var opt = document.createElement('option');
-    opt.value = t.v; opt.textContent = t.l;
-    if (existing && existing.typ === t.v) opt.selected = true;
-    typSel.appendChild(opt);
-  });
-  typWrap.appendChild(typLbl); typWrap.appendChild(typSel);
-  modal.appendChild(typWrap);
+  var typField = makeFormField('Typ *', 'select', '', { options: [
+    { value: 'prijem', label: '\u2191 P\u0159\xedjem' },
+    { value: 'vydaj',  label: '\u2193 V\xfddaj' },
+  ]});
+  if (existing) typField.input.value = existing.typ;
+  modal.appendChild(typField.el);
+  var typSel = typField.input;
 
-  // Kategorie
-  var katWrap = document.createElement('div');
-  katWrap.style.marginBottom = '12px';
-  var katLbl = document.createElement('label');
-  katLbl.textContent = 'Kategorie *';
-  katLbl.style.cssText = 'display:block;margin-bottom:4px;font-weight:500;font-size:0.85rem;color:var(--text-light);';
-  var katSel = document.createElement('select');
-  katSel.className = 'form-input';
+  // Kategorie (dynamicky dle typu)
+  var katField = makeFormField('Kategorie *', 'select', '', { options: [] });
+  var katSel = katField.input;
   function updateKat() {
     katSel.replaceChildren();
     (typSel.value === 'prijem' ? FOND_KAT_PRIJEM : FOND_KAT_VYDAJ).forEach(function(k) {
@@ -48,20 +28,19 @@ function fondShowRecordModal(existing, onSaved) {
   }
   updateKat();
   typSel.addEventListener('change', updateKat);
-  katWrap.appendChild(katLbl); katWrap.appendChild(katSel);
-  modal.appendChild(katWrap);
+  modal.appendChild(katField.el);
 
-  var fPopis = fondModalField('Popis *', 'text', 'nap\u0159. Revize v\xfdtahu 2026');
-  var fDatum = fondModalField('Datum *', 'date', '');
-  var fCastka = fondModalField('\u010c\xe1stka (K\u010d) *', 'number', '15000');
+  var fPopis  = makeFormField('Popis *', 'text', '', { placeholder: 'nap\u0159. Revize v\xfdtahu 2026' });
+  var fDatum  = makeFormField('Datum *', 'date', '');
+  var fCastka = makeFormField('\u010c\xe1stka (K\u010d) *', 'number', '', { placeholder: '15000' });
   fCastka.input.min = '0.01'; fCastka.input.step = '0.01';
-  var fPoz = fondModalField('Pozn\xe1mka', 'text', '');
+  var fPoz    = makeFormField('Pozn\xe1mka', 'text', '');
 
   if (existing) {
-    fPopis.input.value = existing.popis || '';
-    fDatum.input.value = existing.datum || '';
-    fCastka.input.value = existing.castka || '';
-    fPoz.input.value = existing.poznamka || '';
+    fPopis.input.value  = existing.popis    || '';
+    fDatum.input.value  = existing.datum    || '';
+    fCastka.input.value = existing.castka   || '';
+    fPoz.input.value    = existing.poznamka || '';
   } else {
     fDatum.input.value = new Date().toISOString().slice(0, 10);
   }
@@ -69,7 +48,7 @@ function fondShowRecordModal(existing, onSaved) {
   modal.appendChild(fPopis.el); modal.appendChild(fDatum.el);
   modal.appendChild(fCastka.el); modal.appendChild(fPoz.el);
 
-  // Attachments section (only for existing records)
+  // Přílohy (jen u existujících záznamů)
   if (existing) {
     fondBuildPrilohySection(modal, existing);
   }
@@ -84,7 +63,7 @@ function fondShowRecordModal(existing, onSaved) {
   var cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn btn-secondary';
   cancelBtn.textContent = 'Zru\u0161it';
-  cancelBtn.addEventListener('click', function() { document.body.removeChild(overlay); });
+  cancelBtn.addEventListener('click', function() { m.close(); });
   var saveBtn = document.createElement('button');
   saveBtn.className = 'btn btn-primary';
   saveBtn.textContent = existing ? 'Ulo\u017eit' : 'P\u0159idat';
@@ -93,11 +72,11 @@ function fondShowRecordModal(existing, onSaved) {
 
   saveBtn.addEventListener('click', function() {
     errBox.style.display = 'none';
-    var popis = fPopis.input.value.trim();
-    var datum = fDatum.input.value;
+    var popis  = fPopis.input.value.trim();
+    var datum  = fDatum.input.value;
     var castka = fCastka.input.value;
-    if (!popis) { errBox.textContent = 'Popis je povinn\xfd.'; errBox.style.display = ''; return; }
-    if (!datum) { errBox.textContent = 'Datum je povinn\xe9.'; errBox.style.display = ''; return; }
+    if (!popis)  { errBox.textContent = 'Popis je povinn\xfd.'; errBox.style.display = ''; return; }
+    if (!datum)  { errBox.textContent = 'Datum je povinn\xe9.'; errBox.style.display = ''; return; }
     if (!castka || parseFloat(castka) <= 0) { errBox.textContent = 'Zadejte platnou \u010d\xe1stku.'; errBox.style.display = ''; return; }
 
     var payload = {
@@ -109,16 +88,13 @@ function fondShowRecordModal(existing, onSaved) {
 
     saveBtn.disabled = true;
     Api.apiPost('api/fond_oprav.php?action=' + action, payload).then(function() {
-      document.body.removeChild(overlay);
+      m.close();
       showToast(existing ? 'Z\xe1znam upraven.' : 'Z\xe1znam p\u0159id\xe1n.', 'success');
       if (onSaved) onSaved();
     }).catch(function(e) { errBox.textContent = e.message || 'Chyba.'; errBox.style.display = ''; })
       .finally(function() { saveBtn.disabled = false; });
   });
 
-  overlay.appendChild(modal);
-  overlay.addEventListener('click', function(e) { if (e.target === overlay) document.body.removeChild(overlay); });
-  document.body.appendChild(overlay);
   fPopis.input.focus();
 }
 
@@ -220,14 +196,3 @@ function fondRenderPrilohyList(wrap, prilohy, onReload) {
   });
 }
 
-function fondModalField(label, type, ph) {
-  var wrap = document.createElement('div');
-  wrap.style.marginBottom = '12px';
-  var lbl = document.createElement('label');
-  lbl.textContent = label;
-  lbl.style.cssText = 'display:block;margin-bottom:4px;font-weight:500;font-size:0.85rem;color:var(--text-light);';
-  var inp = document.createElement('input');
-  inp.type = type; inp.className = 'form-input'; inp.placeholder = ph || '';
-  wrap.appendChild(lbl); wrap.appendChild(inp);
-  return { el: wrap, input: inp };
-}

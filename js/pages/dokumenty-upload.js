@@ -83,24 +83,24 @@ function dokRenderUploadCard(el, onSuccess) {
   function applyGrid() { formGrid.style.gridTemplateColumns = mq.matches ? '1fr' : '1fr 1fr'; }
   applyGrid(); mq.addEventListener('change', applyGrid);
 
-  var nazevWrap = dokMakeField('N\xe1zev dokumentu *', 'text', 'dok_nazev', '');
-  nazevWrap.input.placeholder = 'Nap\u0159. Stanovy SVJ 2024';
+  /* makeFormField / makeFormField(select) / makeFormField(textarea) → js/ui.js */
+  var nazevWrap = makeFormField('N\xe1zev dokumentu *', 'text', '', { placeholder: 'Nap\u0159. Stanovy SVJ 2024' });
   formGrid.appendChild(nazevWrap.el);
 
-  var katWrap = dokMakeSelectField('Kategorie', 'dok_kat',
-    Object.entries(DOK_KATEGORIE).map(function(e) { return { value: e[0], label: e[1].ikona + ' ' + e[1].label }; }));
+  var katWrap = makeFormField('Kategorie', 'select', '',
+    { options: Object.entries(DOK_KATEGORIE).map(function(e) { return { value: e[0], label: e[1].ikona + ' ' + e[1].label }; }) });
   formGrid.appendChild(katWrap.el);
 
-  var platnostWrap = dokMakeField('Datum platnosti', 'date', 'dok_platnost', '');
+  var platnostWrap = makeFormField('Datum platnosti', 'date', '');
   formGrid.appendChild(platnostWrap.el);
 
-  var pristupWrap = dokMakeSelectField('Viditelnost', 'dok_pristup', [
+  var pristupWrap = makeFormField('Viditelnost', 'select', '', { options: [
     { value: 'vsichni', label: '\uD83D\uDD13 V\u0161ichni \u010dlenov\xe9' },
     { value: 'vybor',   label: '\uD83D\uDD12 Pouze v\xfdbor' },
-  ]);
+  ]});
   formGrid.appendChild(pristupWrap.el);
 
-  var pozWrap = dokMakeTextareaField('Pozn\xe1mka');
+  var pozWrap = makeFormField('Pozn\xe1mka', 'textarea', '', { placeholder: 'Voliteln\xe1 pozn\xe1mka ke dokumentu\u2026', rows: 2 });
   pozWrap.el.style.gridColumn = '1 / -1';
   form.appendChild(pozWrap.el);
 
@@ -145,12 +145,12 @@ function dokRenderUploadCard(el, onSuccess) {
     preview.style.display = 'flex'; zone.style.display = 'none'; form.style.display = '';
     if (!nazevWrap.input.value) nazevWrap.input.value = file.name.replace(/\.[^.]+$/, '');
     var kat = dokGuessKategorie(file.name);
-    if (kat) katWrap.select.value = kat;
+    if (kat) katWrap.input.value = kat;
   }
 
   function dokClearFile() {
     fileInput.value = ''; preview.style.display = 'none'; zone.style.display = ''; form.style.display = 'none';
-    progress.style.display = 'none'; progressFill.style.width = '0%'; nazevWrap.input.value = ''; pozWrap.textarea.value = ''; platnostWrap.input.value = '';
+    progress.style.display = 'none'; progressFill.style.width = '0%'; nazevWrap.input.value = ''; pozWrap.input.value = ''; platnostWrap.input.value = '';
   }
 
   zone.addEventListener('click', function() { fileInput.click(); });
@@ -176,9 +176,9 @@ function dokRenderUploadCard(el, onSuccess) {
     var pct = 0;
     var pTimer = setInterval(function() { pct = Math.min(pct + Math.random() * 15, 85); progressFill.style.width = pct + '%'; }, 200);
     var fd = new FormData();
-    fd.append('nazev', nazev); fd.append('kategorie', katWrap.select.value);
-    fd.append('pristup', pristupWrap.select.value); fd.append('datum_platnosti', platnostWrap.input.value);
-    fd.append('popis', pozWrap.textarea.value.trim()); fd.append('soubor', file);
+    fd.append('nazev', nazev); fd.append('kategorie', katWrap.input.value);
+    fd.append('pristup', pristupWrap.input.value); fd.append('datum_platnosti', platnostWrap.input.value);
+    fd.append('popis', pozWrap.input.value.trim()); fd.append('soubor', file);
     fetch('api/dokumenty.php?action=upload', { method: 'POST', body: fd, credentials: 'same-origin' })
       .then(function(r) { return r.json(); })
       .then(function(data) {
