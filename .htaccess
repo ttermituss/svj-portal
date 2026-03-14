@@ -16,6 +16,10 @@ Options -Indexes
     <FilesMatch "\.(css|js|woff|woff2|ttf|eot)$">
         Header set Cache-Control "public, max-age=2592000, immutable"
     </FilesMatch>
+    # Service Worker — vždy revalidovat (přebije *.js pravidlo výše)
+    <FilesMatch "^sw\.js$">
+        Header set Cache-Control "public, max-age=0, must-revalidate"
+    </FilesMatch>
     # Obrázky — 7 dní
     <FilesMatch "\.(jpg|jpeg|png|gif|webp|svg|ico)$">
         Header set Cache-Control "public, max-age=604800"
