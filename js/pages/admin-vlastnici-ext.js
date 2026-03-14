@@ -60,10 +60,7 @@ function renderVlastniciExtCard(el, user) {
 
 function renderExtTable(wrap, list, reloadFn, loadJednotky) {
   if (!list.length) {
-    var p = document.createElement('p');
-    p.style.color = 'var(--text-light)';
-    p.textContent = 'Žádní neregistrovaní vlastníci.';
-    wrap.appendChild(p);
+    wrap.appendChild(makeEmptyState('\uD83D\uDC64', 'Žádní neregistrovaní vlastníci.'));
     return;
   }
 

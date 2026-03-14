@@ -60,10 +60,7 @@ Router.register('vlastnici', function(el) {
     }
 
     if (!vlastniciExt.length) {
-      var emptyMsg = document.createElement('p');
-      emptyMsg.style.cssText = 'color:var(--text-light);font-size:0.9rem;';
-      emptyMsg.textContent = 'Žádní neregistrovaní vlastníci. Správce je může přidat ve Správě portálu.';
-      bodyExt.appendChild(emptyMsg);
+      bodyExt.appendChild(makeEmptyState('\uD83D\uDC64', 'Žádní neregistrovaní vlastníci. Správce je může přidat ve Správě portálu.'));
     } else {
       renderTableExt(bodyExt, vlastniciExt, isPriv);
     }

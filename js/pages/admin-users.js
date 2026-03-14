@@ -45,10 +45,7 @@ function renderUsersTable(wrap, users, me, reloadFn, loadJednotky) {
   wrap.replaceChildren();
 
   if (!users || !users.length) {
-    var p = document.createElement('p');
-    p.style.color = 'var(--text-light)';
-    p.textContent = 'Žádní uživatelé.';
-    wrap.appendChild(p);
+    wrap.appendChild(makeEmptyState('\uD83D\uDC65', 'Žádní uživatelé.'));
     return;
   }
 
