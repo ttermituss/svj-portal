@@ -310,17 +310,19 @@ function makeAvatarEl(user, size) {
 /* ---- Formátování měny (CZK) ---- */
 function formatCzk(val) {
   var n = parseFloat(val) || 0;
-  return n.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  return n.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+           .replace(/[\u00A0\u202F]/g, '\u0020'); // normalize non-breaking spaces (Node.js uses \u00A0)
 }
 
 /* ---- Počet dní do data ---- */
 function daysUntil(dateStr) {
   if (!dateStr) return null;
-  var target = new Date(dateStr);
+  var parts = dateStr.split('-');
+  if (parts.length !== 3) return null;
+  var target = new Date(+parts[0], +parts[1] - 1, +parts[2]); // local midnight — avoids UTC parse + DST shift
   var now = new Date();
   now.setHours(0, 0, 0, 0);
-  target.setHours(0, 0, 0, 0);
-  return Math.floor((target - now) / 86400000);
+  return Math.round((target - now) / 86400000); // Math.round absorbs DST ±1h drift
 }
 
 /* ---- Formátování data (cs-CZ) ---- */

@@ -24,7 +24,7 @@ function loadSeniorCss(enable) {
     }
   } else {
     var existing = document.getElementById(SENIOR_CSS_ID);
-    if (existing) existing.parentNode.removeChild(existing);
+    if (existing) existing.remove();
   }
 }
 

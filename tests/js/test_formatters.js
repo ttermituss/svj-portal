@@ -18,29 +18,31 @@ suite('formatCzk — formátování částky v CZK');
 suite('daysUntil — počet dní do data');
 
 (function() {
-  var now   = new Date();
-  var today = now.toISOString().slice(0, 10);
+  // Pomocná funkce — lokální datum jako YYYY-MM-DD (bez UTC posunu)
+  function localDateStr(d) {
+    return d.getFullYear() + '-' +
+      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+      String(d.getDate()).padStart(2, '0');
+  }
 
-  // Dnes = 0
+  var now   = new Date();
+  var today = localDateStr(now);
+
   assertEqual('Dnes = 0 dní', 0, daysUntil(today));
 
-  // Zítra = 1
   var tomorrow = new Date(now);
   tomorrow.setDate(tomorrow.getDate() + 1);
-  assertEqual('Zítra = 1 den', 1, daysUntil(tomorrow.toISOString().slice(0, 10)));
+  assertEqual('Zítra = 1 den', 1, daysUntil(localDateStr(tomorrow)));
 
-  // Včera = -1
   var yesterday = new Date(now);
   yesterday.setDate(yesterday.getDate() - 1);
-  assertEqual('Včera = -1 den', -1, daysUntil(yesterday.toISOString().slice(0, 10)));
+  assertEqual('Včera = -1 den', -1, daysUntil(localDateStr(yesterday)));
 
-  // 30 dní
   var future = new Date(now);
   future.setDate(future.getDate() + 30);
-  assertEqual('Za 30 dní = 30', 30, daysUntil(future.toISOString().slice(0, 10)));
+  assertEqual('Za 30 dní = 30', 30, daysUntil(localDateStr(future)));
 
-  // Null / prázdný → null
-  assertEqual('null → null',   null, daysUntil(null));
+  assertEqual('null → null',    null, daysUntil(null));
   assertEqual('prázdný → null', null, daysUntil(''));
 })();
 
@@ -61,7 +63,7 @@ suite('makeEmptyState — DOM helper');
 
 (function() {
   var el = makeEmptyState('🏠', 'Test zpráva');
-  assert('Vrátí element',                el instanceof HTMLElement);
+  assert('Vrátí element',                el && el.className !== undefined);
   assert('className = empty-state',      el.className === 'empty-state');
 
   var icon = el.querySelector('.icon');

@@ -1,0 +1,9 @@
+body { font-family: monospace; padding: 24px; background: #111; color: #eee; font-size: 14px; }
+h1   { color: #7ec8e3; margin-bottom: 4px; }
+h2   { color: #7ec8e3; margin: 20px 0 6px; font-size: 1rem; }
+.pass { color: #4caf50; }
+.fail { color: #f44336; }
+.summary { margin-top: 24px; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 1rem; }
+.summary.ok  { background: #1b3a1b; color: #4caf50; }
+.summary.err { background: #3a1b1b; color: #f44336; }
+hr { border-color: #333; margin: 16px 0; }
