@@ -26,6 +26,7 @@ var Api = (function() {
       });
   }
 
+  /** Načte statutární orgán SVJ z veřejného rejstříku ARES VR. @param {string} ico */
   function lookupAresVr(ico) {
     var clean = ico.replace(/\s/g, '').replace(/\D/g, '');
     return fetch('api/proxy.php?action=ares-vr&ico=' + encodeURIComponent(clean))
@@ -35,11 +36,13 @@ var Api = (function() {
       });
   }
 
+  /** Vrátí URL na záznam v OR justice.cz pro dané IČO. @param {string} ico */
   function justiceUrl(ico) {
     var clean = ico.replace(/\s/g, '').padStart(8, '0');
     return 'https://or.justice.cz/ias/ui/rejstrik-rejstrik?ico=' + clean;
   }
 
+  /** Vrátí URL na listiny (dokumenty) v OR justice.cz pro dané IČO. @param {string} ico */
   function justiceListinyUrl(ico) {
     var clean = ico.replace(/\s/g, '').padStart(8, '0');
     return 'https://or.justice.cz/ias/ui/vypis-sl-firma?subjektId=&ico=' + clean;
@@ -51,6 +54,11 @@ var Api = (function() {
     catch (e) { return dateStr; }
   }
 
+  /**
+   * Sestaví textovou adresu z objektu sídla z ARES.
+   * @param {{nazevUlice?:string, cisloDomovni?:string, cisloOrientacni?:string, nazevObce?:string, psc?:string|number}|null} sidlo
+   * @returns {string}
+   */
   function formatAddress(sidlo) {
     if (!sidlo) return '\u2014';
     var parts = [];
@@ -82,6 +90,12 @@ var Api = (function() {
     });
   }
 
+  /**
+   * POST požadavek na API endpoint se JSON tělem. Hodí Error při !res.ok.
+   * @param {string} endpoint  Relativní URL (např. 'api/fond_oprav.php?action=add')
+   * @param {Object} data      JSON tělo požadavku
+   * @returns {Promise<Object>}
+   */
   function apiPost(endpoint, data) {
     return fetch(endpoint, {
       method: 'POST',
@@ -96,6 +110,11 @@ var Api = (function() {
     });
   }
 
+  /**
+   * GET požadavek na API endpoint. Hodí Error při !res.ok.
+   * @param {string} endpoint  Relativní URL
+   * @returns {Promise<Object>}
+   */
   function apiGet(endpoint) {
     return fetch(endpoint, { credentials: 'include' })
       .then(function(res) {
@@ -104,6 +123,18 @@ var Api = (function() {
           return d;
         });
       });
+  }
+
+  /** apiGet s in-memory cache. Opakované volání stejného endpointu vrátí cached výsledek po dobu ttlSeconds. */
+  var _apiCache = {};
+  function apiGetCached(endpoint, ttlSeconds) {
+    var now = Date.now();
+    var cached = _apiCache[endpoint];
+    if (cached && (now - cached.ts) < ttlSeconds * 1000) return Promise.resolve(cached.data);
+    return apiGet(endpoint).then(function(data) {
+      _apiCache[endpoint] = { data: data, ts: now };
+      return data;
+    });
   }
 
   /** Ověří pozvánkový token — vrátí {valid, role, svj} nebo hodí Error */
@@ -147,5 +178,6 @@ var Api = (function() {
     revokeInvite: revokeInvite,
     apiPost: apiPost,
     apiGet: apiGet,
+    apiGetCached: apiGetCached,
   };
 })();

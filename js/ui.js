@@ -5,11 +5,17 @@
  */
 
 /* ---- Privilege check ---- */
+/** Vrátí true pokud má uživatel roli admin nebo vybor. @param {{role:string}|null} user */
 function isPrivileged(user) {
   return user && (user.role === 'admin' || user.role === 'vybor');
 }
 
 /* ---- Toast notifikace ---- */
+/**
+ * Zobrazí toast notifikaci. Automaticky zmizí po 3.2 s (success) nebo 6 s (error).
+ * @param {string} message  Text zprávy
+ * @param {'error'|'success'} [type]  Typ — výchozí 'success'
+ */
 function showToast(message, type) {
   var existing = document.getElementById('svj-toast');
   if (existing) existing.remove();
@@ -78,6 +84,12 @@ function showToast(message, type) {
 }
 
 /* ---- Confirm modal (náhrada za window.confirm) ---- */
+/**
+ * Zobrazí potvrzovací dialog. Náhrada za zakázané window.confirm().
+ * @param {string}   title      Nadpis dialogu
+ * @param {string}   detail     Doplňující text (co se smaže/provede)
+ * @param {Function} onConfirm  Callback volaný po potvrzení
+ */
 function showConfirmModal(title, detail, onConfirm) {
   var prevFocus = document.activeElement;
 
@@ -161,6 +173,11 @@ function showConfirmModal(title, detail, onConfirm) {
 }
 
 /* ---- Clipboard (fallback pro HTTP) ---- */
+/**
+ * Zkopíruje text do schránky. Funguje i bez HTTPS (execCommand fallback).
+ * @param {string}   text       Text ke zkopírování
+ * @param {Function} [onSuccess] Callback volaný po úspěchu
+ */
 function copyToClipboard(text, onSuccess) {
   if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(text).then(onSuccess).catch(function() {
@@ -308,6 +325,11 @@ function makeAvatarEl(user, size) {
 }
 
 /* ---- Formátování měny (CZK) ---- */
+/**
+ * Formátuje číslo jako CZK (cs-CZ locale, max 2 desetinná místa).
+ * @param {number|string} val  Číselná hodnota
+ * @returns {string}  Např. "1 234 567" nebo "1 234,56"
+ */
 function formatCzk(val) {
   var n = parseFloat(val) || 0;
   return n.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
@@ -315,6 +337,12 @@ function formatCzk(val) {
 }
 
 /* ---- Počet dní do data ---- */
+/**
+ * Počet celých dní od dnešního dne do dateStr (záporné = v minulosti).
+ * Parsuje lokálně (ne UTC) — imunní vůči DST posunu.
+ * @param {string|null} dateStr  Datum ve formátu "YYYY-MM-DD"
+ * @returns {number|null}  Počet dní nebo null pokud dateStr chybí
+ */
 function daysUntil(dateStr) {
   if (!dateStr) return null;
   var parts = dateStr.split('-');
@@ -326,12 +354,22 @@ function daysUntil(dateStr) {
 }
 
 /* ---- Formátování data (cs-CZ) ---- */
+/**
+ * Formátuje datum do cs-CZ lokálního formátu (d. M. YYYY).
+ * @param {string|null} dateStr  ISO datum nebo datetime string
+ * @returns {string}  Formátované datum nebo prázdný řetězec
+ */
 function formatDate(dateStr) {
   if (!dateStr) return '';
   return new Date(dateStr).toLocaleDateString('cs-CZ');
 }
 
 /* ---- Focus trap pro modaly ---- */
+/**
+ * Uvězní focus (Tab/Shift+Tab) uvnitř kontejneru — pro přístupné modaly (WCAG 2.5).
+ * @param {HTMLElement} container  Modal nebo dialog element
+ * @returns {Function}  Cleanup funkce — zavolat při zavření modalu
+ */
 function trapFocus(container) {
   var focusable = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
