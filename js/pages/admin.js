@@ -221,7 +221,7 @@ function renderIsdsCard(el, user) {
   body.appendChild(err);
   body.appendChild(ok);
 
-  var grp  = makeAdminField('ID datov\xe9 schr\xe1nky (nap\u0159. abc1234)', 'text', 'isds-id-input', '');
+  var grp  = makeFormField('ID datov\xe9 schr\xe1nky (nap\u0159. abc1234)', 'text', '');
   grp.input.maxLength = 7;
   grp.input.placeholder = 'nap\u0159. abc1234';
   grp.input.style.maxWidth = '200px';
@@ -310,19 +310,6 @@ function makeAdminCard(title) {
   return { card: card, body: body };
 }
 
-function makeAdminField(labelText, type, id, value) {
-  var wrap = document.createElement('div');
-  wrap.style.marginBottom = '16px';
-  var lbl = document.createElement('label');
-  lbl.htmlFor = id;
-  lbl.textContent = labelText;
-  lbl.style.cssText = 'display:block;margin-bottom:4px;font-weight:500;font-size:0.9rem;';
-  var inp = document.createElement('input');
-  inp.type = type; inp.id = id; inp.className = 'form-input'; inp.value = value;
-  wrap.appendChild(lbl);
-  wrap.appendChild(inp);
-  return { el: wrap, input: inp };
-}
 
 function makeAdminInfoBox(isOk) {
   var b = document.createElement('div');

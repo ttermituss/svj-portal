@@ -18,9 +18,7 @@ Router.register('jednotky', function(el) {
   card.appendChild(body);
   el.appendChild(card);
 
-  var loading = document.createElement('div');
-  loading.style.cssText = 'color:var(--text-light);font-size:0.9rem;';
-  loading.textContent = 'Načítám jednotky\u2026';
+  var loading = makeLoadingEl('Na\u010d\xedt\xe1m jednotky\u2026');
   body.appendChild(loading);
 
   var user   = Auth.getUser();
@@ -28,7 +26,7 @@ Router.register('jednotky', function(el) {
 
   function load() {
     body.replaceChildren(loading);
-    loading.textContent = 'Načítám jednotky\u2026';
+    loading.textContent = 'Na\u010d\xedt\xe1m jednotky\u2026';
     loading.style.color = 'var(--text-light)';
 
     Api.apiGet('api/jednotky.php')

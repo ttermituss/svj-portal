@@ -421,6 +421,15 @@ function createModal(opts) {
   return { overlay: overlay, modal: modal, close: close };
 }
 
+/* ---- Loading placeholder helper ---- */
+/** Vrátí div s textem "Načítám…" ve stylu var(--text-light). */
+function makeLoadingEl(text) {
+  var el = document.createElement('div');
+  el.style.cssText = 'color:var(--text-light);font-size:0.9rem;';
+  el.textContent = text || 'Na\u010d\xedt\xe1m\u2026';
+  return el;
+}
+
 /* ---- Empty state helper ---- */
 /**
  * Vytvoří div.empty-state s ikonou a textem.

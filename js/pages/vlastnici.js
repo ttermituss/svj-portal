@@ -22,9 +22,7 @@ Router.register('vlastnici', function(el) {
   card.appendChild(body);
   el.appendChild(card);
 
-  var loading = document.createElement('div');
-  loading.style.cssText = 'color:var(--text-light);font-size:0.9rem;';
-  loading.textContent = 'Načítám\u2026';
+  var loading = makeLoadingEl();
   body.appendChild(loading);
 
   // Karta: neregistrovaní
@@ -41,9 +39,7 @@ Router.register('vlastnici', function(el) {
   cardExt.appendChild(bodyExt);
   el.appendChild(cardExt);
 
-  var loadingExt = document.createElement('div');
-  loadingExt.style.cssText = 'color:var(--text-light);font-size:0.9rem;';
-  loadingExt.textContent = 'Načítám\u2026';
+  var loadingExt = makeLoadingEl();
   bodyExt.appendChild(loadingExt);
 
   // Paralelní načítání

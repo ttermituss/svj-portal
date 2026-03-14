@@ -34,12 +34,11 @@ function revizeShowForm(formWrap, rev, listWrap, user, addBtn) {
   typWrap.appendChild(typSelect);
   formWrap.appendChild(typWrap);
 
-  var nazevField = makeAdminField('N\xe1zev / popis', 'text', 'rev_nazev', rev ? rev.nazev : '');
+  var nazevField = makeFormField('N\xe1zev / popis', 'text', rev ? rev.nazev : '');
   nazevField.input.placeholder = 'nap\u0159. Elektrorevize spole\u010dn\xfdch prostor';
   formWrap.appendChild(nazevField.el);
 
-  var posledniField = makeAdminField('Datum posledn\xed revize', 'date', 'rev_posledni',
-    rev ? rev.datum_posledni : '');
+  var posledniField = makeFormField('Datum posledn\xed revize', 'date', rev ? rev.datum_posledni : '');
   formWrap.appendChild(posledniField.el);
 
   // Interval
@@ -60,8 +59,7 @@ function revizeShowForm(formWrap, rev, listWrap, user, addBtn) {
   intervalWrap.appendChild(intervalHint);
   formWrap.appendChild(intervalWrap);
 
-  var pristiField = makeAdminField('Datum p\u0159\xed\u0161t\xed revize (nepovinn\xe9)', 'date', 'rev_pristi',
-    rev && rev.datum_pristi ? rev.datum_pristi : '');
+  var pristiField = makeFormField('Datum p\u0159\xed\u0161t\xed revize (nepovinn\xe9)', 'date', rev && rev.datum_pristi ? rev.datum_pristi : '');
   formWrap.appendChild(pristiField.el);
 
   // Kontakt select
@@ -93,8 +91,7 @@ function revizeShowForm(formWrap, rev, listWrap, user, addBtn) {
   });
 
   // Náklady
-  var nakladyField = makeAdminField('N\xe1klady (K\u010d)', 'number', 'rev_naklady',
-    rev && rev.naklady ? rev.naklady : '');
+  var nakladyField = makeFormField('N\xe1klady (K\u010d)', 'number', rev && rev.naklady ? rev.naklady : '');
   nakladyField.input.placeholder = 'nap\u0159. 15000';
   nakladyField.input.min = '0'; nakladyField.input.step = '0.01';
   formWrap.appendChild(nakladyField.el);

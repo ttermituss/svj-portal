@@ -2,47 +2,34 @@
 
 /* ── Modal: přidání / úprava měřidla ──────────────── */
 function merShowModal(existing, user, onSaved) {
-  var overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;' +
-    'display:flex;align-items:center;justify-content:center;padding:16px;';
-
-  var modal = document.createElement('div');
-  modal.style.cssText = 'background:var(--bg-card);border-radius:12px;padding:24px;' +
-    'max-width:500px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.25);';
-
-  var title = document.createElement('h2');
-  title.style.cssText = 'margin:0 0 20px;font-size:1.15rem;';
-  title.textContent = existing ? 'Upravit m\u011b\u0159idlo' : 'Nov\xe9 m\u011b\u0159idlo';
-  modal.appendChild(title);
+  var m = createModal({ title: existing ? 'Upravit m\u011b\u0159idlo' : 'Nov\xe9 m\u011b\u0159idlo', width: '500px' });
+  var modal = m.modal;
 
   // Typ
-  var typSelect = merModalSelect(modal, 'Typ m\u011b\u0159idla *', MER_TYPY.map(function(t) {
-    return { value: t.value, label: t.icon + ' ' + t.label };
-  }), existing ? existing.typ : '');
+  var typField = makeFormField('Typ m\u011b\u0159idla *', 'select', existing ? existing.typ : '', {
+    options: MER_TYPY.map(function(t) { return { value: t.value, label: t.icon + ' ' + t.label }; }),
+  });
+  modal.appendChild(typField.el);
+  var typSelect = typField.input;
 
-  var vcInput = merModalField(modal, 'V\xfdrobn\xed \u010d\xedslo', 'text', existing ? existing.vyrobni_cislo || '' : '');
-  vcInput.placeholder = 'nap\u0159. 12345678';
+  var vcField = makeFormField('V\xfdrobn\xed \u010d\xedslo', 'text', existing ? existing.vyrobni_cislo || '' : '',
+    { placeholder: 'nap\u0159. 12345678' });
+  modal.appendChild(vcField.el);
+  var vcInput = vcField.input;
 
   // Umístění
-  var umSelect = merModalSelect(modal, 'Um\xedst\u011bn\xed', [
-    { value: 'jednotka', label: 'V jednotce' },
-    { value: 'spolecne', label: 'Spole\u010dn\xe9' },
-  ], existing ? existing.umisteni_typ : 'jednotka');
+  var umField = makeFormField('Um\xedst\u011bn\xed', 'select', existing ? existing.umisteni_typ : 'jednotka', {
+    options: [{ value: 'jednotka', label: 'V jednotce' }, { value: 'spolecne', label: 'Spole\u010dn\xe9' }],
+  });
+  modal.appendChild(umField.el);
+  var umSelect = umField.input;
 
-  // Jednotka select
-  var jednWrap = document.createElement('div');
-  jednWrap.style.marginBottom = '14px';
-  var jednLabel = document.createElement('label');
-  jednLabel.textContent = 'Jednotka';
-  jednLabel.style.cssText = 'display:block;margin-bottom:4px;font-weight:500;font-size:0.9rem;';
-  var jednSelect = document.createElement('select');
-  jednSelect.className = 'form-input';
-  var emOpt = document.createElement('option');
-  emOpt.value = ''; emOpt.textContent = '\u2014 nevybr\xe1no \u2014';
-  jednSelect.appendChild(emOpt);
-  jednWrap.appendChild(jednLabel);
-  jednWrap.appendChild(jednSelect);
-  modal.appendChild(jednWrap);
+  // Jednotka select — plní se async, proto makeFormField se základní volbou
+  var jednField = makeFormField('Jednotka', 'select', '', {
+    options: [{ value: '', label: '\u2014 nevybr\xe1no \u2014' }],
+  });
+  modal.appendChild(jednField.el);
+  var jednSelect = jednField.input;
 
   // Načti jednotky + existující měřidla pro hints
   Promise.all([
@@ -52,110 +39,93 @@ function merShowModal(existing, user, onSaved) {
     var jednotky = results[0].jednotky || [];
     var meridla  = results[1].meridla || [];
 
-    // Mapa: jednotka_id → pole typů měřidel
     var merMap = {};
-    meridla.forEach(function(m) {
-      if (m.umisteni_typ === 'jednotka' && m.jednotka_id) {
-        var key = String(m.jednotka_id);
+    meridla.forEach(function(mer) {
+      if (mer.umisteni_typ === 'jednotka' && mer.jednotka_id) {
+        var key = String(mer.jednotka_id);
         if (!merMap[key]) merMap[key] = [];
-        merMap[key].push(m.typ);
+        merMap[key].push(mer.typ);
       }
     });
 
     jednotky.forEach(function(j) {
       var opt = document.createElement('option');
       opt.value = j.id;
-      var label = j.cislo_jednotky + (j.vlastnik_jmeno ? ' \u2014 ' + j.vlastnik_jmeno : '');
+      var lbl = j.cislo_jednotky + (j.vlastnik_jmeno ? ' \u2014 ' + j.vlastnik_jmeno : '');
       var typy = merMap[String(j.id)];
       if (typy && typy.length) {
-        var icons = typy.map(function(t) { return merTypInfo(t).icon; });
-        // Odstraním duplicity
-        icons = icons.filter(function(v, i, a) { return a.indexOf(v) === i; });
-        label += ' [' + icons.join('') + ']';
+        var icons = typy.map(function(t) { return merTypInfo(t).icon; })
+          .filter(function(v, i, a) { return a.indexOf(v) === i; });
+        lbl += ' [' + icons.join('') + ']';
       } else {
-        label += ' (\u017e\xe1dn\xe9 m\u011b\u0159idlo)';
+        lbl += ' (\u017e\xe1dn\xe9 m\u011b\u0159idlo)';
       }
-      opt.textContent = label;
+      opt.textContent = lbl;
       if (existing && existing.jednotka_id && String(existing.jednotka_id) === String(j.id)) opt.selected = true;
       jednSelect.appendChild(opt);
     });
   }).catch(function() {});
 
   // Skrýt/zobrazit jednotku dle umístění
-  function toggleJedn() { jednWrap.style.display = umSelect.value === 'spolecne' ? 'none' : ''; }
+  function toggleJedn() { jednField.el.style.display = umSelect.value === 'spolecne' ? 'none' : ''; }
   umSelect.addEventListener('change', toggleJedn);
   toggleJedn();
 
-  var mistoInput = merModalField(modal, 'M\xedsto (up\u0159esn\u011bn\xed)', 'text',
-    existing ? existing.misto || '' : '');
-  mistoInput.placeholder = 'nap\u0159. Koupelna, Kotelna';
+  var mistoField = makeFormField('M\xedsto (up\u0159esn\u011bn\xed)', 'text', existing ? existing.misto || '' : '',
+    { placeholder: 'nap\u0159. Koupelna, Kotelna' });
+  modal.appendChild(mistoField.el);
+  var mistoInput = mistoField.input;
 
-  // Jednotka měření
-  var unitInput = merModalField(modal, 'Jednotka m\u011b\u0159en\xed', 'text',
-    existing ? existing.jednotka_mereni || '' : '');
-  unitInput.placeholder = 'm\u00b3, kWh, GJ';
+  var unitField = makeFormField('Jednotka m\u011b\u0159en\xed', 'text', existing ? existing.jednotka_mereni || '' : '',
+    { placeholder: 'm\u00b3, kWh, GJ' });
+  modal.appendChild(unitField.el);
+  var unitInput = unitField.input;
 
-  // Auto-fill unit dle typu
   typSelect.addEventListener('change', function() {
     if (!unitInput.value || unitInput.value === 'm3' || unitInput.value === 'kWh' || unitInput.value === 'GJ') {
-      var t = merTypInfo(typSelect.value);
-      unitInput.value = t.unit;
+      unitInput.value = merTypInfo(typSelect.value).unit;
     }
   });
-  if (!existing) {
-    var defT = merTypInfo(typSelect.value);
-    unitInput.value = defT.unit;
-  }
+  if (!existing) unitInput.value = merTypInfo(typSelect.value).unit;
 
-  var instInput = merModalField(modal, 'Datum instalace', 'date', existing ? existing.datum_instalace || '' : '');
-  var cejchInput = merModalField(modal, 'Datum posledn\xedho cejchu', 'date', existing ? existing.datum_cejchu || '' : '');
+  var instField = makeFormField('Datum instalace', 'date', existing ? existing.datum_instalace || '' : '');
+  modal.appendChild(instField.el);
+  var instInput = instField.input;
 
-  var intWrap = document.createElement('div');
-  intWrap.style.marginBottom = '14px';
-  var intLabel = document.createElement('label');
-  intLabel.textContent = 'Interval cejchov\xe1n\xed (m\u011bs\xedce)';
-  intLabel.style.cssText = 'display:block;margin-bottom:4px;font-weight:500;font-size:0.9rem;';
-  var intInput = document.createElement('input');
-  intInput.type = 'number'; intInput.className = 'form-input';
-  intInput.style.maxWidth = '120px'; intInput.min = '1'; intInput.placeholder = '60';
-  intInput.value = existing && existing.interval_cejchu_mesice ? existing.interval_cejchu_mesice : '';
-  intWrap.appendChild(intLabel);
-  intWrap.appendChild(intInput);
-  modal.appendChild(intWrap);
+  var cejchField = makeFormField('Datum posledn\xedho cejchu', 'date', existing ? existing.datum_cejchu || '' : '');
+  modal.appendChild(cejchField.el);
+  var cejchInput = cejchField.input;
 
-  // Aktivní checkbox
+  var intField = makeFormField('Interval cejchov\xe1n\xed (m\u011bs\xedce)', 'number',
+    existing && existing.interval_cejchu_mesice ? existing.interval_cejchu_mesice : '',
+    { placeholder: '60' });
+  intField.input.style.maxWidth = '120px'; intField.input.min = '1';
+  modal.appendChild(intField.el);
+  var intInput = intField.input;
+
+  // Aktivní checkbox (není v makeFormField)
   var aktWrap = document.createElement('div');
   aktWrap.style.cssText = 'margin-bottom:14px;display:flex;align-items:center;gap:8px;';
   var aktCheck = document.createElement('input');
-  aktCheck.type = 'checkbox'; aktCheck.id = 'mer_aktivni';
+  aktCheck.type = 'checkbox';
   aktCheck.checked = existing ? (existing.aktivni !== '0' && existing.aktivni !== 0) : true;
-  var aktLabel = document.createElement('label');
-  aktLabel.htmlFor = 'mer_aktivni'; aktLabel.textContent = 'Aktivn\xed m\u011b\u0159idlo';
-  aktLabel.style.cssText = 'font-size:0.9rem;cursor:pointer;';
-  aktWrap.appendChild(aktCheck);
-  aktWrap.appendChild(aktLabel);
+  var aktLbl = document.createElement('label');
+  aktLbl.textContent = 'Aktivn\xed m\u011b\u0159idlo';
+  aktLbl.style.cssText = 'font-size:0.9rem;cursor:pointer;';
+  aktWrap.appendChild(aktCheck); aktWrap.appendChild(aktLbl);
   modal.appendChild(aktWrap);
 
-  // Poznámka
-  var pozWrap = document.createElement('div');
-  pozWrap.style.marginBottom = '16px';
-  var pozLabel = document.createElement('label');
-  pozLabel.textContent = 'Pozn\xe1mka';
-  pozLabel.style.cssText = 'display:block;margin-bottom:4px;font-weight:500;font-size:0.9rem;';
-  var pozInput = document.createElement('textarea');
-  pozInput.className = 'form-input'; pozInput.rows = 2;
-  pozInput.value = existing ? (existing.poznamka || '') : '';
-  pozWrap.appendChild(pozLabel); pozWrap.appendChild(pozInput);
-  modal.appendChild(pozWrap);
+  var pozField = makeFormField('Pozn\xe1mka', 'textarea', existing ? existing.poznamka || '' : '', { rows: 2 });
+  modal.appendChild(pozField.el);
+  var pozInput = pozField.input;
 
-  // Buttons
   var btnRow = document.createElement('div');
   btnRow.style.cssText = 'display:flex;gap:8px;justify-content:flex-end;';
 
   var cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn btn-secondary';
   cancelBtn.textContent = 'Zru\u0161it';
-  cancelBtn.addEventListener('click', function() { overlay.remove(); });
+  cancelBtn.addEventListener('click', m.close);
 
   var saveBtn = document.createElement('button');
   saveBtn.className = 'btn btn-primary';
@@ -163,7 +133,6 @@ function merShowModal(existing, user, onSaved) {
 
   saveBtn.addEventListener('click', function() {
     saveBtn.disabled = true; saveBtn.textContent = 'Ukl\xe1d\xe1m\u2026';
-
     Api.apiPost('api/meridla.php?action=save', {
       id: existing ? existing.id : 0,
       typ: typSelect.value,
@@ -179,7 +148,7 @@ function merShowModal(existing, user, onSaved) {
       poznamka: pozInput.value.trim(),
     }).then(function() {
       showToast('M\u011b\u0159idlo ulo\u017eeno');
-      overlay.remove();
+      m.close();
       if (onSaved) onSaved();
     }).catch(function(e) {
       showToast(e.message || 'Chyba.', 'error');
@@ -189,10 +158,6 @@ function merShowModal(existing, user, onSaved) {
 
   btnRow.appendChild(cancelBtn); btnRow.appendChild(saveBtn);
   modal.appendChild(btnRow);
-
-  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
 }
 
 /* ── Modal: odečty měřidla ────────────────────────── */
@@ -202,18 +167,9 @@ function merOdectyModal(meridlo, user, onClose) {
   var canAdd = isPriv || (meridlo.umisteni_typ === 'jednotka'
     && String(meridlo.jednotka_id) === String(user.jednotka_id));
 
-  var overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;' +
-    'display:flex;align-items:center;justify-content:center;padding:16px;';
-
-  var modal = document.createElement('div');
-  modal.style.cssText = 'background:var(--bg-card);border-radius:12px;padding:24px;' +
-    'max-width:550px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.25);';
-
-  var title = document.createElement('h2');
-  title.style.cssText = 'margin:0 0 4px;font-size:1.15rem;';
-  title.textContent = info.icon + ' ' + info.label + (meridlo.vyrobni_cislo ? ' \u2014 ' + meridlo.vyrobni_cislo : '');
-  modal.appendChild(title);
+  var titleText = info.icon + ' ' + info.label + (meridlo.vyrobni_cislo ? ' \u2014 ' + meridlo.vyrobni_cislo : '');
+  var m = createModal({ title: titleText, width: '550px' });
+  var modal = m.modal;
 
   var sub = document.createElement('p');
   sub.style.cssText = 'margin:0 0 16px;font-size:0.85rem;color:var(--text-light);';
@@ -275,23 +231,16 @@ function merOdectyModal(meridlo, user, onClose) {
   var closeBtn = document.createElement('button');
   closeBtn.className = 'btn btn-secondary';
   closeBtn.textContent = 'Zav\u0159\xedt';
-  closeBtn.addEventListener('click', function() { overlay.remove(); if (onClose) onClose(); });
+  closeBtn.addEventListener('click', function() { m.close(); if (onClose) onClose(); });
   closeRow.appendChild(closeBtn);
   modal.appendChild(closeRow);
-
-  overlay.addEventListener('click', function(e) { if (e.target === overlay) { overlay.remove(); if (onClose) onClose(); } });
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
 
   merOdectyReload(odectyWrap, meridlo, user);
 }
 
 function merOdectyReload(wrap, meridlo, user) {
   wrap.replaceChildren();
-  var ld = document.createElement('p');
-  ld.style.cssText = 'color:var(--text-light);font-size:0.9rem;';
-  ld.textContent = 'Na\u010d\xedt\xe1m\u2026';
-  wrap.appendChild(ld);
+  wrap.appendChild(makeLoadingEl());
 
   Api.apiGet('api/meridla.php?action=odectyList&meridlo_id=' + meridlo.id)
     .then(function(data) {
@@ -394,35 +343,4 @@ function merRenderOdectyTable(wrap, items, meridlo, user) {
   wrap.appendChild(tbl);
 }
 
-/* ── Helpers ──────────────────────────────────────── */
-function merModalField(parent, label, type, value) {
-  var wrap = document.createElement('div');
-  wrap.style.marginBottom = '14px';
-  var lbl = document.createElement('label');
-  lbl.textContent = label;
-  lbl.style.cssText = 'display:block;margin-bottom:4px;font-weight:500;font-size:0.9rem;';
-  var input = document.createElement('input');
-  input.type = type; input.className = 'form-input'; input.value = value || '';
-  wrap.appendChild(lbl); wrap.appendChild(input);
-  parent.appendChild(wrap);
-  return input;
-}
-
-function merModalSelect(parent, label, options, selected) {
-  var wrap = document.createElement('div');
-  wrap.style.marginBottom = '14px';
-  var lbl = document.createElement('label');
-  lbl.textContent = label;
-  lbl.style.cssText = 'display:block;margin-bottom:4px;font-weight:500;font-size:0.9rem;';
-  var sel = document.createElement('select');
-  sel.className = 'form-input';
-  options.forEach(function(o) {
-    var opt = document.createElement('option');
-    opt.value = o.value; opt.textContent = o.label;
-    if (selected && selected === o.value) opt.selected = true;
-    sel.appendChild(opt);
-  });
-  wrap.appendChild(lbl); wrap.appendChild(sel);
-  parent.appendChild(wrap);
-  return sel;
-}
+/* makeFormField / createModal / makeLoadingEl → js/ui.js */
