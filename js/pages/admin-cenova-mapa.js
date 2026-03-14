@@ -15,7 +15,7 @@ function renderCenovaMapaCard(el, user) {
   body.appendChild(contentWrap);
 
   // Načteme adresu z KN status
-  Api.apiGet('api/kn.php?action=status')
+  Api.apiGetCached('api/kn.php?action=status', 300)
     .then(function(d) { cenovaMapaRender(contentWrap, d.adresa_plna || ''); })
     .catch(function()  { cenovaMapaRender(contentWrap, ''); });
 

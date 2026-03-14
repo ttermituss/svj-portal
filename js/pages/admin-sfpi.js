@@ -12,7 +12,7 @@ function renderSfpiCard(el, user) {
   body.appendChild(hint);
 
   // Načti info o budově z KN statusu pro kontextový hint
-  Api.apiGet('api/kn.php?action=status')
+  Api.apiGetCached('api/kn.php?action=status', 300)
     .then(function(data) { renderSfpiPrograms(body, data); })
     .catch(function()    { renderSfpiPrograms(body, null); });
 

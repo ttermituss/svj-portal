@@ -36,7 +36,7 @@ function renderBudovaInfoCard(el, user) {
   loading.textContent = 'Na\u010d\xedt\xe1m\u2026';
   body.appendChild(loading);
 
-  Api.apiGet('api/kn.php?action=status')
+  Api.apiGetCached('api/kn.php?action=status', 300)
     .then(function(d) {
       body.replaceChildren();
       var rows = [];
