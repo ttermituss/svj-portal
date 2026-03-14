@@ -19,7 +19,7 @@ function getOrFetchSvj(string $ico): array
 
     $stale = !$cached || (
         isset($cached['updated_at']) &&
-        strtotime($cached['updated_at']) < time() - 86400
+        strtotime($cached['updated_at']) < time() - 604800
     );
 
     if ($stale) {

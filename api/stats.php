@@ -11,23 +11,20 @@ require_once __DIR__ . '/middleware.php';
 $user  = requireAuth();
 $svjId = requireSvj($user);
 
-$db = getDb();
-
-$vlastnici = $db->prepare('SELECT COUNT(*) FROM users WHERE svj_id = :id');
-$vlastnici->execute([':id' => $svjId]);
-
-$jednotky = $db->prepare('SELECT COUNT(*) FROM jednotky WHERE svj_id = :id');
-$jednotky->execute([':id' => $svjId]);
-
-$plomby = $db->prepare('SELECT COUNT(*) FROM jednotky WHERE svj_id = :id AND plomba_aktivni = 1');
-$plomby->execute([':id' => $svjId]);
-
-$hasGps = $db->prepare('SELECT lat FROM svj WHERE id = :id AND lat IS NOT NULL');
-$hasGps->execute([':id' => $svjId]);
+$db   = getDb();
+$stmt = $db->prepare(
+    'SELECT
+        (SELECT COUNT(*) FROM users    WHERE svj_id = ?) AS vlastnici,
+        (SELECT COUNT(*) FROM jednotky WHERE svj_id = ?) AS jednotky,
+        (SELECT COALESCE(SUM(plomba_aktivni = 1), 0) FROM jednotky WHERE svj_id = ?) AS plomby,
+        (SELECT lat IS NOT NULL FROM svj WHERE id = ? LIMIT 1) AS has_gps'
+);
+$stmt->execute([$svjId, $svjId, $svjId, $svjId]);
+$row = $stmt->fetch(PDO::FETCH_ASSOC);
 
 jsonOk([
-    'vlastnici' => (int)$vlastnici->fetchColumn(),
-    'jednotky'  => (int)$jednotky->fetchColumn(),
-    'plomby'    => (int)$plomby->fetchColumn(),
-    'has_gps'   => (bool)$hasGps->fetchColumn(),
+    'vlastnici' => (int)$row['vlastnici'],
+    'jednotky'  => (int)$row['jednotky'],
+    'plomby'    => (int)$row['plomby'],
+    'has_gps'   => (bool)$row['has_gps'],
 ]);

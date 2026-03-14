@@ -110,6 +110,7 @@ function renderTableReg(body, vlastnici, isPriv) {
   var roleLabels = { admin: 'Správce', vybor: 'Výbor', vlastnik: 'Vlastník' };
 
   var tbody = document.createElement('tbody');
+  var frag = document.createDocumentFragment();
   vlastnici.forEach(function(v) {
     var tr = document.createElement('tr');
 
@@ -152,8 +153,9 @@ function renderTableReg(body, vlastnici, isPriv) {
       tr.appendChild(tdIsir);
     }
 
-    tbody.appendChild(tr);
+    frag.appendChild(tr);
   });
+  tbody.appendChild(frag);
   tbl.appendChild(tbody);
   body.appendChild(tbl);
 
@@ -193,6 +195,7 @@ function renderTableExt(body, list, isPriv) {
   tbl.appendChild(thead);
 
   var tbody = document.createElement('tbody');
+  var frag = document.createDocumentFragment();
   list.forEach(function(v) {
     var tr = document.createElement('tr');
     var cells = [(((v.jmeno || '') + ' ' + (v.prijmeni || '')).trim()) || '\u2014'];
@@ -207,8 +210,9 @@ function renderTableExt(body, list, isPriv) {
         (i === 0 ? 'font-weight:500;' : 'color:var(--text-light);');
       tr.appendChild(td);
     });
-    tbody.appendChild(tr);
+    frag.appendChild(tr);
   });
+  tbody.appendChild(frag);
   tbl.appendChild(tbody);
   body.appendChild(tbl);
 

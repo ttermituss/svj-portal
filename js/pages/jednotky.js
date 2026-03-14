@@ -105,6 +105,7 @@ function renderTable(body, jednotky, isPriv, reloadFn) {
   tbl.appendChild(thead);
 
   var tbody = document.createElement('tbody');
+  var frag = document.createDocumentFragment();
   jednotky.forEach(function(j) {
     var tr = document.createElement('tr');
     if (isPriv && j.plomba_aktivni) tr.style.background = 'var(--danger-bg, rgba(220,53,69,0.06))';
@@ -190,8 +191,9 @@ function renderTable(body, jednotky, isPriv, reloadFn) {
       tr.appendChild(tdEdit);
     }
 
-    tbody.appendChild(tr);
+    frag.appendChild(tr);
   });
+  tbody.appendChild(frag);
   tbl.appendChild(tbody);
   body.appendChild(tbl);
 

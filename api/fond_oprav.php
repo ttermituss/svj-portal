@@ -47,7 +47,8 @@ function handleList(): void
     $db   = getDb();
     $stmt = $db->prepare(
         "SELECT f.id, f.typ, f.kategorie, f.popis, f.castka, f.datum, f.poznamka,
-                COUNT(DISTINCT p.id) AS pocet_priloh
+                COUNT(DISTINCT p.id) AS pocet_priloh,
+                COUNT(*) OVER() AS total_count
          FROM fond_oprav f
          LEFT JOIN fond_prilohy p ON p.fond_oprav_id = f.id
          WHERE " . $qb->sql() . "
@@ -62,9 +63,16 @@ function handleList(): void
     $stmt->execute();
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    $countStmt = $db->prepare("SELECT COUNT(*) FROM fond_oprav f WHERE " . $qb->sql());
-    $countStmt->execute($qb->params());
-    $total = (int) $countStmt->fetchColumn();
+    if ($rows) {
+        $total = (int)$rows[0]['total_count'];
+        foreach ($rows as &$r) { unset($r['total_count']); }
+        unset($r);
+    } else {
+        // edge case: offset > total — fallback na separátní COUNT
+        $countStmt = $db->prepare("SELECT COUNT(*) FROM fond_oprav f WHERE " . $qb->sql());
+        $countStmt->execute($qb->params());
+        $total = (int)$countStmt->fetchColumn();
+    }
 
     jsonOk(['zaznamy' => $rows, 'total' => $total]);
 }

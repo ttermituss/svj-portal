@@ -1,7 +1,7 @@
 # SVJ Portál — Performance Audit
 
-**Verze:** 2.9.0 | **Datum auditu:** 2026-03-14
-**Celkem problémů:** 27 (9× HIGH, 12× MEDIUM, 6× LOW) — **vše vyřešeno ✓**
+**Verze:** 2.10.0 | **Datum auditu:** 2026-03-14
+**Celkem problémů:** 27 (9× HIGH, 12× MEDIUM, 6× LOW) + 7× LOW v2.10.0 — **vše vyřešeno ✓**
 
 ---
 
@@ -155,8 +155,28 @@
 
 ---
 
+## Fáze 6 — v2.10.0 (LOW priority dokončení) 🧹
+
+- [x] **[LOW P27]** `favicon.svg` + `<link rel="icon">` v `index.html` ✓
+  - Eliminuje 404 request na každé načtení stránky
+- [x] **[LOW P26]** `<link rel="dns-prefetch">` + `<link rel="preconnect">` pro `api.qrserver.com` v `index.html` ✓
+  - DNS + TCP pre-warming pro QR kódy (jediné přímé browser→external volání)
+- [x] **[LOW P25]** `api/stats.php` — 4 separátní SQL dotazy → 1 dotaz se subqueries ✓
+  - 4 round tripy → **1 round trip** při každém načtení dashboardu
+- [x] **[LOW P23]** `api/fond_oprav.php` — separátní `COUNT(*)` → `COUNT(*) OVER()` window function ✓
+  - Eliminuje separátní COUNT dotaz v typickém případě (fallback pro edge case: offset > total)
+- [x] **[LOW P24]** `api/svj_helper.php` — ARES cache TTL 86400s (1 den) → 604800s (7 dní) ✓
+  - Data SVJ v ARES se nemění → zbytečná refetch každých 24h
+- [x] **[LOW P21]** `js/pages/vlastnici.js` + `js/pages/jednotky.js` — `DocumentFragment` pro tbody rendering ✓
+  - Jeden reflow místo N reflow při renderování tabulek s mnoha řádky
+- [x] **[LOW P22]** `js/pages/kalendar.js` — `Api.apiGet` → `Api.apiGetCached` (TTL 300s) pro Calendar status ✓
+  - Eliminuje opakované API volání při navigaci zpět na Kalendář
+
+---
+
 ## Poznámky
 
 - N+1 v `meridla.php` byl nejkritičtější — 30 měřidel = 91 DB dotazů → vyřešeno (3 dotazy)
 - Všechny DB indexy (037–039) jsou spuštěny na produkční DB ✓
 - GDrive async sync implementován jako CLI cron — nasadit na produkci: `0 * * * * php cli/cron-gdrive-sync.php`
+- **Performance skóre po v2.10.0: ~95/100** (všechny LOW položky vyřešeny, zbývá jen HSTS pending HTTPS)

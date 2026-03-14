@@ -99,7 +99,7 @@ Router.register('kalendar', function(el) {
     navBar.appendChild(rightBtns);
 
     // Zobrazit sync tlačítko jen pokud je Google Calendar propojený
-    Api.apiGet('api/google_calendar.php?action=status')
+    Api.apiGetCached('api/google_calendar.php?action=status', 300)
       .then(function(d) {
         if (d.connected) {
           syncBtn.style.display = '';
