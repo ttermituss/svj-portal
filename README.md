@@ -1,4 +1,4 @@
-# SVJ Portál v2.8.0
+# SVJ Portál v2.9.0
 
 Univerzální multi-tenant webový portál pro správu **Společenství vlastníků jednotek (SVJ)** v ČR.
 
@@ -68,6 +68,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 - **`google-gmail.php`** — čtení inboxu, zobrazení zpráv, odesílání emailů
 - **`google-drive.php`** — stav synchronizace, seznam souborů, batch sync, upload souborů
 - **`google-calendar.php`** — výpis událostí, push/pull synchronizace, správa webhook kanálů, automatická obnova (cron)
+- **`cron-gdrive-sync.php`** — background GDrive sync všech SVJ (doporučeno: `0 * * * *`); `--dry-run`, `--limit=N`
 
 ### ⚙️ Pro správce (admin)
 - 👥 **Správa uživatelů** — role, pozvánky, smazání; přiřazení jednotky + telefon
@@ -127,7 +128,7 @@ Univerzální multi-tenant webový portál pro správu **Společenství vlastní
 4. **Spusť migrace**
    ```bash
    for f in api/migrations/*.sql; do sudo mysql svj_portal < "$f"; done
-   # Aktuálně: 001–038
+   # Aktuálně: 001–039
    ```
 
 4. **Nastav Apache virtualhost**
@@ -152,7 +153,7 @@ SPA (index.html)
 ├── js/router.js            # hash router (#page)
 ├── js/auth.js              # session management
 ├── js/api.js               # HTTP wrapper
-├── js/ui.js                # showToast, showConfirmModal, createModal, makeAvatarEl, isPrivileged, formatCzk, daysUntil, makeFormField
+├── js/ui.js                # showToast, showConfirmModal, createModal, makeAvatarEl, isPrivileged, formatCzk, daysUntil, makeFormField, makeEmptyState, makeLoadingEl, debounce, trapFocus
 └── js/pages/
     ├── home.js             # dashboard
     ├── nastenka.js         # nástěnka
@@ -240,6 +241,7 @@ sudo mysql svj_portal < api/migrations/00X_nazev.sql
 | 036 | Cizí klíče pro datovka tabulky (svj_id, uploaded_by) |
 | 037 | Chybějící indexy: penb(svj_id), dokumenty(svj_id, kategorie, created_at) |
 | 038 | Performance indexy: zavady_historie(zavada_id, typ), fond_oprav N+1 optimalizace |
+| 039 | hlasy(hlasovani_id, moznost_index) — GROUP BY výsledků hlasování |
 
 Nikdy neupravuj stávající migraci — vždy přidej novou.
 

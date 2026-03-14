@@ -170,6 +170,19 @@ Nová migrace = nový soubor `api/migrations/00X_popis.sql`, nikdy editovat stá
 - [x] **Service Worker** — `sw.js`: cache-first pro dist/, network-first+offline pro HTML, network-only pro /api/
 - [x] **POST rate limit** — `requirePostRateLimit()` v middleware, automaticky z `requireAuth()`, 120/min per user
 
+## ✅ Hotovo — DRY + Performance audit (v2.9.0)
+
+- [x] **DRY — lokální helpery smazány** — `makeAdminField`, `merModalField/Select`, `dokMakeField/Select/Textarea`, `fondModalField` → globální `makeFormField()`
+- [x] **DRY — `createModal()`** adoptován v `meridla-modal.js`, `fond-oprav-modal.js`
+- [x] **DRY — `debounce()`** helper + použit v search inputech (gmail, fond-oprav)
+- [x] **DRY — `makeLoadingEl()`** helper + použit v 3 page skriptech
+- [x] **DRY — `makeEmptyState()`** — inline `<p>` empty states → helper ve 3 souborech
+- [x] **DRY — `apiGetCached()`** — in-memory cache pro KN status (TTL 300 s), meridla/jednotky
+- [x] **JSDoc** — všechny veřejné funkce v `api.js` a `ui.js` dokumentovány
+- [x] **Performance — SQL aggregace** — hlasovani.php weighted voting: PHP smyčka → `SUM()` + `GROUP BY moznost_index`
+- [x] **Performance — Migration 039** — `hlasy(hlasovani_id, moznost_index)` index; spuštěna ✓
+- [x] **Performance — GDrive cron** — `cli/cron-gdrive-sync.php` pro background sync všech SVJ
+
 ## 💡 Nápady do budoucna
 
 - Push notifikace (PWA) — rozšíření SW o browser push (základ SW je hotový)

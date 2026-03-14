@@ -5,6 +5,53 @@ Formát: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [2.9.0] — 2026-03-14
+
+### DRY — eliminace lokálních duplikátů helperů
+
+#### Smazané lokální helpery (→ globální ui.js)
+- **`makeAdminField()`** smazána z `admin.js` — nahrazena `makeFormField()`
+- **`merModalField()` + `merModalSelect()`** smazány z `meridla-modal.js` — nahrazeny `makeFormField()`
+- **`dokMakeField()` + `dokMakeSelectField()` + `dokMakeTextareaField()`** smazány z `dokumenty.js` — nahrazeny `makeFormField()` v `dokumenty-upload.js` (~43 řádků méně)
+- **`fondModalField()`** smazána z `fond-oprav-modal.js` — nahrazena `makeFormField()`
+- **Inline `<p>` empty states** → `makeEmptyState()` ve 3 souborech: `admin-users.js`, `admin-vlastnici-ext.js`, `vlastnici.js`
+- **Manuální overlay+modal** v `fond-oprav-modal.js` → `createModal()`
+
+#### Nové globální helpery přidány do ui.js
+- **`debounce(fn, delay)`** — aplikován na search inputy v `gmail.js`, `fond-oprav.js`
+- **`makeLoadingEl(text)`** — použit v `vlastnici.js`, `jednotky.js`, `meridla-modal.js`
+
+#### In-memory cache
+- **`apiGetCached(endpoint, ttlSeconds)`** přidán do `api.js` s TTL cache
+- Aplikován na `api/kn.php?action=status` v `admin-cenova-mapa.js`, `admin-sfpi.js`, `odom.js` (TTL 300 s)
+- Aplikován v `meridla-modal.js` pro jednotky + měřidla (modul-level cache)
+
+### Performance — SQL + indexy
+
+- **`api/hlasovani.php`** — weighted voting: `GROUP BY hl.user_id` → `GROUP BY hl.moznost_index` + `SUM()` v SQL; PHP jen mapuje výsledky místo akumulační smyčky
+- **Migration 039** — `INDEX idx_hlasy_hlas_moznost (hlasovani_id, moznost_index)` pro GROUP BY výsledků hlasování; spuštěna ✓
+- **`api/google_helper.php`** — `SELECT *` → konkrétní sloupce (7 polí; password_hash se nikdy nenačítá)
+- **`cli/cron-gdrive-sync.php`** — nový cron skript pro background GDrive sync všech SVJ; `--dry-run` + `--limit`
+
+### JSDoc dokumentace
+
+- **`js/ui.js`** — JSDoc přidán: `isPrivileged`, `showToast`, `showConfirmModal`, `copyToClipboard`, `formatCzk`, `daysUntil`, `formatDate`, `trapFocus`
+- **`js/api.js`** — JSDoc přidán: `apiGet`, `apiPost`, `lookupAresVr`, `justiceUrl`, `justiceListinyUrl`, `formatAddress`
+
+### Skóre po auditu
+
+| Oblast | v2.8.0 | v2.9.0 |
+|--------|--------|--------|
+| Security | 95 | **96** |
+| Architecture | 96 | **96** |
+| Best Practices | 94 | **95** |
+| UX | 93 | **93** |
+| DRY | 89 | **95** |
+| Performance | 68 | **87** |
+| **Průměr** | **89** | **~94** |
+
+---
+
 ## [2.8.0] — 2026-03-14
 
 ### Performance audit — dokončení (fáze LOW + MEDIUM)

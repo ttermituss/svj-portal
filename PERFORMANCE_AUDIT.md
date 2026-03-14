@@ -1,7 +1,7 @@
 # SVJ Portál — Performance Audit
 
-**Verze:** 2.8.0 | **Datum auditu:** 2026-03-14
-**Celkem problémů:** 24 (8× HIGH, 11× MEDIUM, 5× LOW) — **vše vyřešeno ✓**
+**Verze:** 2.9.0 | **Datum auditu:** 2026-03-14
+**Celkem problémů:** 27 (9× HIGH, 12× MEDIUM, 6× LOW) — **vše vyřešeno ✓**
 
 ---
 
@@ -138,15 +138,25 @@
 
 | Priorita | Počet | Co |
 |----------|-------|----|
-| **HIGH** | 8 | DB indexy, N+1 queries (zavady/meridla/fond), JS minifikace |
-| **MEDIUM** | 11 | Gzip, cache headers, serveFile stream, GDrive async, polling, extern. API retry, export chunking, SW |
-| **LOW** | 5 | CSS minifikace, SELECT *, HSTS, rate limit rozšíření, upload MIME |
+| **HIGH** | 9 | DB indexy, N+1 queries (zavady/meridla/fond/hlasovani), JS minifikace |
+| **MEDIUM** | 12 | Gzip, cache headers, serveFile stream, GDrive async, polling, extern. API retry, export chunking, SW, apiGetCached |
+| **LOW** | 6 | CSS minifikace, SELECT *, HSTS, rate limit rozšíření, upload MIME, JSDoc |
+
+---
+
+## Fáze 5 — v2.9.0 (SQL aggregace + indexy + cache) ⚡
+
+- [x] **[HIGH]** `api/hlasovani.php` — weighted voting: PHP smyčka → `SUM()` v SQL + `GROUP BY moznost_index` ✓
+- [x] **[HIGH]** Migration 039 — `hlasy(hlasovani_id, moznost_index)` index pro GROUP BY ✓; spuštěna ✓
+- [x] **[MEDIUM]** `apiGetCached()` — přidán do `api.js`, použit pro KN status ve 3 kartách (TTL 300 s) ✓
+- [x] **[MEDIUM]** `api/google_helper.php` — `SELECT *` → konkrétní sloupce ✓
+- [x] **[MEDIUM]** `cli/cron-gdrive-sync.php` — background GDrive sync pro všechna SVJ (cron `0 * * * *`) ✓
+- [x] **[LOW]** `debounce()` helper — search inputy v gmail.js, fond-oprav.js ✓
 
 ---
 
 ## Poznámky
 
-- N+1 v `meridla.php` je nejkritičtější — 30 měřidel = 91 DB dotazů
-- DB indexy jsou nejrychlejší win (migrace 038, 30 minut práce)
-- Build step (minifikace JS) je největší effort, naplánovat jako samostatný sprint
-- GDrive async sync = middleware change, otestovat důkladně před nasazením
+- N+1 v `meridla.php` byl nejkritičtější — 30 měřidel = 91 DB dotazů → vyřešeno (3 dotazy)
+- Všechny DB indexy (037–039) jsou spuštěny na produkční DB ✓
+- GDrive async sync implementován jako CLI cron — nasadit na produkci: `0 * * * * php cli/cron-gdrive-sync.php`
