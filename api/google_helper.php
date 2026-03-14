@@ -113,7 +113,7 @@ function storeGoogleToken(int $userId, int $svjId, array $token, ?string $google
 function loadGoogleToken(int $userId): ?array
 {
     $db = getDb();
-    $stmt = $db->prepare("SELECT * FROM google_tokens WHERE user_id = :uid");
+    $stmt = $db->prepare("SELECT access_token, refresh_token, token_expires_at, scopes, google_email, connected_at, svj_id FROM google_tokens WHERE user_id = :uid");
     $stmt->execute([':uid' => $userId]);
     $row = $stmt->fetch();
     if (!$row) return null;

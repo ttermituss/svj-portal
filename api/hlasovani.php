@@ -95,20 +95,20 @@ function handleGet(array $user, int $svjId): void
         $vahovane = array_fill(0, count($h['moznosti']), ['citatel' => 0, 'jmenovatel' => 0]);
         $vStmt2 = $db->prepare(
             'SELECT hl.moznost_index,
-                    COALESCE(j.podil_citatel, 1)    AS pc,
-                    COALESCE(j.podil_jmenovatel, 1) AS pj
+                    SUM(COALESCE(j.podil_citatel, 1))    AS citatel,
+                    SUM(COALESCE(j.podil_jmenovatel, 1)) AS jmenovatel
              FROM hlasy hl
              LEFT JOIN users u  ON u.id  = hl.user_id
              LEFT JOIN jednotky j ON j.id = u.jednotka_id AND j.svj_id = :svj_id
              WHERE hl.hlasovani_id = :id
-             GROUP BY hl.user_id'
+             GROUP BY hl.moznost_index'
         );
         $vStmt2->execute([':svj_id' => $svjId, ':id' => $id]);
         foreach ($vStmt2->fetchAll() as $row) {
             $idx = (int)$row['moznost_index'];
             if (isset($vahovane[$idx])) {
-                $vahovane[$idx]['citatel']    += (int)$row['pc'];
-                $vahovane[$idx]['jmenovatel'] += (int)$row['pj'];
+                $vahovane[$idx]['citatel']    = (int)$row['citatel'];
+                $vahovane[$idx]['jmenovatel'] = (int)$row['jmenovatel'];
             }
         }
     }
