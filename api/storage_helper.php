@@ -317,6 +317,12 @@ function storageUploadToGdrive(int $svjId, string $module, string $relPath, ?str
     $absPath = __DIR__ . '/../' . $relPath;
     if (!file_exists($absPath)) return null;
 
+    // Soubory >10 MB přeskočit — budou zachyceny background syncí (cron)
+    if (filesize($absPath) > 10 * 1024 * 1024) {
+        error_log('GDrive inline upload skipped (>10 MB): ' . $relPath . ' — bude synchronizováno přes cron');
+        return null;
+    }
+
     try {
         // Použít lokální filename (unikátní hash) jako GDrive název — zamezí kolizím
         $gdriveName = basename($relPath);

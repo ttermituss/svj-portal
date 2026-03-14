@@ -47,8 +47,12 @@ function handleList(): void
     $db   = getDb();
     $stmt = $db->prepare(
         "SELECT f.id, f.typ, f.kategorie, f.popis, f.castka, f.datum, f.poznamka,
-                (SELECT COUNT(*) FROM fond_prilohy p WHERE p.fond_oprav_id = f.id) AS pocet_priloh
-         FROM fond_oprav f WHERE " . $qb->sql() . " ORDER BY f.datum DESC, f.id DESC
+                COUNT(DISTINCT p.id) AS pocet_priloh
+         FROM fond_oprav f
+         LEFT JOIN fond_prilohy p ON p.fond_oprav_id = f.id
+         WHERE " . $qb->sql() . "
+         GROUP BY f.id
+         ORDER BY f.datum DESC, f.id DESC
          LIMIT ? OFFSET ?"
     );
     $qb->bind($stmt);

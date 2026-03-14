@@ -4,7 +4,12 @@
  * Použití: $bytes = buildXlsx($headers, $rows, 'Název listu');
  */
 
-function buildXlsx(array $headers, array $rows, string $sheetName = 'List1'): string {
+/**
+ * Zapíše XLSX do temp souboru a vrátí jeho cestu.
+ * Volající je zodpovědný za smazání (nebo použít register_shutdown_function).
+ * Vyhýbá se načítání celého souboru do RAM.
+ */
+function buildXlsxFile(array $headers, array $rows, string $sheetName = 'List1'): string {
     $colCount = count($headers);
     $sheetXml = xlsxSheet($headers, $rows, $colCount);
     $tmpFile  = tempnam(sys_get_temp_dir(), 'xlsx_');
@@ -19,7 +24,13 @@ function buildXlsx(array $headers, array $rows, string $sheetName = 'List1'): st
     $zip->addFromString('xl/worksheets/sheet1.xml',    $sheetXml);
     $zip->close();
 
-    $bytes = file_get_contents($tmpFile);
+    return $tmpFile;
+}
+
+/** Zpětně kompatibilní wrapper — vrací bytes (pro případy mimo export.php). */
+function buildXlsx(array $headers, array $rows, string $sheetName = 'List1'): string {
+    $tmpFile = buildXlsxFile($headers, $rows, $sheetName);
+    $bytes   = file_get_contents($tmpFile);
     unlink($tmpFile);
     return $bytes;
 }

@@ -1,5 +1,35 @@
 Options -Indexes
 
+# ===== Gzip komprese =====
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css
+    AddOutputFilterByType DEFLATE application/javascript text/javascript
+    AddOutputFilterByType DEFLATE application/json application/xml
+    AddOutputFilterByType DEFLATE image/svg+xml
+    # Nekomprimovat už komprimované formáty
+    SetEnvIfNoCase Request_URI \.(gz|zip|jpg|jpeg|png|gif|webp)$ no-gzip
+</IfModule>
+
+# ===== Cache headers pro statické soubory =====
+<IfModule mod_headers.c>
+    # CSS, JS, fonty — 30 dní (immutable = prohlížeč nerevaliduje do expirace)
+    <FilesMatch "\.(css|js|woff|woff2|ttf|eot)$">
+        Header set Cache-Control "public, max-age=2592000, immutable"
+    </FilesMatch>
+    # Obrázky — 7 dní
+    <FilesMatch "\.(jpg|jpeg|png|gif|webp|svg|ico)$">
+        Header set Cache-Control "public, max-age=604800"
+    </FilesMatch>
+    # HTML (SPA shell) — vždy revalidovat
+    <FilesMatch "\.html$">
+        Header set Cache-Control "public, max-age=0, must-revalidate"
+    </FilesMatch>
+    # API odpovědi — no-store (obsahují citlivá data)
+    <FilesMatch "\.php$">
+        Header set Cache-Control "no-store, no-cache, must-revalidate"
+    </FilesMatch>
+</IfModule>
+
 # ===== Security Headers =====
 <IfModule mod_headers.c>
     Header always set X-Content-Type-Options "nosniff"

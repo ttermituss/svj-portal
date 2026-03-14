@@ -1,6 +1,11 @@
 <?php
 require_once __DIR__ . '/config.php';
 
+// Gzip komprese API odpovědí
+if (!ob_get_level() && extension_loaded('zlib') && !headers_sent()) {
+    ob_start('ob_gzhandler');
+}
+
 function getDb(): PDO
 {
     static $pdo = null;

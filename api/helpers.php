@@ -126,14 +126,24 @@ function validateUpload(array $file, array $allowedMime, int $maxSize, string $e
 
 /**
  * Odešle soubor klientovi s příslušnými hlavičkami.
+ * Čte soubor po chunkách — nezatěžuje RAM při velkých souborech.
  */
 function serveFile(string $path, string $filename, string $mimeType, string $disposition = 'attachment'): never
 {
+    // Ukončit output buffering (ob_gzhandler) — jinak by se celý soubor nacpal do RAM
+    while (ob_get_level()) ob_end_clean();
+
     header('Content-Type: ' . $mimeType);
     header('Content-Disposition: ' . $disposition . '; filename="' . rawurlencode($filename) . '"');
     header('Content-Length: ' . filesize($path));
     header('X-Content-Type-Options: nosniff');
-    readfile($path);
+
+    $fp = fopen($path, 'rb');
+    while (!feof($fp)) {
+        echo fread($fp, 65536); // 64 KB chunks
+        flush();
+    }
+    fclose($fp);
     exit;
 }
 

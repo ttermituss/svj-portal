@@ -47,28 +47,48 @@ function getOrFetchSvj(string $ico): array
     return $cached;
 }
 
-function fetchFromAres(string $ico): ?array
+/**
+ * Sdílený HTTP GET helper — timeout 5s, SSL verify, jednotné logování chyb.
+ * Vrátí [body, httpCode] nebo null při curl chybě / síťovém selhání.
+ */
+function curlGet(string $url, array $headers = []): ?array
 {
-    $url = ARES_BASE_URL . '/ekonomicke-subjekty/' . urlencode($ico);
-    $ch  = curl_init($url);
-    curl_setopt_array($ch, [
+    $opts = [
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT        => 10,
-        CURLOPT_HTTPHEADER     => ['Accept: application/json'],
+        CURLOPT_TIMEOUT        => 5,
+        CURLOPT_CONNECTTIMEOUT => 3,
         CURLOPT_FOLLOWLOCATION => false,
         CURLOPT_SSL_VERIFYPEER => true,
         CURLOPT_SSL_VERIFYHOST => 2,
-    ]);
-    $response = curl_exec($ch);
+    ];
+    if ($headers) $opts[CURLOPT_HTTPHEADER] = $headers;
+
+    $ch = curl_init($url);
+    curl_setopt_array($ch, $opts);
+    $body     = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlErr  = curl_error($ch);
+    $err      = curl_error($ch);
     curl_close($ch);
 
-    if ($curlErr || $httpCode === 0) return null;
+    if ($err || $httpCode === 0) {
+        error_log('curlGet failed: ' . $url . ' — ' . $err);
+        return null;
+    }
+
+    return [$body, $httpCode];
+}
+
+function fetchFromAres(string $ico): ?array
+{
+    $url    = ARES_BASE_URL . '/ekonomicke-subjekty/' . urlencode($ico);
+    $result = curlGet($url, ['Accept: application/json']);
+    if ($result === null) return null;
+
+    [$body, $httpCode] = $result;
     if ($httpCode === 404) jsonError('Subjekt s IČO ' . $ico . ' nebyl nalezen v ARES', 404, 'NOT_FOUND');
     if ($httpCode !== 200) return null;
 
-    $data = json_decode($response, true);
+    $data = json_decode($body, true);
     if (!is_array($data) || !isset($data['ico'])) return null;
 
     return $data;
@@ -133,23 +153,14 @@ function buildSvjResponse(array $row): array
  */
 function fetchRuianData(int $kam): ?array
 {
-    $url = 'https://ags.cuzk.cz/arcgis/rest/services/RUIAN/Vyhledavaci_sluzba_nad_daty_RUIAN/MapServer/1/query'
-         . '?where=' . urlencode('KOD=' . $kam)
-         . '&outFields=*&outSR=4326&f=json';
+    $url    = 'https://ags.cuzk.cz/arcgis/rest/services/RUIAN/Vyhledavaci_sluzba_nad_daty_RUIAN/MapServer/1/query'
+            . '?where=' . urlencode('KOD=' . $kam)
+            . '&outFields=*&outSR=4326&f=json';
+    $result = curlGet($url);
+    if ($result === null) return null;
 
-    $ch = curl_init($url);
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT        => 10,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_SSL_VERIFYPEER => true,
-        CURLOPT_SSL_VERIFYHOST => 2,
-    ]);
-    $response = curl_exec($ch);
-    $curlErr  = curl_error($ch);
-    curl_close($ch);
-
-    if ($curlErr || !$response) return null;
+    [$response] = $result;
+    if (!$response) return null;
 
     $data     = json_decode($response, true);
     $features = $data['features'] ?? [];
@@ -177,23 +188,14 @@ function fetchRuianData(int $kam): ?array
 function fetchRuianBuildingInfo(int $stavbaId): ?array
 {
     $fields = 'dokonceni,druhkonstrukcekod,pocetpodlazi,pocetbytu,zastavenaplocha,vybavenivytahemkod,zpusobvytapenikod';
-    $url = 'https://ags.cuzk.cz/arcgis/rest/services/RUIAN/Vyhledavaci_sluzba_nad_daty_RUIAN/MapServer/3/query'
-         . '?where=' . urlencode('isknbudovaid=' . $stavbaId)
-         . '&outFields=' . $fields . '&f=json';
+    $url    = 'https://ags.cuzk.cz/arcgis/rest/services/RUIAN/Vyhledavaci_sluzba_nad_daty_RUIAN/MapServer/3/query'
+            . '?where=' . urlencode('isknbudovaid=' . $stavbaId)
+            . '&outFields=' . $fields . '&f=json';
+    $result = curlGet($url);
+    if ($result === null) return null;
 
-    $ch = curl_init($url);
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT        => 10,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_SSL_VERIFYPEER => true,
-        CURLOPT_SSL_VERIFYHOST => 2,
-    ]);
-    $response = curl_exec($ch);
-    $curlErr  = curl_error($ch);
-    curl_close($ch);
-
-    if ($curlErr || !$response) return null;
+    [$response] = $result;
+    if (!$response) return null;
 
     $data     = json_decode($response, true);
     $features = $data['features'] ?? [];
@@ -249,23 +251,14 @@ function ruianVytapeniNazev(?int $kod): ?string
 
 function fetchVrRaw(string $ico): ?array
 {
-    $url = ARES_BASE_URL . '/ekonomicke-subjekty-vr/' . urlencode($ico);
-    $ch  = curl_init($url);
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT        => 15,
-        CURLOPT_HTTPHEADER     => ['Accept: application/json'],
-        CURLOPT_FOLLOWLOCATION => false,
-        CURLOPT_SSL_VERIFYPEER => true,
-        CURLOPT_SSL_VERIFYHOST => 2,
-    ]);
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlErr  = curl_error($ch);
-    curl_close($ch);
+    $url    = ARES_BASE_URL . '/ekonomicke-subjekty-vr/' . urlencode($ico);
+    $result = curlGet($url, ['Accept: application/json']);
+    if ($result === null) return null;
 
-    if ($curlErr || $httpCode === 0 || $httpCode !== 200) return null;
-    $data = json_decode($response, true);
+    [$body, $httpCode] = $result;
+    if ($httpCode !== 200) return null;
+
+    $data = json_decode($body, true);
     return is_array($data) ? $data : null;
 }
 

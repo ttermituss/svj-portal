@@ -50,11 +50,19 @@ switch ($type) {
                     COALESCE(u.prijmeni, ve.prijmeni, \'\') AS vlastnik_prijmeni,
                     j.najemce_jmeno, j.najemce_prijmeni, j.najemce_telefon
              FROM jednotky j
-             LEFT JOIN users u        ON u.id  = (SELECT id FROM users WHERE jednotka_id = j.id LIMIT 1)
-             LEFT JOIN vlastnici_ext ve ON ve.id = (SELECT id FROM vlastnici_ext WHERE jednotka_id = j.id LIMIT 1)
+             LEFT JOIN (
+                 SELECT jednotka_id, MIN(jmeno) AS jmeno, MIN(prijmeni) AS prijmeni
+                 FROM users WHERE svj_id = ?
+                 GROUP BY jednotka_id
+             ) u ON u.jednotka_id = j.id
+             LEFT JOIN (
+                 SELECT jednotka_id, MIN(jmeno) AS jmeno, MIN(prijmeni) AS prijmeni
+                 FROM vlastnici_ext WHERE svj_id = ?
+                 GROUP BY jednotka_id
+             ) ve ON ve.jednotka_id = j.id
              WHERE j.svj_id = ? ORDER BY j.cislo_jednotky + 0'
         );
-        $stmt->execute([$svjId]);
+        $stmt->execute([$svjId, $svjId, $svjId]);
         $rows    = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $headers = ['Č. jednotky', 'Typ', 'Využití', 'Podíl čit.', 'Podíl jmen.', 'LV', 'K.ú.',
                     'Vlastník', 'Plomba', 'Pronájem', 'Nájemce', 'Tel. nájemce', 'Poznámka'];
@@ -142,14 +150,24 @@ switch ($type) {
             'SELECT m.typ, m.vyrobni_cislo, m.umisteni_typ, m.misto, m.jednotka_mereni,
                     m.datum_instalace, m.datum_cejchu, m.datum_pristi_cejch, m.aktivni,
                     j.cislo_jednotky,
-                    (SELECT o.hodnota FROM odecty o WHERE o.meridlo_id = m.id ORDER BY o.datum DESC LIMIT 1) AS posledni_hodnota,
-                    (SELECT o.datum   FROM odecty o WHERE o.meridlo_id = m.id ORDER BY o.datum DESC LIMIT 1) AS posledni_datum
+                    last_o.hodnota AS posledni_hodnota,
+                    last_o.datum   AS posledni_datum
              FROM meridla m
              LEFT JOIN jednotky j ON j.id = m.jednotka_id
+             LEFT JOIN (
+                 SELECT meridlo_id, hodnota, datum
+                 FROM (
+                     SELECT meridlo_id, hodnota, datum,
+                            ROW_NUMBER() OVER (PARTITION BY meridlo_id ORDER BY datum DESC, id DESC) AS rn
+                     FROM odecty
+                     WHERE svj_id = ?
+                 ) ranked
+                 WHERE rn = 1
+             ) last_o ON last_o.meridlo_id = m.id
              WHERE m.svj_id = ?
              ORDER BY m.typ, j.cislo_jednotky, m.vyrobni_cislo'
         );
-        $stmt->execute([$svjId]);
+        $stmt->execute([$svjId, $svjId]);
         $rows    = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $typyMap = ['voda_studena' => 'Studená voda', 'voda_tepla' => 'Teplá voda',
                     'plyn' => 'Plyn', 'elektrina' => 'Elektřina', 'teplo' => 'Teplo', 'jine' => 'Jiné'];
@@ -212,20 +230,26 @@ $date = date('Y-m-d');
 if ($format === 'pdf') {
     $svjStmt = $db->prepare('SELECT nazev FROM svj WHERE id = ?');
     $svjStmt->execute([$svjId]);
-    $svjName = $svjStmt->fetchColumn() ?: '';
+    $svjName  = $svjStmt->fetchColumn() ?: '';
     $pdfTitle = $sheet . ($svjName ? ' — ' . $svjName : '');
-    $bytes = buildPdf($headers, $data, $pdfTitle, 'Export ' . date('d.m.Y H:i'));
-    header('Content-Type: application/pdf');
-    header('Content-Disposition: attachment; filename="' . $filename . '_' . $date . '.pdf"');
-    header('Content-Length: ' . strlen($bytes));
-    echo $bytes;
+
+    // buildPdf() vrací string — zapišeme do tmpfile a streamujeme (ob buffer nezatíží RAM)
+    $bytes   = buildPdf($headers, $data, $pdfTitle, 'Export ' . date('d.m.Y H:i'));
+    $tmpFile = tempnam(sys_get_temp_dir(), 'svj_pdf_');
+    file_put_contents($tmpFile, $bytes);
+    unset($bytes); // uvolnit RAM před streamem
+    register_shutdown_function(fn() => @unlink($tmpFile));
+    serveFile($tmpFile, $filename . '_' . $date . '.pdf', 'application/pdf');
+
 } elseif ($format === 'xlsx') {
-    $bytes = buildXlsx($headers, $data, $sheet);
-    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    header('Content-Disposition: attachment; filename="' . $filename . '_' . $date . '.xlsx"');
-    header('Content-Length: ' . strlen($bytes));
-    echo $bytes;
+    // buildXlsxFile() zapíše přes ZipArchive do tmpfile — serveFile ho streamuje po chunkách
+    $tmpFile = buildXlsxFile($headers, $data, $sheet);
+    register_shutdown_function(fn() => @unlink($tmpFile));
+    serveFile($tmpFile, $filename . '_' . $date . '.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
 } else {
+    // CSV — streamujeme přímo do output, ob buffer flush před tím
+    while (ob_get_level()) ob_end_clean();
     header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="' . $filename . '_' . $date . '.csv"');
     $out = fopen('php://output', 'w');

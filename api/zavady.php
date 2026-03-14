@@ -38,10 +38,12 @@ function handleList(): void
         "SELECT z.id, z.nazev, z.lokace, z.priorita, z.stav, z.zodpovedna_osoba,
                 z.foto_nazev, z.created_at, z.uzavreno_at,
                 u.jmeno AS autor_jmeno, u.prijmeni AS autor_prijmeni,
-                (SELECT COUNT(*) FROM zavady_historie h WHERE h.zavada_id = z.id AND h.typ = 'komentar') AS pocet_komentaru
+                COUNT(DISTINCT CASE WHEN h.typ = 'komentar' THEN h.id END) AS pocet_komentaru
          FROM zavady z
          JOIN users u ON u.id = z.vytvoril_id
+         LEFT JOIN zavady_historie h ON h.zavada_id = z.id
          WHERE " . $qb->sql() . "
+         GROUP BY z.id
          ORDER BY FIELD(z.stav, 'nova', 'v_reseni', 'vyreseno', 'zamitnuto'), z.created_at DESC
          LIMIT ? OFFSET ?"
     );

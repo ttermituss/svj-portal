@@ -31,15 +31,31 @@ function handleList(int $svjId, array $user): void
                m.misto, m.jednotka_mereni, m.datum_instalace, m.datum_cejchu,
                m.interval_cejchu_mesice, m.datum_pristi_cejch, m.aktivni, m.poznamka,
                j.cislo_jednotky,
-               (SELECT o.hodnota FROM odecty o WHERE o.meridlo_id = m.id ORDER BY o.datum DESC, o.id DESC LIMIT 1) AS posledni_hodnota,
-               (SELECT o.datum FROM odecty o WHERE o.meridlo_id = m.id ORDER BY o.datum DESC, o.id DESC LIMIT 1) AS posledni_datum,
-               (SELECT COUNT(*) FROM odecty o WHERE o.meridlo_id = m.id) AS odectu_pocet
+               last_o.hodnota AS posledni_hodnota,
+               last_o.datum   AS posledni_datum,
+               COALESCE(cnt.pocet, 0) AS odectu_pocet
         FROM meridla m
         LEFT JOIN jednotky j ON j.id = m.jednotka_id
+        LEFT JOIN (
+            SELECT meridlo_id, hodnota, datum
+            FROM (
+                SELECT meridlo_id, hodnota, datum,
+                       ROW_NUMBER() OVER (PARTITION BY meridlo_id ORDER BY datum DESC, id DESC) AS rn
+                FROM odecty
+                WHERE svj_id = ?
+            ) ranked
+            WHERE rn = 1
+        ) last_o ON last_o.meridlo_id = m.id
+        LEFT JOIN (
+            SELECT meridlo_id, COUNT(*) AS pocet
+            FROM odecty
+            WHERE svj_id = ?
+            GROUP BY meridlo_id
+        ) cnt ON cnt.meridlo_id = m.id
         WHERE m.svj_id = ?
         ORDER BY m.umisteni_typ DESC, m.typ, j.cislo_jednotky, m.vyrobni_cislo
     ');
-    $st->execute([$svjId]);
+    $st->execute([$svjId, $svjId, $svjId]);
     $meridla = $st->fetchAll(PDO::FETCH_ASSOC);
 
     // Vlastník vidí jen svá měřidla (jednotka) + společná
