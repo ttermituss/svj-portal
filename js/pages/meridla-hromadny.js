@@ -23,7 +23,7 @@ function merHromadnyModal(user, onDone) {
   closeBtn.type = 'button';
   closeBtn.style.cssText = 'background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-light);';
   closeBtn.textContent = '\u00d7';
-  closeBtn.addEventListener('click', function() { overlay.remove(); });
+  closeBtn.addEventListener('click', function() { overlay._removeTrap && overlay._removeTrap(); overlay.remove(); });
   header.appendChild(closeBtn);
   modal.appendChild(header);
 
@@ -32,9 +32,13 @@ function merHromadnyModal(user, onDone) {
   body.style.cssText = 'padding:20px;overflow-y:auto;flex:1;';
   modal.appendChild(body);
 
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.appendChild(modal);
-  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) { overlay._removeTrap && overlay._removeTrap(); overlay.remove(); } });
   document.body.appendChild(overlay);
+  var removeTrap = trapFocus(overlay);
+  overlay._removeTrap = removeTrap;
 
   merHromadnyLoad(body, user, overlay, onDone);
 }
@@ -179,7 +183,7 @@ function merHromadnyRender(body, meridla, user, overlay, onDone) {
     Promise.all(promises)
       .then(function() {
         showToast('Ulo\u017eeno ' + toSave.length + ' ode\u010dt\u016f');
-        overlay.remove();
+        overlay._removeTrap && overlay._removeTrap(); overlay.remove();
         if (onDone) onDone();
       })
       .catch(function(e) {

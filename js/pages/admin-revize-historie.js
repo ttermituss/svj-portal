@@ -59,17 +59,20 @@ function revHistShowModal(rev, user, onClose) {
   closeBtn.className = 'btn btn-secondary';
   closeBtn.textContent = 'Zav\u0159\xedt';
   closeBtn.addEventListener('click', function() {
-    overlay.remove();
+    removeTrapH1(); overlay.remove();
     if (onClose) onClose();
   });
   closeRow.appendChild(closeBtn);
   modal.appendChild(closeRow);
 
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) { overlay.remove(); if (onClose) onClose(); }
+    if (e.target === overlay) { removeTrapH1(); overlay.remove(); if (onClose) onClose(); }
   });
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
+  var removeTrapH1 = trapFocus(overlay);
 
   revHistReload(listWrap, rev, user);
 }
@@ -300,7 +303,7 @@ function revHistShowForm(parent, rev, existing, user, onSaved) {
   var cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn btn-secondary';
   cancelBtn.textContent = 'Zru\u0161it';
-  cancelBtn.addEventListener('click', function() { overlay.remove(); });
+  cancelBtn.addEventListener('click', function() { removeTrapH2(); overlay.remove(); });
 
   var saveBtn = document.createElement('button');
   saveBtn.className = 'btn btn-primary';
@@ -328,7 +331,7 @@ function revHistShowForm(parent, rev, existing, user, onSaved) {
         if (data.error) throw new Error(data.error.message);
         showToast('Z\xe1znam ulo\u017een');
         handleGdriveFeedback(data);
-        overlay.remove();
+        removeTrapH2(); overlay.remove();
         if (onSaved) onSaved();
       })
       .catch(function(e) {
@@ -342,9 +345,12 @@ function revHistShowForm(parent, rev, existing, user, onSaved) {
   btnRow.appendChild(saveBtn);
   modal.appendChild(btnRow);
 
-  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) { removeTrapH2(); overlay.remove(); } });
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
+  var removeTrapH2 = trapFocus(overlay);
   datumWrap.focus();
 }
 

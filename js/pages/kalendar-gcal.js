@@ -24,7 +24,7 @@ function openGcalSyncModal(rok, mesic, onDone) {
   closeBtn.style.cssText = 'background:none;border:none;font-size:1.3rem;cursor:pointer;'
     + 'color:var(--text-light);padding:0;';
   closeBtn.textContent = '\u00d7';
-  closeBtn.addEventListener('click', function() { overlay.remove(); });
+  closeBtn.addEventListener('click', function() { removeTrap(); overlay.remove(); });
   header.appendChild(closeBtn);
   modal.appendChild(header);
 
@@ -33,9 +33,12 @@ function openGcalSyncModal(rok, mesic, onDone) {
   body.style.cssText = 'padding:20px;overflow-y:auto;flex:1;';
   modal.appendChild(body);
 
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.appendChild(modal);
-  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) { removeTrap(); overlay.remove(); } });
   document.body.appendChild(overlay);
+  var removeTrap = trapFocus(overlay);
 
   renderGcalSyncContent(body, rok, mesic, overlay, onDone);
 }

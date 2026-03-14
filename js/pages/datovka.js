@@ -315,7 +315,7 @@ function datovkaOpenModal(z, prilohy) {
   var closeBtn = document.createElement('button');
   closeBtn.style.cssText = 'background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--text-light);flex-shrink:0;';
   closeBtn.textContent = '\u00d7';
-  closeBtn.addEventListener('click', function() { document.body.removeChild(overlay); });
+  closeBtn.addEventListener('click', function() { removeTrap(); document.body.removeChild(overlay); });
   hdr.appendChild(hdrIcon);
   hdr.appendChild(hdrInfo);
   hdr.appendChild(closeBtn);
@@ -415,11 +415,14 @@ function datovkaOpenModal(z, prilohy) {
   modal.appendChild(hdr);
   modal.appendChild(meta);
   modal.appendChild(priBody);
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.appendChild(modal);
   overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) document.body.removeChild(overlay);
+    if (e.target === overlay) { removeTrap(); document.body.removeChild(overlay); }
   });
   document.body.appendChild(overlay);
+  var removeTrap = trapFocus(overlay);
 }
 
 function datovkaShowPreview(area, p) {

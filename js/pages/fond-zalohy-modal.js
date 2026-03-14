@@ -35,7 +35,7 @@ function fondZalohyShowGenerateModal(rok, onSaved) {
   var cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn btn-secondary';
   cancelBtn.textContent = 'Zru\u0161it';
-  cancelBtn.addEventListener('click', function() { document.body.removeChild(overlay); });
+  cancelBtn.addEventListener('click', function() { removeTrap1(); document.body.removeChild(overlay); });
   var genBtn = document.createElement('button');
   genBtn.className = 'btn btn-primary';
   genBtn.textContent = 'Generovat';
@@ -51,7 +51,7 @@ function fondZalohyShowGenerateModal(rok, onSaved) {
     genBtn.disabled = true;
     Api.apiPost('api/fond_zalohy.php?action=predpisGenerate', { rok: rok, celkova_castka: castka })
       .then(function(res) {
-        document.body.removeChild(overlay);
+        removeTrap1(); document.body.removeChild(overlay);
         showToast(res.message || 'P\u0159edpisy vygenerov\xe1ny.', 'success');
         if (onSaved) onSaved();
       })
@@ -59,9 +59,12 @@ function fondZalohyShowGenerateModal(rok, onSaved) {
       .finally(function() { genBtn.disabled = false; });
   });
 
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.appendChild(modal);
-  overlay.addEventListener('click', function(e) { if (e.target === overlay) document.body.removeChild(overlay); });
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) { removeTrap1(); document.body.removeChild(overlay); } });
   document.body.appendChild(overlay);
+  var removeTrap1 = trapFocus(overlay);
   fCastka.input.focus();
 }
 
@@ -100,7 +103,7 @@ function fondZalohyShowPredpisEditModal(predpis, rok, onSaved) {
   var cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn btn-secondary';
   cancelBtn.textContent = 'Zru\u0161it';
-  cancelBtn.addEventListener('click', function() { document.body.removeChild(overlay); });
+  cancelBtn.addEventListener('click', function() { removeTrap2(); document.body.removeChild(overlay); });
   var saveBtn = document.createElement('button');
   saveBtn.className = 'btn btn-primary';
   saveBtn.textContent = 'Ulo\u017eit';
@@ -118,16 +121,19 @@ function fondZalohyShowPredpisEditModal(predpis, rok, onSaved) {
       rok: rok, jednotka_id: predpis.jednotka_id,
       mesicni_castka: castka, poznamka: fPoz.input.value.trim(),
     }).then(function() {
-      document.body.removeChild(overlay);
+      removeTrap2(); document.body.removeChild(overlay);
       showToast('P\u0159edpis ulo\u017een.', 'success');
       if (onSaved) onSaved();
     }).catch(function(e) { errBox.textContent = e.message || 'Chyba.'; errBox.style.display = ''; })
       .finally(function() { saveBtn.disabled = false; });
   });
 
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.appendChild(modal);
-  overlay.addEventListener('click', function(e) { if (e.target === overlay) document.body.removeChild(overlay); });
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) { removeTrap2(); document.body.removeChild(overlay); } });
   document.body.appendChild(overlay);
+  var removeTrap2 = trapFocus(overlay);
   fCastka.input.focus();
 }
 
@@ -176,7 +182,7 @@ function fondZalohyShowPayModal(zaloha, onSaved) {
   var cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn btn-secondary';
   cancelBtn.textContent = 'Zru\u0161it';
-  cancelBtn.addEventListener('click', function() { document.body.removeChild(overlay); });
+  cancelBtn.addEventListener('click', function() { removeTrap3(); document.body.removeChild(overlay); });
   var saveBtn = document.createElement('button');
   saveBtn.className = 'btn btn-primary';
   saveBtn.textContent = 'Ulo\u017eit platbu';
@@ -196,15 +202,18 @@ function fondZalohyShowPayModal(zaloha, onSaved) {
       datum_platby: fDatum.input.value || null,
       poznamka: fPoz.input.value.trim(),
     }).then(function() {
-      document.body.removeChild(overlay);
+      removeTrap3(); document.body.removeChild(overlay);
       showToast('Platba ulo\u017eena.', 'success');
       if (onSaved) onSaved();
     }).catch(function(e) { errBox.textContent = e.message || 'Chyba.'; errBox.style.display = ''; })
       .finally(function() { saveBtn.disabled = false; });
   });
 
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.appendChild(modal);
-  overlay.addEventListener('click', function(e) { if (e.target === overlay) document.body.removeChild(overlay); });
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) { removeTrap3(); document.body.removeChild(overlay); } });
   document.body.appendChild(overlay);
+  var removeTrap3 = trapFocus(overlay);
   fCastka.input.focus();
 }

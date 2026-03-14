@@ -356,7 +356,7 @@ function fondShowUcetModal(existing, onSaved) {
   var cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn btn-secondary';
   cancelBtn.textContent = 'Zru\u0161it';
-  cancelBtn.addEventListener('click', function() { document.body.removeChild(overlay); });
+  cancelBtn.addEventListener('click', function() { removeTrap(); document.body.removeChild(overlay); });
   var saveBtn = document.createElement('button');
   saveBtn.className = 'btn btn-primary';
   saveBtn.textContent = existing ? 'Ulo\u017eit' : 'P\u0159idat';
@@ -378,7 +378,7 @@ function fondShowUcetModal(existing, onSaved) {
     saveBtn.disabled = true;
     Api.apiPost('api/fond_ucty.php?action=save', payload)
       .then(function() {
-        document.body.removeChild(overlay);
+        removeTrap(); document.body.removeChild(overlay);
         showToast(existing ? '\xda\u010det upraven.' : '\xda\u010det p\u0159id\xe1n.', 'success');
         if (onSaved) onSaved();
       })
@@ -386,9 +386,12 @@ function fondShowUcetModal(existing, onSaved) {
       .finally(function() { saveBtn.disabled = false; });
   });
 
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.appendChild(modal);
-  overlay.addEventListener('click', function(e) { if (e.target === overlay) document.body.removeChild(overlay); });
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) { removeTrap(); document.body.removeChild(overlay); } });
   document.body.appendChild(overlay);
+  var removeTrap = trapFocus(overlay);
   fields.nazev.focus();
 }
 

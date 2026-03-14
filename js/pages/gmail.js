@@ -233,7 +233,7 @@ function openMessageModal(msgId, subject) {
   closeBtn.style.cssText = 'background:none;border:none;font-size:1.3rem;cursor:pointer;'
     + 'color:var(--text-light);padding:0 0 0 12px;';
   closeBtn.textContent = '\u00d7';
-  closeBtn.addEventListener('click', function() { overlay.remove(); });
+  closeBtn.addEventListener('click', function() { removeTrapMsg(); overlay.remove(); });
   header.appendChild(closeBtn);
   modal.appendChild(header);
 
@@ -243,9 +243,12 @@ function openMessageModal(msgId, subject) {
   body.textContent = 'Na\u010d\u00edt\u00e1m\u2026';
   modal.appendChild(body);
 
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.appendChild(modal);
-  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) { removeTrapMsg(); overlay.remove(); } });
   document.body.appendChild(overlay);
+  var removeTrapMsg = trapFocus(overlay);
 
   // Načíst detail
   Api.apiGet('api/google_gmail.php?action=message&id=' + encodeURIComponent(msgId))
@@ -280,7 +283,8 @@ function openMessageModal(msgId, subject) {
       var content = document.createElement('div');
       content.style.cssText = 'font-size:0.9rem;line-height:1.6;overflow-wrap:break-word;';
       if (data.body && data.body.indexOf('<') !== -1 && data.body.indexOf('>') !== -1) {
-        // HTML email — iframe pro izolaci
+        // HTML email — iframe pro izolaci (sandbox bez allow-scripts)
+        // Hardcoded barvy zde jsou záměrné — CSS vars nejsou dostupné v iframe srcdoc
         var iframe = document.createElement('iframe');
         iframe.style.cssText = 'width:100%;border:none;min-height:300px;';
         iframe.sandbox = 'allow-same-origin';
@@ -330,7 +334,7 @@ function openComposeModal(prefillTo) {
   closeBtn.style.cssText = 'background:none;border:none;font-size:1.3rem;cursor:pointer;'
     + 'color:var(--text-light);padding:0;';
   closeBtn.textContent = '\u00d7';
-  closeBtn.addEventListener('click', function() { overlay.remove(); });
+  closeBtn.addEventListener('click', function() { removeTrapCompose(); overlay.remove(); });
   header.appendChild(closeBtn);
   modal.appendChild(header);
 
@@ -388,7 +392,7 @@ function openComposeModal(prefillTo) {
 
     Api.apiPost('api/google_gmail.php?action=send', { to: to, subject: subj, body: text })
       .then(function() {
-        overlay.remove();
+        removeTrapCompose(); overlay.remove();
         showToast('E-mail byl odesl\u00e1n.', 'success');
       })
       .catch(function(err) {
@@ -401,9 +405,12 @@ function openComposeModal(prefillTo) {
 
   body.appendChild(form);
   modal.appendChild(body);
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.appendChild(modal);
-  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) { removeTrapCompose(); overlay.remove(); } });
   document.body.appendChild(overlay);
+  var removeTrapCompose = trapFocus(overlay);
 
   toGrp.input.focus();
 }

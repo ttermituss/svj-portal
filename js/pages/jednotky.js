@@ -268,29 +268,17 @@ function showJednotkaModal(j, reloadFn) {
   njHdr.textContent = 'Kontakt na nájemce';
   najemceSection.appendChild(njHdr);
 
-  function makeField(lbl, type, id, val) {
-    var wrap = document.createElement('div');
-    wrap.style.marginBottom = '12px';
-    var label = document.createElement('label');
-    label.htmlFor = id; label.textContent = lbl;
-    label.style.cssText = 'display:block;margin-bottom:3px;font-size:0.88rem;font-weight:500;';
-    var inp = document.createElement('input');
-    inp.type = type; inp.id = id; inp.className = 'form-input'; inp.value = val || '';
-    wrap.appendChild(label); wrap.appendChild(inp);
-    return { el: wrap, input: inp };
-  }
-
-  var njmeno    = makeField('Jméno nájemce',    'text',  'j-njmeno',    j.najemce_jmeno    || '');
-  var nprijmeni = makeField('Příjmení nájemce', 'text',  'j-nprijmeni', j.najemce_prijmeni || '');
-  var ntelefon  = makeField('Telefon nájemce',  'tel',   'j-ntelefon',  j.najemce_telefon  || '');
-  var nemail    = makeField('E-mail nájemce',   'email', 'j-nemail',    j.najemce_email    || '');
+  var njmeno    = makeFormField('Jméno nájemce',    'text',  j.najemce_jmeno    || '');
+  var nprijmeni = makeFormField('Příjmení nájemce', 'text',  j.najemce_prijmeni || '');
+  var ntelefon  = makeFormField('Telefon nájemce',  'tel',   j.najemce_telefon  || '');
+  var nemail    = makeFormField('E-mail nájemce',   'email', j.najemce_email    || '');
   [njmeno, nprijmeni, ntelefon, nemail].forEach(function(f) { najemceSection.appendChild(f.el); });
   modal.appendChild(najemceSection);
   pronajemChk.addEventListener('change', function() {
     najemceSection.style.display = pronajemChk.checked ? '' : 'none';
   });
 
-  var poznamka = makeField('Poznámka k jednotce', 'text', 'j-poznamka', j.poznamka || '');
+  var poznamka = makeFormField('Poznámka k jednotce', 'text', j.poznamka || '');
   modal.appendChild(poznamka.el);
 
   // ===== TLAČÍTKA =====

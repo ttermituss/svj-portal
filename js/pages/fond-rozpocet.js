@@ -373,7 +373,7 @@ function fondRozpocetShowModal(existing, rok, onSaved) {
   var cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn btn-secondary';
   cancelBtn.textContent = 'Zru\u0161it';
-  cancelBtn.addEventListener('click', function() { document.body.removeChild(overlay); });
+  cancelBtn.addEventListener('click', function() { removeTrap(); document.body.removeChild(overlay); });
   var saveBtn = document.createElement('button');
   saveBtn.className = 'btn btn-primary';
   saveBtn.textContent = 'Ulo\u017eit';
@@ -396,7 +396,7 @@ function fondRozpocetShowModal(existing, rok, onSaved) {
     saveBtn.disabled = true;
     Api.apiPost('api/fond_rozpocet.php?action=save', payload)
       .then(function() {
-        document.body.removeChild(overlay);
+        removeTrap(); document.body.removeChild(overlay);
         showToast('Polo\u017eka ulo\u017eena.', 'success');
         if (onSaved) onSaved();
       })
@@ -404,8 +404,11 @@ function fondRozpocetShowModal(existing, rok, onSaved) {
       .finally(function() { saveBtn.disabled = false; });
   });
 
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.appendChild(modal);
-  overlay.addEventListener('click', function(e) { if (e.target === overlay) document.body.removeChild(overlay); });
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) { removeTrap(); document.body.removeChild(overlay); } });
   document.body.appendChild(overlay);
+  var removeTrap = trapFocus(overlay);
   fCastka.input.focus();
 }

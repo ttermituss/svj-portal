@@ -193,7 +193,7 @@ function showExtModal(item, jednotky, reloadFn) {
   var cancelBtn = document.createElement('button');
   cancelBtn.className   = 'btn btn-secondary';
   cancelBtn.textContent = 'Zrušit';
-  cancelBtn.addEventListener('click', function() { document.body.removeChild(overlay); });
+  cancelBtn.addEventListener('click', function() { removeTrap(); document.body.removeChild(overlay); });
 
   var saveBtn = document.createElement('button');
   saveBtn.className   = 'btn btn-primary';
@@ -216,7 +216,7 @@ function showExtModal(item, jednotky, reloadFn) {
     saveBtn.disabled = true;
     Api.apiPost('api/vlastnici_ext.php?action=save', payload)
       .then(function() {
-        document.body.removeChild(overlay);
+        removeTrap(); document.body.removeChild(overlay);
         reloadFn();
         showToast(isEdit ? 'Vlastník upraven.' : 'Vlastník přidán.');
       })
@@ -227,9 +227,12 @@ function showExtModal(item, jednotky, reloadFn) {
   btns.appendChild(cancelBtn);
   btns.appendChild(saveBtn);
   modal.appendChild(btns);
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.appendChild(modal);
   overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) document.body.removeChild(overlay);
+    if (e.target === overlay) { removeTrap(); document.body.removeChild(overlay); }
   });
   document.body.appendChild(overlay);
+  var removeTrap = trapFocus(overlay);
 }

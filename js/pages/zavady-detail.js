@@ -17,11 +17,14 @@ function zavadyShowDetail(zavadaId, user, onRefresh) {
   loadingEl.textContent = 'Na\u010d\u00edt\u00e1m detail\u2026';
   modal.appendChild(loadingEl);
 
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.appendChild(modal);
   overlay.addEventListener('click', function(e) { if (e.target === overlay) close(); });
   document.body.appendChild(overlay);
+  var removeTrap = trapFocus(overlay);
 
-  function close() { document.body.removeChild(overlay); }
+  function close() { removeTrap(); document.body.removeChild(overlay); }
 
   Api.apiGet('api/zavady.php?action=get&id=' + zavadaId)
     .then(function(data) {

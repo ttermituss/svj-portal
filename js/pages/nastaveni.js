@@ -133,9 +133,9 @@ function renderPasswordCard(container) {
 
   var form = document.createElement('form');
 
-  var oldGrp  = makeField('Stávající heslo',           'password', 'pw-old',  '');
-  var newGrp  = makeField('Nové heslo (min. 8 znaků)', 'password', 'pw-new',  '');
-  var new2Grp = makeField('Nové heslo znovu',           'password', 'pw-new2', '');
+  var oldGrp  = makeFormField('Stávající heslo',           'password', '');
+  var newGrp  = makeFormField('Nové heslo (min. 8 znaků)', 'password', '');
+  var new2Grp = makeFormField('Nové heslo znovu',           'password', '');
   var btn     = makeSubmitBtn('Změnit heslo');
 
   form.appendChild(oldGrp.el);
@@ -294,19 +294,6 @@ function makeCard(title) {
   return { card: card, body: body };
 }
 
-function makeField(labelText, type, id, value) {
-  var wrap = document.createElement('div');
-  wrap.style.marginBottom = '14px';
-  var lbl = document.createElement('label');
-  lbl.htmlFor = id;
-  lbl.textContent = labelText;
-  lbl.style.cssText = 'display:block;margin-bottom:4px;font-weight:500;font-size:0.9rem;';
-  var inp = document.createElement('input');
-  inp.type = type; inp.id = id; inp.className = 'form-input'; inp.value = value;
-  wrap.appendChild(lbl);
-  wrap.appendChild(inp);
-  return { el: wrap, input: inp };
-}
 
 function makeSubmitBtn(text) {
   var btn = document.createElement('button');

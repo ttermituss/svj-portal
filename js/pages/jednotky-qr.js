@@ -66,6 +66,7 @@ function jednotkyPrintQr(jednotky, svj) {
   var items = jednotky.map(function(j) {
     var text = jednotkyQrText(j, svj);
     var url = jednotkyQrUrl(text, '180x180');
+    // Hardcoded barvy zde jsou záměrné — generovaný print dokument v novém okně CSS vars nezdědí
     return '<div style="display:inline-block;width:200px;margin:12px;text-align:center;vertical-align:top;page-break-inside:avoid;">' +
       '<img src="' + url + '" width="180" height="180" style="border:1px solid #ccc;border-radius:4px;" />' +
       '<div style="font-size:12px;font-weight:600;margin-top:6px;">' + escHtml(j.cislo_jednotky || '') + '</div>' +

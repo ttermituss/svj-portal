@@ -233,7 +233,7 @@ function showAssignUnitModal(u, jednotky, reloadFn) {
   var cancelBtn = document.createElement('button');
   cancelBtn.className   = 'btn btn-secondary';
   cancelBtn.textContent = 'Zrušit';
-  cancelBtn.addEventListener('click', function() { document.body.removeChild(overlay); });
+  cancelBtn.addEventListener('click', function() { removeTrap(); document.body.removeChild(overlay); });
 
   var saveBtn = document.createElement('button');
   saveBtn.className   = 'btn btn-primary';
@@ -246,7 +246,7 @@ function showAssignUnitModal(u, jednotky, reloadFn) {
       jednotka_id: sel.value || null,
     })
       .then(function() {
-        document.body.removeChild(overlay);
+        removeTrap(); document.body.removeChild(overlay);
         reloadFn();
         showToast('Jednotka přiřazena.');
       })
@@ -257,7 +257,10 @@ function showAssignUnitModal(u, jednotky, reloadFn) {
   btns.appendChild(cancelBtn);
   btns.appendChild(saveBtn);
   modal.appendChild(btns);
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   overlay.appendChild(modal);
-  overlay.addEventListener('click', function(e) { if (e.target === overlay) document.body.removeChild(overlay); });
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) { removeTrap(); document.body.removeChild(overlay); } });
   document.body.appendChild(overlay);
+  var removeTrap = trapFocus(overlay);
 }

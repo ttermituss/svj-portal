@@ -8,6 +8,8 @@ function dokShowPreview(doc) {
   var overlay = document.createElement('div');
   overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.7);' +
     'display:flex;align-items:center;justify-content:center;padding:16px;';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
   document.body.appendChild(overlay);
 
   // Modal box
@@ -71,6 +73,8 @@ function dokShowPreview(doc) {
   content.style.cssText = 'flex:1;overflow:auto;min-height:200px;';
   modal.appendChild(content);
 
+  var removeTrap = trapFocus(overlay);
+
   // Animate in
   requestAnimationFrame(function() {
     requestAnimationFrame(function() {
@@ -80,6 +84,7 @@ function dokShowPreview(doc) {
   });
 
   function closeModal() {
+    removeTrap();
     modal.style.transform = 'scale(.97)';
     modal.style.opacity = '0';
     setTimeout(function() { if (overlay.parentNode) overlay.remove(); }, 150);
